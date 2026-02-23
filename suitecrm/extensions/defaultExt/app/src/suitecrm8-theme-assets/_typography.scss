@@ -1,0 +1,249 @@
+// SuiteCRM 8 Typography System - Logical Front Dynamics Theme
+// Extracted typography, animations, and layout utilities from V7 theme
+
+// =============================================================================
+// BASE TYPOGRAPHY
+// =============================================================================
+body {
+  font-family: $font-family-base;
+  background-color: $page-background;
+  font-size: $font-size-base;
+  color: $dynamics-gray-800;
+  line-height: $line-height-base;
+  font-weight: $font-weight-normal;
+  letter-spacing: -0.005em;
+}
+
+// =============================================================================
+// TYPOGRAPHY UTILITIES
+// =============================================================================
+@mixin text-xs {
+  font-size: $font-size-xs;
+  line-height: $line-height-tight;
+}
+
+@mixin text-sm {
+  font-size: $font-size-sm;
+  line-height: $line-height-tight;
+}
+
+@mixin text-base {
+  font-size: $font-size-base;
+  line-height: $line-height-base;
+}
+
+@mixin text-lg {
+  font-size: $font-size-lg;
+  line-height: $line-height-base;
+}
+
+@mixin text-xl {
+  font-size: $font-size-xl;
+  line-height: $line-height-tight;
+}
+
+@mixin text-2xl {
+  font-size: $font-size-2xl;
+  line-height: $line-height-tight;
+}
+
+@mixin text-3xl {
+  font-size: $font-size-3xl;
+  line-height: $line-height-tight;
+}
+
+// Font weight utilities
+@mixin font-normal { font-weight: $font-weight-normal; }
+@mixin font-medium { font-weight: $font-weight-medium; }
+@mixin font-semibold { font-weight: $font-weight-semibold; }
+@mixin font-bold { font-weight: $font-weight-bold; }
+
+// =============================================================================
+// ANIMATION SYSTEM
+// =============================================================================
+
+// Loading animation for skeleton states
+@mixin loading-animation {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: loading 1.5s infinite;
+  }
+}
+
+@keyframes loading {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+// Pulse animation for loading states
+@mixin pulse-animation {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+// Fade in animation for new elements
+@mixin fade-in-animation {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// =============================================================================
+// UTILITY CLASSES
+// =============================================================================
+
+// Loading states
+.loading {
+  @include loading-animation;
+}
+
+.pulse {
+  @include pulse-animation;
+}
+
+.fade-in {
+  @include fade-in-animation;
+}
+
+// Typography classes
+.text-xs { @include text-xs; }
+.text-sm { @include text-sm; }
+.text-base { @include text-base; }
+.text-lg { @include text-lg; }
+.text-xl { @include text-xl; }
+.text-2xl { @include text-2xl; }
+.text-3xl { @include text-3xl; }
+
+.font-normal { @include font-normal; }
+.font-medium { @include font-medium; }
+.font-semibold { @include font-semibold; }
+.font-bold { @include font-bold; }
+
+// Text colors
+.text-primary { color: $lf-primary; }
+.text-secondary { color: $lf-secondary; }
+.text-success { color: $success-color; }
+.text-warning { color: $warning-color; }
+.text-error { color: $error-color; }
+.text-info { color: $info-color; }
+
+.text-gray-50 { color: $dynamics-gray-50; }
+.text-gray-100 { color: $dynamics-gray-100; }
+.text-gray-200 { color: $dynamics-gray-200; }
+.text-gray-300 { color: $dynamics-gray-300; }
+.text-gray-400 { color: $dynamics-gray-400; }
+.text-gray-500 { color: $dynamics-gray-500; }
+.text-gray-600 { color: $dynamics-gray-600; }
+.text-gray-700 { color: $dynamics-gray-700; }
+.text-gray-800 { color: $dynamics-gray-800; }
+.text-gray-900 { color: $dynamics-gray-900; }
+
+// =============================================================================
+// PAGE BACKGROUNDS
+// =============================================================================
+
+// Brand gradient for all main pages
+@mixin brand-page-background {
+  background: $brand-gradient;
+}
+
+// Page-specific background classes
+.page-background {
+  @include brand-page-background;
+}
+
+// =============================================================================
+// RESPONSIVE TYPOGRAPHY
+// =============================================================================
+
+// Responsive font sizes
+@media (max-width: 768px) {
+  body {
+    font-size: $font-size-sm;
+  }
+
+  .text-2xl {
+    font-size: $font-size-xl;
+  }
+
+  .text-3xl {
+    font-size: $font-size-2xl;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 12px;
+  }
+
+  .text-lg {
+    font-size: $font-size-base;
+  }
+
+  .text-xl {
+    font-size: $font-size-lg;
+  }
+}
+
+// =============================================================================
+// SPECIAL TEXT TREATMENTS
+// =============================================================================
+
+// Uppercase text with letter spacing (used in dashboard nav)
+@mixin uppercase-spaced {
+  text-transform: uppercase;
+  font-weight: $font-weight-bold;
+  letter-spacing: 1px;
+}
+
+.uppercase-spaced {
+  @include uppercase-spaced;
+}
+
+// Truncated text with ellipsis
+@mixin text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-truncate {
+  @include text-truncate;
+}
+
+// Link styling
+@mixin link-style {
+  color: $lf-primary;
+  text-decoration: none;
+  transition: $transition-fast;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.link {
+  @include link-style;
+}

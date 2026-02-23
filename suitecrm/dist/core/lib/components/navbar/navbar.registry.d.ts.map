@@ -1,0 +1,1 @@
+{"version":3,"file":"navbar.registry.d.ts","sourceRoot":"","sources":["../../../../../core/app/core/src/lib/components/navbar/navbar.registry.ts"],"names":[],"mappings":"AA2BA,OAAO,EAAC,qBAAqB,EAAC,MAAM,QAAQ,CAAC;AAC7C,OAAO,EAAC,mBAAmB,EAAC,MAAM,qCAAqC,CAAC;;AAExE,qBAGa,cAAe,SAAQ,qBAAqB,CAAC,mBAAmB,CAAC;;IAM1E,SAAS,CAAC,WAAW,IAAI,IAAI;yCANpB,cAAc;6CAAd,cAAc;CAU1B"}

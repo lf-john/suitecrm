@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SuiteCRM - Contacts</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="contacts-list-page">
+        <!-- Header -->
+    <div class="header">
+        <div class="nav-menu">
+            <a href="index.html" class="nav-item home"><img src="logo.png" alt="Logo" class="nav-logo"></a>
+            <a href="accounts-list.html" class="nav-item accounts">Accounts ▼</a>
+            <a href="opportunities-list.html" class="nav-item opportunities">Opportunities ▼</a>
+            <a href="contacts-list.html" class="nav-item contacts active">Contacts ▼</a>
+            <a href="#" class="nav-item contracts">Contracts ▼</a>
+            <a href="quotes-list.html" class="nav-item quotes">Quotes ▼</a>
+            <a href="#" class="nav-item projects">Projects - Templ... ▼</a>
+            <a href="#" class="nav-item projects-alt">Projects ▼</a>
+            <a href="#" class="nav-item reports">Reports ▼</a>
+            <a href="#" class="nav-item more">More ▼</a>
+            <div class="search-container">
+                <input type="text" class="search-box" placeholder="Search...">
+                <button class="search-btn">🔍</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">CONTACTS</h1>
+            <div class="header-actions">
+                <a href="#" class="btn">Filter</a>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <div class="table-header">
+                <div class="bulk-action">
+                    <input type="checkbox" id="selectAll">
+                    <span>Bulk Action</span>
+                </div>
+                <div class="pagination-info">(1 - 20 of 8927)</div>
+            </div>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th class="sortable" data-column="name">Name ▼</th>
+                        <th class="sortable" data-column="job_title">Job Title ▼</th>
+                        <th class="sortable" data-column="account_name">Account Name ▼</th>
+                        <th class="sortable" data-column="email">Email ▼</th>
+                        <th class="sortable" data-column="office_phone">Office Phone ▼</th>
+                        <th class="sortable" data-column="user">User ▼</th>
+                        <th class="sortable" data-column="date_created">Date Created ▼</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="checkbox" class="row-checkbox"></td>
+                        <td><a href="contact-detail.html" class="record-link">David Brashear</a></td>
+                        <td>Systems Analyst</td>
+                        <td><a href="account-detail.html" class="record-link">U of H Education</a></td>
+                        <td><a href="mailto:dwbrashea@central.uh.edu" class="record-link">dwbrashea@central.uh.edu</a></td>
+                        <td><a href="tel:+17137432560" class="record-link">713 743 2560</a></td>
+                        <td><a href="#" class="record-link">adrian.villalba.logicalfront.com</a></td>
+                        <td>2015-02-10 02:19 PM</td>
+                        <td class="actions">
+                            <button class="btn-action" data-action="call">📞</button>
+                            <button class="btn-action" data-action="email">📧</button>
+                            <button class="btn-action" data-action="edit">📝</button>
+                            <button class="btn-action" data-action="message">✉️</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" class="row-checkbox"></td>
+                        <td><a href="contact-detail.html" class="record-link">Nelson Hendrix</a></td>
+                        <td></td>
+                        <td><a href="account-detail.html" class="record-link">Childress Klein</a></td>
+                        <td><a href="mailto:nelson.hendrix@childressklein.com" class="record-link">nelson.hendrix@childressklein.com</a></td>
+                        <td><a href="tel:+17043429000" class="record-link">704 342 9000</a></td>
+                        <td><a href="#" class="record-link">michael.gleason.logicalfront.com</a></td>
+                        <td>2015-02-11 08:03 PM</td>
+                        <td class="actions">
+                            <button class="btn-action" data-action="call">📞</button>
+                            <button class="btn-action" data-action="email">📧</button>
+                            <button class="btn-action" data-action="edit">📝</button>
+                            <button class="btn-action" data-action="message">✉️</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" class="row-checkbox"></td>
+                        <td><a href="contact-detail.html" class="record-link">Jenny Krystinik</a></td>
+                        <td></td>
+                        <td><a href="account-detail.html" class="record-link">Dell EMC</a></td>
+                        <td><a href="mailto:jenny_krystinik@dell.com" class="record-link">jenny_krystinik@dell.com</a></td>
+                        <td><a href="tel:+15125131687" class="record-link">512 513 1687</a></td>
+                        <td><a href="#" class="record-link">colleen.hritz.logicalfront.com</a></td>
+                        <td>2015-02-11 08:17 PM</td>
+                        <td class="actions">
+                            <button class="btn-action" data-action="call">📞</button>
+                            <button class="btn-action" data-action="email">📧</button>
+                            <button class="btn-action" data-action="edit">📝</button>
+                            <button class="btn-action" data-action="message">✉️</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" class="row-checkbox"></td>
+                        <td><a href="contact-detail.html" class="record-link">Rick Cagle</a></td>
+                        <td></td>
+                        <td><a href="account-detail.html" class="record-link">Dell EMC</a></td>
+                        <td></td>
+                        <td></td>
+                        <td><a href="#" class="record-link">colleen.hritz.logicalfront.com</a></td>
+                        <td>2015-02-11 08:19 PM</td>
+                        <td class="actions">
+                            <button class="btn-action" data-action="call">📞</button>
+                            <button class="btn-action" data-action="email">📧</button>
+                            <button class="btn-action" data-action="edit">📝</button>
+                            <button class="btn-action" data-action="message">✉️</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" class="row-checkbox"></td>
+                        <td><a href="contact-detail.html" class="record-link">Ted Henry</a></td>
+                        <td>Desktop Administrator</td>
+                        <td><a href="account-detail.html" class="record-link">EID Passport</a></td>
+                        <td><a href="mailto:thenry@eidpassport.com" class="record-link">thenry@eidpassport.com</a></td>
+                        <td><a href="tel:+18777274342" class="record-link">877 727 4342</a></td>
+                        <td><a href="#" class="record-link">michael.gleason.logicalfront.com</a></td>
+                        <td>2015-02-10 07:22 PM</td>
+                        <td class="actions">
+                            <button class="btn-action" data-action="call">📞</button>
+                            <button class="btn-action" data-action="email">📧</button>
+                            <button class="btn-action" data-action="edit">📝</button>
+                            <button class="btn-action" data-action="message">✉️</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" class="row-checkbox"></td>
+                        <td><a href="contact-detail.html" class="record-link">Eddie Pope</a></td>
+                        <td>IT Director</td>
+                        <td><a href="account-detail.html" class="record-link">Pioneer Health Services</a></td>
+                        <td><a href="mailto:eddiepope@phscorporate.com" class="record-link">eddiepope@phscorporate.com</a></td>
+                        <td><a href="tel:+16016683694" class="record-link">601 668 3694</a></td>
+                        <td><a href="#" class="record-link">michael.gleason.logicalfront.com</a></td>
+                        <td>2015-02-16 05:20 AM</td>
+                        <td class="actions">
+                            <button class="btn-action" data-action="call">📞</button>
+                            <button class="btn-action" data-action="email">📧</button>
+                            <button class="btn-action" data-action="edit">📝</button>
+                            <button class="btn-action" data-action="message">✉️</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" class="row-checkbox"></td>
+                        <td><a href="contact-detail.html" class="record-link">Ivan Alvarez</a></td>
+                        <td>IT consultant</td>
+                        <td><a href="account-detail.html" class="record-link">Esperanza Behavioral Health</a></td>
+                        <td><a href="mailto:idamiani@msn.com" class="record-link">idamiani@msn.com</a></td>
+                        <td><a href="tel:+14072263733" class="record-link">407 226 3733</a></td>
+                        <td><a href="#" class="record-link">michael.gleason.logicalfront.com</a></td>
+                        <td>2015-02-16 05:40 AM</td>
+                        <td class="actions">
+                            <button class="btn-action" data-action="call">📞</button>
+                            <button class="btn-action" data-action="email">📧</button>
+                            <button class="btn-action" data-action="edit">📝</button>
+                            <button class="btn-action" data-action="message">✉️</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" class="row-checkbox"></td>
+                        <td><a href="contact-detail.html" class="record-link">Ryan Legg</a></td>
+                        <td>GCC Storage Server Specialist</td>
+                        <td><a href="account-detail.html" class="record-link">Dell EMC</a></td>
+                        <td><a href="mailto:ryan_w_legg@dell.com" class="record-link">ryan_w_legg@dell.com</a></td>
+                        <td><a href="tel:+15125131154" class="record-link">512 513 1154</a></td>
+                        <td><a href="#" class="record-link">colleen.hritz.logicalfront.com</a></td>
+                        <td>2015-02-16 05:38 AM</td>
+                        <td class="actions">
+                            <button class="btn-action" data-action="call">📞</button>
+                            <button class="btn-action" data-action="email">📧</button>
+                            <button class="btn-action" data-action="edit">📝</button>
+                            <button class="btn-action" data-action="message">✉️</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" class="row-checkbox"></td>
+                        <td><a href="contact-detail.html" class="record-link">Pat Karr</a></td>
+                        <td>Director Network Services</td>
+                        <td><a href="account-detail.html" class="record-link">McAllen ISD</a></td>
+                        <td><a href="mailto:pkarr@mcallenisd.net" class="record-link">pkarr@mcallenisd.net</a></td>
+                        <td><a href="tel:+19566323238" class="record-link">956 632 3238</a></td>
+                        <td><a href="#" class="record-link">adrian.villalba.logicalfront.com</a></td>
+                        <td>2015-02-16 06:18 PM</td>
+                        <td class="actions">
+                            <button class="btn-action" data-action="call">📞</button>
+                            <button class="btn-action" data-action="email">📧</button>
+                            <button class="btn-action" data-action="edit">📝</button>
+                            <button class="btn-action" data-action="message">✉️</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" class="row-checkbox"></td>
+                        <td><a href="contact-detail.html" class="record-link">Victor Terenik</a></td>
+                        <td>Director Information Systems</td>
+                        <td><a href="account-detail.html" class="record-link">City of Vineland NJ</a></td>
+                        <td><a href="mailto:vterenik@vinelandcity.org" class="record-link">vterenik@vinelandcity.org</a></td>
+                        <td><a href="tel:+18567944000" class="record-link">856 794 4000</a></td>
+                        <td><a href="#" class="record-link">michael.gleason.logicalfront.com</a></td>
+                        <td>2015-02-16 09:34 PM</td>
+                        <td class="actions">
+                            <button class="btn-action" data-action="call">📞</button>
+                            <button class="btn-action" data-action="email">📧</button>
+                            <button class="btn-action" data-action="edit">📝</button>
+                            <button class="btn-action" data-action="message">✉️</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" class="row-checkbox"></td>
+                        <td><a href="contact-detail.html" class="record-link">Ed Darr</a></td>
+                        <td>Network Administrator</td>
+                        <td><a href="account-detail.html" class="record-link">City of Vineland NJ</a></td>
+                        <td><a href="mailto:edarr@vinelandcity.org" class="record-link">edarr@vinelandcity.org</a></td>
+                        <td><a href="tel:+18567944000" class="record-link">856 794 4000</a></td>
+                        <td><a href="#" class="record-link">michael.gleason.logicalfront.com</a></td>
+                        <td>2015-02-16 09:35 PM</td>
+                        <td class="actions">
+                            <button class="btn-action" data-action="call">📞</button>
+                            <button class="btn-action" data-action="email">📧</button>
+                            <button class="btn-action" data-action="edit">📝</button>
+                            <button class="btn-action" data-action="message">✉️</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" class="row-checkbox"></td>
+                        <td><a href="contact-detail.html" class="record-link">Jeff Choi</a></td>
+                        <td></td>
+                        <td><a href="account-detail.html" class="record-link">Central State University</a></td>
+                        <td><a href="mailto:jchoi@centralstate.edu" class="record-link">jchoi@centralstate.edu</a></td>
+                        <td><a href="tel:+19373766011" class="record-link">937 376 6011</a></td>
+                        <td><a href="#" class="record-link">michael.gleason.logicalfront.com</a></td>
+                        <td>2015-02-17 04:29 PM</td>
+                        <td class="actions">
+                            <button class="btn-action" data-action="call">📞</button>
+                            <button class="btn-action" data-action="email">📧</button>
+                            <button class="btn-action" data-action="edit">📝</button>
+                            <button class="btn-action" data-action="message">✉️</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" class="row-checkbox"></td>
+                        <td><a href="contact-detail.html" class="record-link">Dion Minoria</a></td>
+                        <td></td>
+                        <td><a href="account-detail.html" class="record-link">Dell EMC</a></td>
+                        <td><a href="mailto:dionle_minoria@dell.com" class="record-link">dionle_minoria@dell.com</a></td>
+                        <td><a href="tel:+15125133021" class="record-link">512 513 3021</a></td>
+                        <td><a href="#" class="record-link">colleen.hritz.logicalfront.com</a></td>
+                        <td>2015-02-17 04:30 PM</td>
+                        <td class="actions">
+                            <button class="btn-action" data-action="call">📞</button>
+                            <button class="btn-action" data-action="email">📧</button>
+                            <button class="btn-action" data-action="edit">📝</button>
+                            <button class="btn-action" data-action="message">✉️</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" class="row-checkbox"></td>
+                        <td><a href="contact-detail.html" class="record-link">Rosa Ojeda</a></td>
+                        <td></td>
+                        <td><a href="account-detail.html" class="record-link">Waller ISD</a></td>
+                        <td><a href="mailto:rojeda@wallerisd.net" class="record-link">rojeda@wallerisd.net</a></td>
+                        <td><a href="tel:+19369310318" class="record-link">Phone 936 931 0318</a></td>
+                        <td><a href="#" class="record-link">john.bubenik.logicalfront.com</a></td>
+                        <td>2015-02-18 10:43 PM</td>
+                        <td class="actions">
+                            <button class="btn-action" data-action="call">📞</button>
+                            <button class="btn-action" data-action="email">📧</button>
+                            <button class="btn-action" data-action="edit">📝</button>
+                            <button class="btn-action" data-action="message">✉️</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" class="row-checkbox"></td>
+                        <td><a href="contact-detail.html" class="record-link">Tracy Rich</a></td>
+                        <td>Technology Coordinator</td>
+                        <td><a href="account-detail.html" class="record-link">Faith Family Academy</a></td>
+                        <td><a href="mailto:trich@faithfamilyacademy.org" class="record-link">trich@faithfamilyacademy.org</a></td>
+                        <td><a href="tel:+19722244110" class="record-link">972 224 4110</a></td>
+                        <td><a href="#" class="record-link">adrian.villalba.logicalfront.com</a></td>
+                        <td>2015-02-18 10:58 PM</td>
+                        <td class="actions">
+                            <button class="btn-action" data-action="call">📞</button>
+                            <button class="btn-action" data-action="email">📧</button>
+                            <button class="btn-action" data-action="edit">📝</button>
+                            <button class="btn-action" data-action="message">✉️</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" class="row-checkbox"></td>
+                        <td><a href="contact-detail.html" class="record-link">Dru Godwin</a></td>
+                        <td>TECHNOLOGY OTHER</td>
+                        <td><a href="account-detail.html" class="record-link">Lakeworth ISD</a></td>
+                        <td><a href="mailto:dgodwin@lwisd.org" class="record-link">dgodwin@lwisd.org</a></td>
+                        <td><a href="tel:+18173064219" class="record-link">817 306 4219</a></td>
+                        <td><a href="#" class="record-link">john.bubenik.logicalfront.com</a></td>
+                        <td>2015-02-18 11:04 PM</td>
+                        <td class="actions">
+                            <button class="btn-action" data-action="call">📞</button>
+                            <button class="btn-action" data-action="email">📧</button>
+                            <button class="btn-action" data-action="edit">📝</button>
+                            <button class="btn-action" data-action="message">✉️</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" class="row-checkbox"></td>
+                        <td><a href="contact-detail.html" class="record-link">Minecha Audry</a></td>
+                        <td>TECHNOLOGY OTHER</td>
+                        <td><a href="account-detail.html" class="record-link">Denton ISD</a></td>
+                        <td><a href="mailto:mandry@dentonisd.org" class="record-link">mandry@dentonisd.org</a></td>
+                        <td><a href="tel:+19403690000" class="record-link">940 369 0000</a></td>
+                        <td><a href="#" class="record-link">john.bubenik.logicalfront.com</a></td>
+                        <td>2015-02-18 11:22 PM</td>
+                        <td class="actions">
+                            <button class="btn-action" data-action="call">📞</button>
+                            <button class="btn-action" data-action="email">📧</button>
+                            <button class="btn-action" data-action="edit">📝</button>
+                            <button class="btn-action" data-action="message">✉️</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <!-- Bottom pagination -->
+            <div class="table-header table-footer" style="margin-top: 0; border-top: 1px solid #ddd;">
+                <div class="bulk-action">
+                    <input type="checkbox">
+                    <span>Bulk Action</span>
+                </div>
+                <div class="pagination-info">(1 - 20 of 8927)</div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Footer -->
+    <div class="footer">
+        <div>
+            © <a href="#">Supercharged by SuiteCRM</a> © <a href="#">Powered By SugarCRM</a>
+        </div>
+        <div>
+            <a href="#" class="back-to-top">BACK TO TOP ▲</a>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

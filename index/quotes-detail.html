@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SuiteCRM - CFS | Migration | Azure | Services</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="quotes-detail-page">
+        <!-- Header -->
+    <div class="header">
+        <div class="nav-menu">
+            <a href="index.html" class="nav-item home"><img src="logo.png" alt="Logo" class="nav-logo"></a>
+            <a href="accounts-list.html" class="nav-item accounts">Accounts ▼</a>
+            <a href="opportunities-list.html" class="nav-item opportunities">Opportunities ▼</a>
+            <a href="contacts-list.html" class="nav-item contacts">Contacts ▼</a>
+            <a href="#" class="nav-item contracts">Contracts ▼</a>
+            <a href="quotes-list.html" class="nav-item quotes active">Quotes ▼</a>
+            <a href="#" class="nav-item projects">Projects - Templ... ▼</a>
+            <a href="#" class="nav-item projects-alt">Projects ▼</a>
+            <a href="#" class="nav-item reports">Reports ▼</a>
+            <a href="#" class="nav-item more">More ▼</a>
+            <div class="search-container">
+                <input type="text" class="search-box" placeholder="Search...">
+                <button class="search-btn">🔍</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="quote-header">
+        <div class="quote-breadcrumb">MODULES ▸ QUOTES ▸ VIEW ▸ <span style="color: var(--lf-primary);">CFS | MIGRATION | AZURE | SERVICES</span></div>
+        <div class="quote-title-section">
+            <div class="quote-title">
+                <div class="title-icon">💰</div>
+                <span class="title-text">CFS | Migration | Azure | Services</span>
+                <span class="star-icon">☆</span>
+            </div>
+            <div class="header-actions">
+                <a href="#" class="btn">Edit</a>
+                <a href="#" class="btn">Duplicate</a>
+                <a href="#" class="btn">Convert To Invoice</a>
+                <a href="#" class="btn">Create Opportunity</a>
+                <a href="#" class="btn btn-primary">Export</a>
+                <a href="#" class="btn">Actions ▼</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="content">
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('overview')">OVERVIEW</div>
+            <div class="tab" onclick="showTab('lineitems')">LINE ITEMS</div>
+            <div class="tab" onclick="showTab('quoteto')">QUOTE TO</div>
+        </div>
+        
+        <!-- Overview Tab -->
+        <div id="overview" class="tab-content active">
+            <div class="form-section">
+                <div class="form-content">
+                    <div class="left-column">
+                        <div class="form-group">
+                            <label class="form-label">QUOTE NUMBER:</label>
+                            <div class="form-value">QUOTE-202406-1234 <span class="edit-icon">✏️</span></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">TITLE:</label>
+                            <div class="form-value">CFS | Migration | Azure | Services <span class="edit-icon">✏️</span></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">OPPORTUNITY:</label>
+                            <div class="form-value"><a href="opportunity-detail.html">Azure Cloud Migration Project</a> <span class="edit-icon">✏️</span></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">ACCOUNT:</label>
+                            <div class="form-value"><a href="account-detail.html">CFS Corporation</a> <span class="edit-icon">✏️</span></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">CONTACT:</label>
+                            <div class="form-value"><a href="contact-detail.html">John Smith</a> <span class="edit-icon">✏️</span></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">VALID UNTIL:</label>
+                            <div class="form-value">2024-12-31 <span class="edit-icon">✏️</span></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">APPROVAL STATUS:</label>
+                            <div class="form-value">Approved <span class="edit-icon">✏️</span></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">ASSIGNED TO:</label>
+                            <div class="form-value"><a href="#">ricco.thurwalker.logicalfront.com</a> <span class="edit-icon">✏️</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="right-column">
+                        <div class="form-group">
+                            <label class="form-label">QUOTE STAGE:</label>
+                            <div class="form-value">Draft <span class="edit-icon">✏️</span></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">PAYMENT TERMS:</label>
+                            <div class="form-value">Net 30 <span class="edit-icon">✏️</span></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">APPROVAL ISSUES:</label>
+                            <div class="form-value">None <span class="edit-icon">✏️</span></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">INVOICE STATUS:</label>
+                            <div class="form-value">Not Invoiced <span class="edit-icon">✏️</span></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">SUBTOTAL:</label>
+                            <div class="form-value">$487,500.00 <span class="edit-icon">✏️</span></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">DISCOUNT:</label>
+                            <div class="form-value">$48,750.00 (10%) <span class="edit-icon">✏️</span></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">TAX:</label>
+                            <div class="form-value">$39,487.50 <span class="edit-icon">✏️</span></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">GRAND TOTAL:</label>
+                            <div class="form-value" style="font-size: 16px; font-weight: bold; color: #ff6b6b;">$478,237.50 <span class="edit-icon">✏️</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Line Items Tab -->
+        <div id="lineitems" class="tab-content" style="display: none;">
+            <div class="line-items-section">
+                <table class="line-items-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Product</th>
+                            <th>Description</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Discount</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Azure Migration Assessment</td>
+                            <td>Complete infrastructure assessment and migration planning</td>
+                            <td>1</td>
+                            <td>$25,000.00</td>
+                            <td>10%</td>
+                            <td>$22,500.00</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Cloud Architecture Design</td>
+                            <td>Design and implementation of Azure cloud architecture</td>
+                            <td>1</td>
+                            <td>$75,000.00</td>
+                            <td>10%</td>
+                            <td>$67,500.00</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Data Migration Services</td>
+                            <td>Migration of databases and data warehouses to Azure</td>
+                            <td>1</td>
+                            <td>$125,000.00</td>
+                            <td>10%</td>
+                            <td>$112,500.00</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>Application Modernization</td>
+                            <td>Refactoring applications for cloud-native deployment</td>
+                            <td>1</td>
+                            <td>$150,000.00</td>
+                            <td>10%</td>
+                            <td>$135,000.00</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>DevOps Implementation</td>
+                            <td>CI/CD pipeline setup and automation</td>
+                            <td>1</td>
+                            <td>$62,500.00</td>
+                            <td>10%</td>
+                            <td>$56,250.00</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>Training & Documentation</td>
+                            <td>Team training and comprehensive documentation</td>
+                            <td>1</td>
+                            <td>$25,000.00</td>
+                            <td>10%</td>
+                            <td>$22,500.00</td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td>Post-Migration Support</td>
+                            <td>3 months of post-migration support and optimization</td>
+                            <td>3</td>
+                            <td>$8,333.33</td>
+                            <td>10%</td>
+                            <td>$22,500.00</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="6" style="text-align: right; font-weight: bold;">Subtotal:</td>
+                            <td style="font-weight: bold;">$487,500.00</td>
+                        </tr>
+                        <tr>
+                            <td colspan="6" style="text-align: right; font-weight: bold;">Discount (10%):</td>
+                            <td style="font-weight: bold;">-$48,750.00</td>
+                        </tr>
+                        <tr>
+                            <td colspan="6" style="text-align: right; font-weight: bold;">Tax (9%):</td>
+                            <td style="font-weight: bold;">$39,487.50</td>
+                        </tr>
+                        <tr>
+                            <td colspan="6" style="text-align: right; font-weight: bold; font-size: 16px;">Grand Total:</td>
+                            <td style="font-weight: bold; font-size: 16px; color: #ff6b6b;">$478,237.50</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Quote To Tab -->
+        <div id="quoteto" class="tab-content" style="display: none;">
+            <div class="form-section">
+                <div class="form-content">
+                    <div class="left-column">
+                        <div class="form-group">
+                            <label class="form-label">BILLING CONTACT:</label>
+                            <div class="form-value"><a href="contact-detail.html">John Smith</a> <span class="edit-icon">✏️</span></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">BILLING ACCOUNT:</label>
+                            <div class="form-value"><a href="account-detail.html">CFS Corporation</a> <span class="edit-icon">✏️</span></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">BILLING ADDRESS:</label>
+                            <div class="form-value">
+                                <div class="address-block">
+                                    1234 Corporate Blvd<br>
+                                    Suite 500<br>
+                                    Dallas, TX 75201<br>
+                                    United States
+                                </div>
+                                <span class="edit-icon">✏️</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">BILLING PHONE:</label>
+                            <div class="form-value">(214) 555-1234 <span class="edit-icon">✏️</span></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">BILLING EMAIL:</label>
+                            <div class="form-value"><a href="mailto:billing@cfscorp.com">billing@cfscorp.com</a> <span class="edit-icon">✏️</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="right-column">
+                        <div class="form-group">
+                            <label class="form-label">SHIPPING CONTACT:</label>
+                            <div class="form-value"><a href="contact-detail.html">Jane Doe</a> <span class="edit-icon">✏️</span></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">SHIPPING ACCOUNT:</label>
+                            <div class="form-value"><a href="account-detail.html">CFS Corporation - IT Department</a> <span class="edit-icon">✏️</span></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">SHIPPING ADDRESS:</label>
+                            <div class="form-value">
+                                <div class="address-block">
+                                    5678 Technology Way<br>
+                                    Building C<br>
+                                    Plano, TX 75024<br>
+                                    United States
+                                </div>
+                                <span class="edit-icon">✏️</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">SHIPPING PHONE:</label>
+                            <div class="form-value">(972) 555-5678 <span class="edit-icon">✏️</span></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">SHIPPING EMAIL:</label>
+                            <div class="form-value"><a href="mailto:it@cfscorp.com">it@cfscorp.com</a> <span class="edit-icon">✏️</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Footer -->
+    <div class="footer">
+        <div>
+            © <a href="#">Supercharged by SuiteCRM</a> © <a href="#">Powered By SugarCRM</a>
+        </div>
+        <div>
+            <a href="#" class="back-to-top">BACK TO TOP ▲</a>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).style.display = 'block';
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

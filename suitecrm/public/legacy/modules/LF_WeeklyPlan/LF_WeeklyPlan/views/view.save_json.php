@@ -1,0 +1,218 @@
+<?php
+if (!defined('sugarEntry') || !sugarEntry) {
+    die('Not A Valid Entry Point');
+}
+
+require_once('include/MVC/View/SugarView.php');
+
+#[\AllowDynamicProperties]
+class LF_WeeklyPlanViewSave_json extends SugarView
+{
+    public function __construct()
+    {
+        parent::__construct();
+        $this->options['show_header'] = false;
+        $this->options['show_footer'] = false;
+    }
+
+    public function display()
+    {
+        global $current_user;
+        $db = DBManagerFactory::getInstance();
+
+        // CSRF token validation
+        $csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+        if (empty($csrfToken) || !isset($_SESSION['csrf_token']) || $csrfToken !== $_SESSION['csrf_token']) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
+            exit;
+        }
+
+        // JSON parsing with error handling
+        $raw = file_get_contents('php://input');
+        $input = json_decode($raw, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Invalid JSON: ' . json_last_error_msg()]);
+            exit;
+        }
+        if (!$input) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Invalid input']);
+            exit;
+        }
+
+        $planId = $input['plan_id'] ?? null;
+        if (!$planId) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Missing plan ID']);
+            exit;
+        }
+
+        // C4: Verify plan ownership before modification
+        $ownerCheck = $db->query(sprintf(
+            "SELECT assigned_user_id FROM lf_weekly_plan WHERE id = %s AND deleted = 0",
+            $db->quoted($planId)
+        ));
+        $ownerRow = $db->fetchByAssoc($ownerCheck);
+        if (!$ownerRow || $ownerRow['assigned_user_id'] !== $current_user->id) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Access denied']);
+            exit;
+        }
+
+        // M6: Use gmdate for UTC timestamps
+        $now = gmdate('Y-m-d H:i:s');
+        $dbErrors = [];
+
+        if (isset($input['status']) && $input['status'] === 'submitted') {
+            $query = sprintf(
+                "UPDATE lf_weekly_plan SET status = 'submitted', submitted_date = %s, date_modified = %s, modified_user_id = %s WHERE id = %s AND deleted = 0",
+                $db->quoted($now),
+                $db->quoted($now),
+                $db->quoted($current_user->id),
+                $db->quoted($planId)
+            );
+            $result = $db->query($query);
+            if ($result === false) {
+                $dbErrors[] = 'Failed to update plan status';
+            }
+        } elseif (isset($input['status']) && $input['status'] === 'in_progress') {
+            // Regular save - update status to in_progress and date_modified
+            $query = sprintf(
+                "UPDATE lf_weekly_plan SET status = 'in_progress', date_modified = %s, modified_user_id = %s WHERE id = %s AND deleted = 0",
+                $db->quoted($now),
+                $db->quoted($current_user->id),
+                $db->quoted($planId)
+            );
+            $result = $db->query($query);
+            if ($result === false) {
+                $dbErrors[] = 'Failed to update plan status';
+            }
+        }
+
+        // Save Op Items (includes is_at_risk field)
+        if (isset($input['op_items']) && is_array($input['op_items'])) {
+            foreach ($input['op_items'] as $item) {
+                $oppId = $item['opportunity_id'];
+                $itemType = $item['item_type'];
+                $projStage = $item['projected_stage'];
+                $plannedDay = $item['planned_day'];
+                $planDesc = $item['plan_description'];
+                $isAtRisk = !empty($item['is_at_risk']) ? 1 : 0;
+
+                // Check if exists
+                $checkQuery = sprintf(
+                    "SELECT id FROM lf_plan_op_items WHERE lf_weekly_plan_id = %s AND opportunity_id = %s AND deleted = 0",
+                    $db->quoted($planId),
+                    $db->quoted($oppId)
+                );
+                $res = $db->query($checkQuery);
+                $row = $db->fetchByAssoc($res);
+
+                if ($row) {
+                    $updateQuery = sprintf(
+                        "UPDATE lf_plan_op_items SET item_type = %s, projected_stage = %s, planned_day = %s, plan_description = %s, is_at_risk = %d, date_modified = %s, modified_user_id = %s WHERE id = %s",
+                        $db->quoted($itemType),
+                        $db->quoted($projStage),
+                        $db->quoted($plannedDay),
+                        $db->quoted($planDesc),
+                        $isAtRisk,
+                        $db->quoted(gmdate('Y-m-d H:i:s')),
+                        $db->quoted($current_user->id),
+                        $db->quoted($row['id'])
+                    );
+                    $db->query($updateQuery);
+                } else {
+                    $newId = create_guid();
+                    $insertQuery = sprintf(
+                        "INSERT INTO lf_plan_op_items (id, name, date_entered, date_modified, modified_user_id, created_by, deleted, lf_weekly_plan_id, opportunity_id, item_type, projected_stage, planned_day, plan_description, is_at_risk) VALUES (%s, %s, %s, %s, %s, %s, 0, %s, %s, %s, %s, %s, %s, %d)",
+                        $db->quoted($newId),
+                        $db->quoted("Plan Item for $oppId"),
+                        $db->quoted(gmdate('Y-m-d H:i:s')),
+                        $db->quoted(gmdate('Y-m-d H:i:s')),
+                        $db->quoted($current_user->id),
+                        $db->quoted($current_user->id),
+                        $db->quoted($planId),
+                        $db->quoted($oppId),
+                        $db->quoted($itemType),
+                        $db->quoted($projStage),
+                        $db->quoted($plannedDay),
+                        $db->quoted($planDesc),
+                        $isAtRisk
+                    );
+                    $db->query($insertQuery);
+                }
+            }
+        }
+
+        // H5: Save Prospect Items using UPSERT pattern (preserves IDs, status, converted data)
+        $sentProspectIds = [];
+        if (isset($input['prospect_items']) && is_array($input['prospect_items'])) {
+            foreach ($input['prospect_items'] as $item) {
+                $sourceType = $item['source_type'];
+                $plannedDay = $item['planned_day'];
+                $expectedValue = (float)$item['expected_value'];
+                $planDesc = $item['plan_description'];
+
+                if (!empty($item['id'])) {
+                    // UPDATE existing prospect item
+                    $updateQuery = sprintf(
+                        "UPDATE lf_plan_prospect_items SET source_type = %s, planned_day = %s, expected_value = %s, plan_description = %s, date_modified = %s, modified_user_id = %s WHERE id = %s AND deleted = 0",
+                        $db->quoted($sourceType),
+                        $db->quoted($plannedDay),
+                        $expectedValue,
+                        $db->quoted($planDesc),
+                        $db->quoted(gmdate('Y-m-d H:i:s')),
+                        $db->quoted($current_user->id),
+                        $db->quoted($item['id'])
+                    );
+                    $db->query($updateQuery);
+                    $sentProspectIds[] = $item['id'];
+                } else {
+                    // INSERT new prospect item
+                    $newId = create_guid();
+                    $insertQuery = sprintf(
+                        "INSERT INTO lf_plan_prospect_items (id, name, date_entered, date_modified, modified_user_id, created_by, deleted, lf_weekly_plan_id, source_type, planned_day, expected_value, plan_description) VALUES (%s, %s, %s, %s, %s, %s, 0, %s, %s, %s, %s, %s)",
+                        $db->quoted($newId),
+                        $db->quoted("Prospect Item"),
+                        $db->quoted(gmdate('Y-m-d H:i:s')),
+                        $db->quoted(gmdate('Y-m-d H:i:s')),
+                        $db->quoted($current_user->id),
+                        $db->quoted($current_user->id),
+                        $db->quoted($planId),
+                        $db->quoted($sourceType),
+                        $db->quoted($plannedDay),
+                        $expectedValue,
+                        $db->quoted($planDesc)
+                    );
+                    $db->query($insertQuery);
+                    $sentProspectIds[] = $newId;
+                }
+            }
+        }
+        // Soft-delete prospect items not in payload (removed by user)
+        if (!empty($sentProspectIds)) {
+            $idList = implode(',', array_map(fn($id) => $db->quoted($id), $sentProspectIds));
+            $db->query(sprintf(
+                "UPDATE lf_plan_prospect_items SET deleted = 1 WHERE lf_weekly_plan_id = %s AND id NOT IN (%s) AND deleted = 0",
+                $db->quoted($planId),
+                $idList
+            ));
+        } else {
+            // No prospect items sent — soft-delete all existing
+            $db->query(sprintf(
+                "UPDATE lf_plan_prospect_items SET deleted = 1 WHERE lf_weekly_plan_id = %s AND deleted = 0",
+                $db->quoted($planId)
+            ));
+        }
+
+        header('Content-Type: application/json');
+        if (!empty($dbErrors)) {
+            echo json_encode(['success' => false, 'message' => 'Database errors occurred', 'errors' => $dbErrors]);
+        } else {
+            echo json_encode(['success' => true, 'message' => 'Plan saved successfully']);
+        }
+        exit;
+    }
+}

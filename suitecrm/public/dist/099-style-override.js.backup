@@ -1,0 +1,55 @@
+(function(){"use strict";function applyFixes(){
+var navbar=document.querySelector("nav.navbar");
+var topPanel=document.querySelector(".top-panel");
+var homeNav=document.querySelector("ul.navbar-nav.home-nav");
+var li=homeNav?homeNav.querySelector("li.nav-item"):null;
+var link=homeNav?homeNav.querySelector("a.home-nav-link"):null;
+
+if(navbar){
+navbar.style.setProperty("min-height","60px","important");
+navbar.style.setProperty("height","60px","important");
+navbar.style.setProperty("max-height","60px","important");
+}
+if(topPanel){
+topPanel.style.setProperty("min-height","60px","important");
+topPanel.style.setProperty("height","60px","important");
+}
+if(homeNav){
+homeNav.style.setProperty("min-width","100px","important");
+homeNav.style.setProperty("max-width","100px","important");
+homeNav.style.setProperty("width","100px","important");
+homeNav.style.setProperty("min-height","52px","important");
+homeNav.style.setProperty("height","52px","important");
+homeNav.style.setProperty("overflow","hidden","important");
+homeNav.style.setProperty("margin-right","10px","important");
+}
+if(li){
+li.style.setProperty("min-width","100px","important");
+li.style.setProperty("max-width","100px","important");
+li.style.setProperty("width","100px","important");
+li.style.setProperty("min-height","52px","important");
+li.style.setProperty("height","52px","important");
+li.style.setProperty("overflow","hidden","important");
+}
+if(link){
+link.style.setProperty("min-width","100px","important");
+link.style.setProperty("max-width","100px","important");
+link.style.setProperty("width","100px","important");
+link.style.setProperty("min-height","52px","important");
+link.style.setProperty("height","52px","important");
+link.style.setProperty("background-color","transparent","important");
+link.style.setProperty("padding","2px","important");
+link.style.setProperty("overflow","hidden","important");
+}
+
+var tabs=document.querySelectorAll("a.nav-link.tab-link");
+tabs.forEach(function(tab){
+if(!tab.classList.contains("active")){
+tab.style.setProperty("border-bottom","3px solid #4A90E2","important");
+}
+});
+}
+if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",function(){setTimeout(applyFixes,2000);});}else{setTimeout(applyFixes,2000);}
+window.addEventListener("hashchange",function(){setTimeout(applyFixes,1000);});
+setInterval(applyFixes,3000);
+})();

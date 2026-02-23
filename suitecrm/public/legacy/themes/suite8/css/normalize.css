@@ -1,0 +1,2357 @@
+/*! normalize.css 2012-03-11T12:53 UTC - http://github.com/necolas/normalize.css */
+
+/* =============================================================================
+   HTML5 display definitions
+   ========================================================================== */
+
+/*
+ * Corrects block display not defined in IE6/7/8/9 & FF3
+ */
+
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+nav,
+section,
+summary {
+    display: block;
+}
+
+/*
+ * Corrects inline-block display not defined in IE6/7/8/9 & FF3
+ */
+
+audio,
+canvas,
+video {
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+}
+
+/*
+ * Prevents modern browsers from displaying 'audio' without controls
+ * Remove excess height in iOS5 devices
+ */
+
+audio:not([controls]) {
+    display: none;
+    height: 0;
+}
+
+/*
+ * Addresses styling for 'hidden' attribute not present in IE7/8/9, FF3, S4
+ * Known issue: no IE6 support
+ */
+
+[hidden] {
+    display: none;
+}
+
+
+/* =============================================================================
+   Base
+   ========================================================================== */
+
+/*
+ * 1. Corrects text resizing oddly in IE6/7 when body font-size is set using em units
+ *    http://clagnut.com/blog/348/#c790
+ * 2. Prevents iOS text size adjust after orientation change, without disabling user zoom
+ *    www.456bereastreet.com/archive/201012/controlling_text_size_in_safari_for_ios_without_disabling_user_zoom/
+ */
+
+html {
+    font-size: 100%; /* 1 */
+    -webkit-text-size-adjust: 100%; /* 2 */
+    -ms-text-size-adjust: 100%; /* 2 */
+}
+
+/*
+ * Addresses font-family inconsistency between 'textarea' and other form elements.
+ */
+
+html,
+button,
+input,
+select,
+textarea {
+    font-family: 'Lato', Arial, Sans-serif;
+}
+
+/*
+ * Addresses margins handled incorrectly in IE6/7
+ */
+
+body {
+    margin: 0;
+}
+
+
+/* =============================================================================
+   Links
+   ========================================================================== */
+
+/*
+ * Addresses outline displayed oddly in Chrome
+ */
+
+a:focus {
+    outline: thin dotted;
+}
+
+/*
+ * Improves readability when focused and also mouse hovered in all browsers
+ * people.opera.com/patrickl/experiments/keyboard/test
+ */
+
+a:hover,
+a:active {
+    outline: 0;
+}
+
+
+/* =============================================================================
+   Typography
+   ========================================================================== */
+
+/*
+ * Addresses font sizes and margins set differently in IE6/7
+ * Addresses font sizes within 'section' and 'article' in FF4+, Chrome, S5
+ */
+
+h1, h2, h3, h4, h5, h6 {margin:0;}
+
+/*
+ * Addresses styling not present in IE7/8/9, S5, Chrome
+ */
+
+abbr[title] {
+    border-bottom: 1px dotted;
+}
+
+/*
+ * Addresses style set to 'bolder' in FF3+, S4/5, Chrome
+*/
+
+b,
+strong {
+    font-weight: bold;
+}
+
+blockquote {
+    margin: 1em 40px;
+}
+
+/*
+ * Addresses styling not present in S5, Chrome
+ */
+
+dfn {
+    font-style: italic;
+}
+
+/*
+ * Addresses styling not present in IE6/7/8/9
+ */
+
+mark {
+    background: #ff0;
+    color: #000;
+}
+
+/*
+ * Addresses margins set differently in IE6/7
+ */
+
+p,
+pre {
+    margin: 0 0 1em 0;
+}
+
+/*
+ * Corrects font family set oddly in IE6, S4/5, Chrome
+ * en.wikipedia.org/wiki/User:Davidgothberg/Test59
+ */
+
+pre,
+code,
+kbd,
+samp {
+    font-family: monospace, serif;
+    _font-family: 'courier new', monospace;
+    font-size: 1em;
+}
+
+/*
+ * Improves readability of pre-formatted text in all browsers
+ */
+
+pre {
+    white-space: pre;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/*
+ * 1. Addresses CSS quotes not supported in IE6/7
+ * 2. Addresses quote property not supported in S4
+ */
+
+/* 1 */
+
+q {
+    quotes: none;
+}
+
+/* 2 */
+
+q:before,
+q:after {
+    content: '';
+    content: none;
+}
+
+small {
+    font-size: 75%;
+}
+
+/*
+ * Prevents sub and sup affecting line-height in all browsers
+ * gist.github.com/413930
+ */
+
+sub,
+sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+}
+
+sup {
+    top: -0.5em;
+}
+
+sub {
+    bottom: -0.25em;
+}
+
+::selection {background: #F08377;color:#534d64;} /* Safari */
+::-moz-selection {background: #F08377;color:#534d64;} /* Firefox */
+
+
+/* =============================================================================
+   Lists
+   ========================================================================== */
+
+/*
+ * Addresses margins set differently in IE6/7
+ */
+
+dl,
+menu,
+ol,
+ul {
+    margin: 0 0 0 0;
+}
+
+dd {
+    margin: 0 0 0 40px;
+}
+
+/*
+ * Addresses paddings set differently in IE6/7
+ */
+
+menu,
+ol,
+ul {
+    padding: 0 0 0 0;
+    list-style-type: none;
+}
+
+/*
+ * Corrects list images handled incorrectly in IE7
+ */
+
+nav ul,
+nav ol {
+    list-style: none;
+    list-style-image: none;
+}
+
+
+/* =============================================================================
+   Embedded content
+   ========================================================================== */
+
+/*
+ * 1. Removes border when inside 'a' element in IE6/7/8/9, FF3
+ * 2. Improves image quality when scaled in IE7
+ *    code.flickr.com/blog/2008/11/12/on-ui-quality-the-little-things-client-side-image-resizing/
+ */
+
+img {
+    border: 0; /* 1 */
+    -ms-interpolation-mode: bicubic; /* 2 */
+}
+
+/*
+ * Corrects overflow displayed oddly in IE9
+ */
+
+svg:not(:root) {
+    overflow: hidden;
+}
+
+
+/* =============================================================================
+   Figures
+   ========================================================================== */
+
+/*
+ * Addresses margin not present in IE6/7/8/9, S5, O11
+ */
+
+figure {
+    margin: 0;
+}
+
+
+/* =============================================================================
+   Forms
+   ========================================================================== */
+
+/*
+ * Corrects margin displayed oddly in IE6/7
+ */
+
+form {
+    margin: 0;
+}
+
+/*
+ * Define consistent border, margin, and padding
+ */
+
+fieldset {
+    border: 1px solid #c0c0c0;
+    margin: 0 2px;
+    padding: 0.35em 0.625em 0.75em;
+}
+
+/*
+ * 1. Corrects color not being inherited in IE6/7/8/9
+ * 2. Corrects text not wrapping in FF3
+ * 3. Corrects alignment displayed oddly in IE6/7
+ */
+
+legend {
+    border: 0; /* 1 */
+    padding: 0;
+    white-space: normal; /* 2 */
+    *margin-left: -7px; /* 3 */
+}
+
+/*
+ * 1. Corrects font size not being inherited in all browsers
+ * 2. Addresses margins set differently in IE6/7, FF3+, S5, Chrome
+ * 3. Improves appearance and consistency in all browsers
+ */
+
+button,
+input,
+select,
+textarea {
+    font-size: 100%; /* 1 */
+    margin: 0; /* 2 */
+    vertical-align: baseline; /* 3 */
+    *vertical-align: middle; /* 3 */
+    -webkit-appearance: none;
+    border-radius: 0;
+}
+
+/*
+ * Addresses FF3/4 setting line-height on 'input' using !important in the UA stylesheet
+ */
+
+button,
+input {
+    line-height: normal; /* 1 */
+}
+
+/*
+ * 1. Improves usability and consistency of cursor style between image-type 'input' and others
+ * 2. Corrects inability to style clickable 'input' types in iOS
+ * 3. Removes inner spacing in IE7 without affecting normal text inputs
+ *    Known issue: inner spacing remains in IE6
+ */
+
+button,
+input[type="button"],
+input[type="reset"],
+input[type="submit"] {
+    cursor: pointer; /* 1 */
+    -webkit-appearance: button; /* 2 */
+    *overflow: visible;  /* 3 */
+}
+
+/*
+ * Re-set default cursor for disabled elements
+ */
+
+button[disabled],
+input[disabled] {
+    cursor: default;
+}
+
+/*
+ * 1. Addresses box sizing set to content-box in IE8/9
+ * 2. Removes excess padding in IE8/9
+ * 3. Removes excess padding in IE7
+      Known issue: excess padding remains in IE6
+ */
+
+input[type="checkbox"],
+input[type="radio"] {
+    box-sizing: border-box; /* 1 */
+    padding: 0; /* 2 */
+    *height: 13px; /* 3 */
+    *width: 13px; /* 3 */
+}
+
+/*
+ * 1. Addresses appearance set to searchfield in S5, Chrome
+ * 2. Addresses box-sizing set to border-box in S5, Chrome (include -moz to future-proof)
+ */
+
+input[type="search"] {
+    -webkit-appearance: textfield; /* 1 */
+    -moz-box-sizing: content-box;
+    -webkit-box-sizing: content-box; /* 2 */
+    box-sizing: content-box;
+}
+
+/*
+ * Removes inner padding and search cancel button in S5, Chrome on OS X
+ */
+
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+}
+
+/*
+ * Removes inner padding and border in FF3+
+ * www.sitepen.com/blog/2008/05/14/the-devils-in-the-details-fixing-dojos-toolbar-buttons/
+ */
+
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+}
+
+/*
+ * 1. Removes default vertical scrollbar in IE6/7/8/9
+ * 2. Improves readability and alignment in all browsers
+ */
+
+textarea {
+    overflow: auto; /* 1 */
+    vertical-align: top; /* 2 */
+}
+
+
+/* =============================================================================
+   Tables
+   ========================================================================== */
+
+/*
+ * Remove most spacing between table cells
+ */
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* ============================================
+   HOME PAGE DIALOG FIX - Added by Logical Front
+   Hide Bootstrap modals that incorrectly appear at page bottom
+   ============================================ */
+
+/* Generic fix: Hide all Bootstrap modals that are not shown */
+.modal:not(.in):not(.show) {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    left: -9999px !important;
+}
+
+/* Hide modal backdrops that are not active */
+.modal-backdrop:not(.in):not(.show) {
+    display: none !important;
+}
+
+/* Hide the edit-dashboard-tabs panel with "Untitled" */
+.edit-dashboard-tabs {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* Specific modal classes for home page dialogs */
+.modal.modal-add-dashlet:not(.in),
+.modal.modal-add-dashboard:not(.in),
+.modal.modal-edit-dashboard:not(.in),
+.modal.modal-generic:not(.in) {
+    display: none !important;
+    visibility: hidden !important;
+    position: absolute !important;
+    left: -9999px !important;
+}
+
+/* ============================================
+   HOME PAGE DASHLET/WIDGET STYLING
+   Style widgets to match the rest of the site theme
+   ============================================ */
+
+/* Dashlet container - white card background */
+.dashletPanel,
+.dashlet-panel,
+[id*="dashlet_entire"] {
+    background: #ffffff !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    margin-bottom: 15px !important;
+    overflow: hidden !important;
+}
+
+/* Dashlet header - light background with title */
+.hd.dashlet,
+.dashlet .hd,
+[id*="dashlet_header"] {
+    background: #f8f9fa !important;
+    border-bottom: 1px solid #e9ecef !important;
+    padding: 12px 15px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+}
+
+/* Dashlet title text */
+.hd.dashlet h3,
+.dashlet .hd h3,
+.dashlet-title,
+[id*="dashlet_header"] h3 {
+    color: #534d64 !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    margin: 0 !important;
+    text-transform: none !important;
+    letter-spacing: 0.5px !important;
+}
+
+/* Table headers - purple/gray background */
+.list.view th,
+.dashletPanel th,
+.dashlet th,
+table.list th,
+.listViewThS1 {
+    background: #534d64 !important;
+    color: #ffffff !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    padding: 10px 12px !important;
+    text-transform: none !important;
+    letter-spacing: 0.3px !important;
+    border: none !important;
+}
+
+/* Table header links */
+.list.view th a,
+.dashletPanel th a,
+table.list th a {
+    color: #ffffff !important;
+    text-decoration: none !important;
+}
+
+/* Table rows - alternating colors */
+.list.view tr.oddListRowS1,
+.dashletPanel tr.oddListRowS1,
+table.list tr.oddListRowS1,
+.list.view tbody tr:nth-child(odd),
+.dashletPanel tbody tr:nth-child(odd) {
+    background: #ffffff !important;
+}
+
+.list.view tr.evenListRowS1,
+.dashletPanel tr.evenListRowS1,
+table.list tr.evenListRowS1,
+.list.view tbody tr:nth-child(even),
+.dashletPanel tbody tr:nth-child(even) {
+    background: #f8f9fa !important;
+}
+
+/* Table cells */
+.list.view td,
+.dashletPanel td,
+table.list td {
+    padding: 10px 12px !important;
+    border-bottom: 1px solid #e9ecef !important;
+    color: #333333 !important;
+    font-size: 13px !important;
+}
+
+/* Links in table cells - teal color */
+.list.view td a,
+.dashletPanel td a,
+table.list td a {
+    color: #4A90E2 !important;
+    text-decoration: none !important;
+}
+
+.list.view td a:hover,
+.dashletPanel td a:hover,
+table.list td a:hover {
+    color: #125EAD !important;
+    text-decoration: underline !important;
+}
+
+/* Pagination footer */
+.dashletPanel .paginationWrapper,
+.dashlet .paginationWrapper,
+.list.view .paginationWrapper,
+tr.pagination td {
+    background: #6c757d !important;
+    padding: 8px 12px !important;
+    border-radius: 0 0 8px 8px !important;
+}
+
+.paginationWrapper button,
+.paginationWrapper .btn {
+    background: #ffffff !important;
+    border: 1px solid #dee2e6 !important;
+    color: #333333 !important;
+    padding: 4px 10px !important;
+    margin: 0 2px !important;
+    border-radius: 4px !important;
+}
+
+/* No data message */
+.noData,
+.list.view .noData,
+td[colspan] {
+    color: #6c757d !important;
+    font-style: italic !important;
+    text-align: center !important;
+    padding: 20px !important;
+}
+
+/* Activity Stream specific styling */
+#activitiesStream,
+.activityStream {
+    background: #ffffff !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    padding: 15px !important;
+}
+
+.activityEntry {
+    border-bottom: 1px solid #e9ecef !important;
+    padding: 12px 0 !important;
+}
+
+.activityEntry:last-child {
+    border-bottom: none !important;
+}
+
+/* Dashboard buttons styling */
+#dashboardButtons,
+.dashboardTabList {
+    margin-bottom: 15px !important;
+}
+
+.dashboardTabList li.addButton a {
+    background-color: #aa9dcc !important;
+    color: #ffffff !important;
+    border-radius: 4px !important;
+    padding: 8px 16px !important;
+}
+
+.dashboardTabList li.addButton a:hover {
+    background-color: #9589b3 !important;
+}
+
+/* ============================================
+   HOME PAGE LAYOUT AND HEADER FIXES
+   ============================================ */
+
+/* Main dashboard container - add standard margins */
+#content,
+.dashboardContainer,
+#pagecontent,
+.home-container {
+    padding: 0 20px !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Dashboard columns spacing */
+.col-sm-6,
+.col-md-6,
+.dashboard-column,
+#leftCol,
+#rightCol {
+    padding: 0 10px !important;
+}
+
+/* Dashlet cards - proper spacing between them */
+.dashletPanel,
+.dashlet-panel,
+[id*="dashlet_entire"] {
+    margin: 0 0 20px 0 !important;
+}
+
+/* ============================================
+   HEADER AREA CLEANUP
+   ============================================ */
+
+/* Hide the duplicate/messy dashboard title links */
+#dashboardLinks,
+a[href*="module=Home"]:not(.navbar-brand):not(.nav-link) {
+    display: none !important;
+}
+
+/* Style the dashboard header area */
+.dashboardHeader,
+#dashboardHeader {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 15px 20px !important;
+    margin-bottom: 15px !important;
+}
+
+/* SUITECRM DASHBOARD button - styled nicely */
+.dashboardTitle,
+#pageTitle,
+a[onclick*="dashboardTab"] {
+    background: #125EAD !important;
+    color: #ffffff !important;
+    padding: 10px 20px !important;
+    border-radius: 4px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    text-transform: none !important;
+    letter-spacing: 0.5px !important;
+    text-decoration: none !important;
+    display: inline-block !important;
+    margin-right: 10px !important;
+}
+
+/* ACTIONS dropdown button */
+.actionsButton,
+#actionsButton,
+.dropdown-toggle[data-toggle="dropdown"] {
+    background: #6c757d !important;
+    color: #ffffff !important;
+    padding: 10px 20px !important;
+    border-radius: 4px !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    border: none !important;
+}
+
+/* Dashboard tab buttons container */
+.dashboardTabList {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    margin-bottom: 15px !important;
+    flex-wrap: wrap !important;
+}
+
+/* Individual tab items */
+.dashboardTabList li {
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 1 !important;
+}
+
+/* Add Dashlets, Add Tab, Edit Tabs buttons */
+.dashboardTabList li a,
+#add_dashlets,
+#add_tabs,
+#edit_tabs,
+a[onclick*="addDashlet"],
+a[onclick*="addTab"],
+a[onclick*="editTabs"] {
+    background: #aa9dcc !important;
+    color: #ffffff !important;
+    padding: 8px 16px !important;
+    border-radius: 4px !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    text-transform: none !important;
+    text-decoration: none !important;
+    display: inline-block !important;
+    border: none !important;
+    cursor: pointer !important;
+    margin: 0 5px 5px 0 !important;
+}
+
+.dashboardTabList li a:hover,
+#add_dashlets:hover,
+#add_tabs:hover,
+#edit_tabs:hover {
+    background: #9589b3 !important;
+    text-decoration: none !important;
+}
+
+/* Hide the raw text links that appear as duplicates */
+body > a[href*="SUITECRM"],
+#content > a:first-child,
+.yui-skin-sam > a[href*="Dashboard"] {
+    display: none !important;
+}
+
+/* Clean up any orphaned text nodes */
+#dashboardButtons {
+    font-size: 0 !important;
+}
+
+#dashboardButtons > * {
+    font-size: 13px !important;
+}
+
+/* ============================================
+   HOME PAGE HEADER - TARGETED FIX
+   ============================================ */
+
+/* Hide the mobile-only duplicate dropdown toggle */
+.visible-xs.first-tab-xs,
+#xstab0,
+a.visible-xs {
+    display: none !important;
+}
+
+/* Style the dashboard tabs navigation */
+.nav.nav-tabs.nav-dashboard {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 20px !important;
+    margin: 0 0 15px 0 !important;
+    background: transparent !important;
+    border: none !important;
+    flex-wrap: wrap !important;
+}
+
+/* Remove default tab styling */
+.nav.nav-tabs.nav-dashboard > li {
+    float: none !important;
+    margin: 0 !important;
+    border: none !important;
+    background: transparent !important;
+}
+
+.nav.nav-tabs.nav-dashboard > li > a {
+    background: #125EAD !important;
+    color: #ffffff !important;
+    padding: 10px 20px !important;
+    border-radius: 4px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    text-transform: none !important;
+    letter-spacing: 0.5px !important;
+    text-decoration: none !important;
+    border: none !important;
+    margin: 0 5px 5px 0 !important;
+    display: inline-block !important;
+}
+
+.nav.nav-tabs.nav-dashboard > li.active > a,
+.nav.nav-tabs.nav-dashboard > li > a:hover {
+    background: #0A3D6B !important;
+    color: #ffffff !important;
+}
+
+/* ACTIONS dropdown styling */
+#tab-actions,
+.nav.nav-tabs.nav-dashboard > li.dropdown {
+    margin: 0 !important;
+}
+
+#tab-actions > a,
+.nav.nav-tabs.nav-dashboard > li.dropdown > a {
+    background: #6c757d !important;
+    color: #ffffff !important;
+}
+
+#tab-actions > a:hover,
+.nav.nav-tabs.nav-dashboard > li.dropdown > a:hover {
+    background: #5a6268 !important;
+}
+
+/* Hide the caret icon or style it */
+.suitepicon-action-caret {
+    display: none !important;
+}
+
+/* The add buttons row - usually in a separate ul */
+ul.dashboardTabList {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 0 20px 15px 20px !important;
+    margin: 0 !important;
+    list-style: none !important;
+    flex-wrap: wrap !important;
+}
+
+ul.dashboardTabList > li {
+    float: none !important;
+    opacity: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Style Add Dashlets, Add Tab, Edit Tabs as nice buttons */
+ul.dashboardTabList > li > a,
+ul.dashboardTabList > li > button {
+    background: #aa9dcc !important;
+    color: #ffffff !important;
+    padding: 8px 16px !important;
+    border-radius: 4px !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    text-transform: none !important;
+    text-decoration: none !important;
+    display: inline-block !important;
+    border: 1px solid #9589b3 !important;
+    cursor: pointer !important;
+}
+
+ul.dashboardTabList > li > a:hover,
+ul.dashboardTabList > li > button:hover {
+    background: #9589b3 !important;
+    text-decoration: none !important;
+}
+
+/* Make sure the addButton items stay styled */
+ul.dashboardTabList > li.addButton {
+    float: none !important;
+}
+
+ul.dashboardTabList > li.addButton > a {
+    background: #aa9dcc !important;
+    color: #ffffff !important;
+}
+
+/* ============================================
+   HIDE REMAINING DUPLICATE DASHBOARD LINK
+   ============================================ */
+
+/* Hide the standalone cyan SUITECRM DASHBOARD link */
+body > a[href*="module=Home"],
+#content > a[href*="module=Home"]:first-of-type,
+a[href*="module=Home"][style*="color"]:not(.nav-link):not(.navbar-brand),
+.yui-skin-sam > a:not(.nav-link):not(.btn),
+#pagecontent > a:first-child {
+    display: none !important;
+}
+
+/* More specific: hide any loose anchor tags with DASHBOARD text at top */
+a[onclick*="loadPage"]:not(.nav-link):not([class*="btn"]) {
+    display: none !important;
+}
+
+/* Hide tab content links that are duplicates */
+a#tabxs0,
+a[id^="tabxs"] {
+    display: none !important;
+}
+
+/* Ensure proper container spacing */
+#pagecontent,
+#content,
+.module-home #content {
+    padding: 0 20px !important;
+}
+
+/* Add margin to the first row of dashlets */
+.dashlet-row:first-child,
+#leftCol,
+#dashlet_col_0 {
+    margin-top: 10px !important;
+}
+
+/* ============================================
+   HOME PAGE TITLE CARD & SPACING FIX
+   ============================================ */
+
+/* Reduce container padding - was too wide */
+#content,
+.dashboardContainer,
+#pagecontent,
+.home-container {
+    padding: 0 10px !important;
+}
+
+/* Dashboard columns - add horizontal gap between left and right */
+.row,
+#dashboard_row,
+.dashboard-row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    margin: 0 -5px !important;
+}
+
+.col-sm-6,
+.col-md-6,
+#leftCol,
+#rightCol,
+.dashboard-column {
+    padding: 0 5px !important;
+    box-sizing: border-box !important;
+}
+
+/* ============================================
+   TITLE CARD - Like Opportunities page
+   ============================================ */
+
+/* Create a title card wrapper for dashboard header */
+.nav.nav-tabs.nav-dashboard {
+    background: #f8f9fa !important;
+    border-radius: 8px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+    padding: 12px 15px !important;
+    margin: 10px 10px 15px 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+    border: none !important;
+}
+
+/* Left side - title area */
+.nav.nav-tabs.nav-dashboard > li:not(.dropdown):not(.addButton) {
+    margin: 0 !important;
+}
+
+.nav.nav-tabs.nav-dashboard > li:not(.dropdown):not(.addButton) > a {
+    background: transparent !important;
+    color: #1a5276 !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    text-transform: none !important;
+    letter-spacing: 1px !important;
+    padding: 5px 0 !important;
+    border: none !important;
+    margin: 0 !important;
+}
+
+/* ACTIONS dropdown - styled like Filter button */
+#tab-actions,
+.nav.nav-tabs.nav-dashboard > li.dropdown {
+    margin-left: auto !important;
+}
+
+#tab-actions > a,
+.nav.nav-tabs.nav-dashboard > li.dropdown > a {
+    background: transparent !important;
+    color: #6c757d !important;
+    border: 1px solid #dee2e6 !important;
+    padding: 8px 16px !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+}
+
+#tab-actions > a:hover,
+.nav.nav-tabs.nav-dashboard > li.dropdown > a:hover {
+    background: #e9ecef !important;
+    color: #495057 !important;
+}
+
+/* Add buttons container - separate row below title card */
+ul.dashboardTabList {
+    background: #f8f9fa !important;
+    border-radius: 8px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+    padding: 10px 15px !important;
+    margin: 0 10px 15px 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+}
+
+ul.dashboardTabList > li {
+    margin: 0 !important;
+    padding: 0 !important;
+    float: none !important;
+    opacity: 1 !important;
+}
+
+/* Style buttons like Insights button (filled) */
+ul.dashboardTabList > li > a,
+ul.dashboardTabList > li > button {
+    background: #125EAD !important;
+    color: #ffffff !important;
+    padding: 8px 16px !important;
+    border-radius: 4px !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    text-transform: none !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    border: none !important;
+    cursor: pointer !important;
+}
+
+ul.dashboardTabList > li > a:hover,
+ul.dashboardTabList > li > button:hover {
+    background: #0A3D6B !important;
+    text-decoration: none !important;
+}
+
+/* Different color for secondary buttons */
+ul.dashboardTabList > li:nth-child(2) > a,
+ul.dashboardTabList > li:nth-child(3) > a {
+    background: #6c757d !important;
+}
+
+ul.dashboardTabList > li:nth-child(2) > a:hover,
+ul.dashboardTabList > li:nth-child(3) > a:hover {
+    background: #5a6268 !important;
+}
+
+/* ============================================
+   HOME PAGE TITLE CARD & SPACING - REFINED FIX
+   ============================================ */
+
+/* Force horizontal gap between left and right columns */
+#leftCol,
+#dashlet_col_0,
+.col-sm-6:first-child,
+.col-md-6:first-child {
+    padding-right: 10px !important;
+}
+
+#rightCol,
+#dashlet_col_1,
+.col-sm-6:last-child,
+.col-md-6:last-child {
+    padding-left: 10px !important;
+}
+
+/* Title Card - refined to match Opportunities page exactly */
+.nav.nav-tabs.nav-dashboard {
+    background: #f8f9fa !important;
+    border-radius: 8px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+    padding: 8px 15px !important;
+    margin: 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: nowrap !important;
+    gap: 10px !important;
+    border: none !important;
+    min-height: 50px !important;
+    max-height: 50px !important;
+}
+
+/* Title on left - consistent with Opportunities */
+.nav.nav-tabs.nav-dashboard > li.active > a,
+.nav.nav-tabs.nav-dashboard > li:first-child > a {
+    background: transparent !important;
+    color: #1a5276 !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    text-transform: none !important;
+    letter-spacing: 1px !important;
+    padding: 8px 0 !important;
+    border: none !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+}
+
+/* Actions dropdown - inline with title */
+#tab-actions {
+    margin-left: auto !important;
+    display: inline-flex !important;
+}
+
+#tab-actions > a {
+    background: transparent !important;
+    color: #6c757d !important;
+    border: 1px solid #dee2e6 !important;
+    padding: 6px 14px !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    border-radius: 4px !important;
+    white-space: nowrap !important;
+}
+
+/* Dashboard buttons - ALL HORIZONTAL in same row */
+ul.dashboardTabList {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    list-style: none !important;
+}
+
+ul.dashboardTabList > li {
+    display: inline-flex !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    float: none !important;
+    opacity: 1 !important;
+}
+
+/* All action buttons - CONSISTENT SIZE */
+ul.dashboardTabList > li > a,
+ul.dashboardTabList > li > button,
+ul.dashboardTabList > li.addButton > a {
+    background: #125EAD !important;
+    color: #ffffff !important;
+    padding: 6px 14px !important;
+    border-radius: 4px !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    text-transform: none !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: none !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    min-width: 80px !important;
+    height: 30px !important;
+    line-height: 1 !important;
+}
+
+ul.dashboardTabList > li > a:hover,
+ul.dashboardTabList > li > button:hover,
+ul.dashboardTabList > li.addButton > a:hover {
+    background: #0A3D6B !important;
+    text-decoration: none !important;
+}
+
+/* Remove the separate card styling for buttons - put them IN the title card */
+.nav.nav-tabs.nav-dashboard + ul.dashboardTabList,
+ul.dashboardTabList {
+    position: relative !important;
+}
+
+/* ============================================
+   TITLE CARD - EXTRACT BUTTONS FROM DROPDOWN
+   Make all buttons appear inline in the title card
+   ============================================ */
+
+/* The dashboard nav tabs - this is the title card */
+.nav.nav-tabs.nav-dashboard {
+    background: #f8f9fa !important;
+    border-radius: 8px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+    padding: 10px 15px !important;
+    margin: 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    gap: 10px !important;
+    border: none !important;
+    height: 50px !important;
+}
+
+/* Hide the ACTIONS dropdown toggle text - we will show buttons directly */
+#tab-actions > a.dropdown-toggle {
+    display: none !important;
+}
+
+/* Make the dropdown container inline and not a dropdown */
+#tab-actions {
+    position: static !important;
+    margin-left: auto !important;
+}
+
+/* Convert dropdown menu to inline horizontal buttons */
+#tab-actions .dropdown-menu.tab-actions,
+.dropdown-menu.tab-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    position: static !important;
+    float: none !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 8px !important;
+}
+
+/* Each li in the dropdown */
+#tab-actions .dropdown-menu.tab-actions > li,
+.dropdown-menu.tab-actions > li {
+    display: inline-flex !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Style the input buttons - consistent size */
+#tab-actions .dropdown-menu.tab-actions input.button,
+.dropdown-menu.tab-actions input.button,
+input.addDashlets,
+input.addDashboard {
+    background: #125EAD !important;
+    color: #ffffff !important;
+    padding: 6px 14px !important;
+    border-radius: 6px !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    text-transform: none !important;
+    border: none !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    min-width: 80px !important;
+    height: 32px !important;
+    line-height: 1 !important;
+}
+
+input.addDashlets:hover,
+input.addDashboard:hover {
+    background: #0A3D6B !important;
+}
+
+/* Hide the caret icons */
+#tab-actions .suitepicon-action-caret {
+    display: none !important;
+}
+
+/* Hide mobile-only elements */
+.visible-xs,
+.first-tab-xs,
+#xstab0,
+#first-tab-menu-xs {
+    display: none !important;
+}
+
+/* Title text styling */
+.nav.nav-tabs.nav-dashboard > li.active > a#tab0,
+.nav.nav-tabs.nav-dashboard > li > a.hidden-xs {
+    background: transparent !important;
+    color: #1a5276 !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    text-transform: none !important;
+    letter-spacing: 1px !important;
+    padding: 0 !important;
+    border: none !important;
+    margin: 0 !important;
+    display: inline-block !important;
+}
+
+/* ============================================
+   HOME PAGE SPACING FIX - PRECISE MARGINS
+   ============================================ */
+
+/* Main container - consistent 10px margins on left and right */
+body.yui-skin-sam,
+#pagecontent,
+#content {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    padding-top: 0 !important;
+}
+
+/* Title Card - remove its own margin, let container handle it */
+.nav.nav-tabs.nav-dashboard {
+    margin: 0 0 10px 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Dashboard container */
+#dashboard {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* The row containing left and right columns */
+#pageContainer .row,
+#pageNum_0_div,
+.dashletTable {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Force gap between left and right columns using table cell padding */
+.dashletTable td.dashletcontainer {
+    padding: 0 !important;
+}
+
+/* Left column - add right padding for gap */
+.dashletTable td.dashletcontainer:first-child,
+.dashletTable td:first-child,
+#col_0_0,
+td[valign="top"]:first-child {
+    padding-right: 10px !important;
+}
+
+/* Right column - add left padding for gap */
+.dashletTable td.dashletcontainer:last-child,
+.dashletTable td:last-child,
+#col_1_0,
+td[valign="top"]:last-child {
+    padding-left: 10px !important;
+}
+
+/* If using Bootstrap columns instead of table */
+.col-sm-6:first-of-type,
+.col-md-6:first-of-type,
+#leftCol {
+    padding-right: 10px !important;
+    padding-left: 0 !important;
+}
+
+.col-sm-6:last-of-type,
+.col-md-6:last-of-type,
+#rightCol {
+    padding-left: 10px !important;
+    padding-right: 0 !important;
+}
+
+/* Dashlet panels - ensure they fill their column */
+.dashletPanel,
+[id*="dashlet_entire"] {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Activity Stream panel */
+#activitiesStream,
+.activityStream,
+[id*="dashlet_entire_4359379d"] {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* ============================================
+   HOME PAGE WIDGET COLORS - MATCH SITE THEME
+   ============================================ */
+
+/* Widget/Dashlet header - match title card style */
+.hd.dashlet,
+.dashlet .hd,
+[id*="dashlet_header"] {
+    background: #f8f9fa !important;
+    border-bottom: 1px solid #e9ecef !important;
+    color: #1a5276 !important;
+}
+
+/* Widget title text */
+.hd.dashlet h3,
+.dashlet .hd h3,
+.dashlet-title,
+[id*="dashlet_header"] h3,
+.hd.dashlet span,
+.dashlet .hd span {
+    color: #1a5276 !important;
+    font-weight: 600 !important;
+}
+
+/* Table headers - use primary blue instead of gray */
+.list.view th,
+.dashletPanel th,
+.dashlet th,
+table.list th,
+.listViewThS1,
+.oddListRowS1 th,
+.evenListRowS1 th {
+    background: #125EAD !important;
+    color: #ffffff !important;
+}
+
+/* Table header links */
+.list.view th a,
+.dashletPanel th a,
+table.list th a,
+th a {
+    color: #ffffff !important;
+}
+
+/* Pagination bar - use primary blue */
+.dashletPanel .paginationWrapper,
+.dashlet .paginationWrapper,
+.list.view .paginationWrapper,
+tr.pagination td,
+.pagination td,
+.dashletPanel tfoot td,
+.paginationChangeButtons {
+    background: #125EAD !important;
+    color: #ffffff !important;
+}
+
+/* Pagination buttons */
+.paginationWrapper button,
+.paginationWrapper .btn,
+.paginationChangeButtons button,
+.listViewPaginationTD button,
+tr.pagination button,
+tr.pagination input[type="button"] {
+    background: #ffffff !important;
+    border: 1px solid #dee2e6 !important;
+    color: #1a5276 !important;
+    padding: 4px 10px !important;
+    margin: 0 2px !important;
+    border-radius: 4px !important;
+}
+
+.paginationWrapper button:hover,
+.paginationChangeButtons button:hover {
+    background: #e9ecef !important;
+}
+
+/* Pagination text */
+.paginationWrapper span,
+tr.pagination td span,
+.pageNumbers {
+    color: #ffffff !important;
+}
+
+/* Links in tables - orange/coral for primary */
+.list.view td a,
+.dashletPanel td a,
+table.list td a,
+.oddListRowS1 a,
+.evenListRowS1 a {
+    color: #4A90E2 !important;
+}
+
+.list.view td a:hover,
+.dashletPanel td a:hover {
+    color: #a93226 !important;
+    text-decoration: underline !important;
+}
+
+/* Secondary links - teal */
+.list.view td a.secondary,
+.dashletPanel td a[href*="Account"],
+.dashletPanel td a[href*="Contact"] {
+    color: #4A90E2 !important;
+}
+
+/* Activity Stream colors */
+#activitiesStream a,
+.activityStream a,
+.activityEntry a {
+    color: #4A90E2 !important;
+}
+
+#activitiesStream a:hover,
+.activityStream a:hover {
+    color: #a93226 !important;
+}
+
+/* Activity Stream secondary links */
+.activityEntry a[href*="Account"],
+.activityEntry a[href*="Contact"],
+.activityEntry a[href*="Opportunity"] {
+    color: #4A90E2 !important;
+}
+
+/* Gear/settings icon color */
+.dashlet .hd .glyphicon,
+.dashlet .hd .suitepicon,
+[id*="dashlet_header"] .glyphicon {
+    color: #6c757d !important;
+}
+
+/* Close X icon */
+.dashlet .hd .close,
+.dashlet .hd .glyphicon-remove {
+    color: #6c757d !important;
+}
+
+/* ============================================
+   WIDGET COLORS - MAKE GRAY WHITE
+   ============================================ */
+
+/* Widget header background - white instead of gray */
+.hd.dashlet,
+.dashlet .hd,
+[id*="dashlet_header"],
+.dashletPanel .hd {
+    background: #ffffff !important;
+    border-bottom: 2px solid #1a5276 !important;
+}
+
+/* Title card - white background */
+.nav.nav-tabs.nav-dashboard {
+    background: #ffffff !important;
+}
+
+/* Alternating rows - white instead of gray */
+.list.view tr.oddListRowS1,
+.dashletPanel tr.oddListRowS1,
+table.list tr.oddListRowS1,
+.list.view tbody tr:nth-child(odd),
+.dashletPanel tbody tr:nth-child(odd),
+tr.oddListRowS1 {
+    background: #ffffff !important;
+}
+
+.list.view tr.evenListRowS1,
+.dashletPanel tr.evenListRowS1,
+table.list tr.evenListRowS1,
+.list.view tbody tr:nth-child(even),
+.dashletPanel tbody tr:nth-child(even),
+tr.evenListRowS1 {
+    background: #ffffff !important;
+}
+
+/* All table cells white background */
+.list.view td,
+.dashletPanel td,
+table.list td,
+.oddListRowS1 td,
+.evenListRowS1 td {
+    background: #ffffff !important;
+}
+
+/* Activity Stream background - white */
+#activitiesStream,
+.activityStream {
+    background: #ffffff !important;
+}
+
+.activityEntry {
+    background: #ffffff !important;
+}
+
+/* ============================================
+   WIDGET HEADER TEXT AND ICONS - DARK BLUE
+   ============================================ */
+
+/* Widget title text - dark blue */
+.hd.dashlet,
+.hd.dashlet h3,
+.hd.dashlet span,
+.dashlet .hd,
+.dashlet .hd h3,
+.dashlet .hd span,
+[id*="dashlet_header"],
+[id*="dashlet_header"] h3,
+[id*="dashlet_header"] span,
+.dashletPanel .hd,
+.dashletPanel .hd h3,
+.dashletPanel .hd span {
+    color: #1a5276 !important;
+}
+
+/* Widget header icons - dark blue */
+.hd.dashlet .glyphicon,
+.hd.dashlet .suitepicon,
+.hd.dashlet i,
+.hd.dashlet svg,
+.dashlet .hd .glyphicon,
+.dashlet .hd .suitepicon,
+.dashlet .hd i,
+[id*="dashlet_header"] .glyphicon,
+[id*="dashlet_header"] .suitepicon,
+[id*="dashlet_header"] i,
+.dashletPanel .hd .glyphicon,
+.dashletPanel .hd .suitepicon {
+    color: #1a5276 !important;
+}
+
+/* Close X icon - dark blue */
+.hd.dashlet .close,
+.hd.dashlet .glyphicon-remove,
+.dashlet .hd .close,
+.dashlet .hd .glyphicon-remove,
+[id*="dashlet_header"] .close,
+[id*="dashlet_header"] .glyphicon-remove {
+    color: #1a5276 !important;
+}
+
+/* Gear/settings icon - dark blue */
+.hd.dashlet .glyphicon-cog,
+.dashlet .hd .glyphicon-cog,
+[id*="dashlet_header"] .glyphicon-cog {
+    color: #1a5276 !important;
+}
+
+/* Any links in header - dark blue */
+.hd.dashlet a,
+.dashlet .hd a,
+[id*="dashlet_header"] a {
+    color: #1a5276 !important;
+}
+
+/* ============================================
+   ISSUE 2: TABLE HEADER FULL WIDTH
+   ============================================ */
+
+/* Make table headers fill full width of card */
+.dashletPanel table,
+.dashlet table,
+table.list {
+    width: 100% !important;
+    table-layout: fixed !important;
+}
+
+.dashletPanel thead,
+.dashlet thead,
+table.list thead {
+    width: 100% !important;
+}
+
+.dashletPanel tr,
+.dashlet tr,
+table.list tr {
+    width: 100% !important;
+}
+
+/* Remove any right margin/padding on last header cell */
+.dashletPanel th:last-child,
+.dashlet th:last-child,
+table.list th:last-child {
+    padding-right: 10px !important;
+}
+
+/* ============================================
+   ISSUE 3: ACTIVITY STREAM LINKS - LIGHT BLUE
+   ============================================ */
+
+/* Activity Stream links - light blue instead of pink */
+#activitiesStream a,
+.activityStream a,
+.activityEntry a,
+.activity-stream a {
+    color: #4A90E2 !important;
+}
+
+#activitiesStream a:hover,
+.activityStream a:hover,
+.activityEntry a:hover {
+    color: #125EAD !important;
+    text-decoration: underline !important;
+}
+
+/* ============================================
+   ISSUE 4: NAV HEADER - ACTIVE ITEM LIGHT BLUE
+   ============================================ */
+
+/* Active nav item - light blue instead of pink */
+.navbar-nav > li.active > a,
+.navbar-nav > li.open > a,
+.nav-item.active > a,
+.nav-link.active,
+scrm-menu-item.active a,
+.navbar .nav > li.active > a,
+.navbar-nav .nav-link.active,
+.navbar-1 .navbar-nav > li.active > a {
+    color: #4A90E2 !important;
+    border-color: #4A90E2 !important;
+}
+
+/* Dropdown toggle when active */
+.navbar-nav > li.active > a.dropdown-toggle,
+.navbar-nav > li.open > a.dropdown-toggle {
+    color: #4A90E2 !important;
+}
+
+/* Remove pink/coral color from active nav */
+.navbar-nav > li > a[style*="color"],
+.nav-link[style*="color"] {
+    color: #4A90E2 !important;
+}
+
+/* ============================================
+   ISSUE 5: LIST PAGES - ROUNDED CORNERS
+   ============================================ */
+
+/* List page content section - rounded corners */
+.list-view-container,
+.listViewBody,
+scrm-list-container,
+.table-responsive,
+.list-view {
+    border-radius: 8px !important;
+    overflow: hidden !important;
+}
+
+/* List table rounded corners */
+.list-view table,
+table.list,
+.listView table {
+    border-radius: 8px !important;
+    overflow: hidden !important;
+}
+
+/* ============================================
+   ISSUE 6: DETAIL PAGES - TITLE CARD & LINKS
+   ============================================ */
+
+/* Detail page title card - match list page style */
+.detail-view-header,
+.detailView .moduleTitle,
+scrm-record-header,
+.record-view-header,
+.module-title-row {
+    background: #ffffff !important;
+    border-radius: 8px !important;
+    padding: 10px 15px !important;
+    margin-bottom: 10px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+}
+
+/* Detail page links - light blue instead of pink */
+.detail-view a,
+.detailView a,
+scrm-record-container a,
+.record-view a,
+.detail-view-container a,
+.tabDetailView a,
+.edit-view a {
+    color: #4A90E2 !important;
+}
+
+.detail-view a:hover,
+.detailView a:hover,
+scrm-record-container a:hover {
+    color: #125EAD !important;
+    text-decoration: underline !important;
+}
+
+/* Subpanel links - light blue */
+.subpanel a,
+scrm-subpanel a,
+.subpanel-body a {
+    color: #4A90E2 !important;
+}
+
+/* ============================================
+   ISSUE 1: LOGO - REPLACE HOME ICON
+   ============================================ */
+
+/* Hide the default home icon */
+.navbar-brand .home-icon,
+.navbar-brand svg[class*="home"],
+.navbar-brand .suitepicon-home,
+scrm-home-menu-link svg,
+scrm-home-menu-link .home-icon,
+a[href*="home"] > svg.home-icon {
+    display: none !important;
+}
+
+/* Show logo image instead */
+.navbar-brand,
+scrm-home-menu-link a,
+a.navbar-brand {
+    background-image: url("/dist/themes/suite8/images/lf-logo.png") !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: contain !important;
+    min-width: 30px !important;
+    min-height: 30px !important;
+}
+
+/* If the home link uses an icon font */
+.navbar .fa-home,
+.navbar .glyphicon-home,
+.navbar [class*="icon-home"] {
+    display: none !important;
+}
+
+/* Replace with logo using ::before pseudo element */
+.navbar-brand::before,
+scrm-home-menu-link a::before {
+    content: "" !important;
+    display: inline-block !important;
+    width: 24px !important;
+    height: 24px !important;
+    background-image: url("/dist/themes/suite8/images/lf-logo.png") !important;
+    background-repeat: no-repeat !important;
+    background-size: contain !important;
+    background-position: center !important;
+}
+/* ================================================================
+   LOGICAL FRONT CSS FIXES - 089
+   Consolidates fixes from 084 and 087
+
+   Key Colors:
+   - Light Blue (links): #4A90E2
+   - Blue (hover): #125EAD
+   - Remove: #4A90E2 (orange/coral), #4A90E2 (teal), #125EAD (dark teal)
+   ================================================================ */
+
+/* ====================================
+   1. ALL LINKS - Light Blue Default, Blue Hover
+   ==================================== */
+
+/* Global link color override */
+a,
+a:link,
+a:visited,
+.link,
+[class*="link"] a {
+    color: #4A90E2 !important;
+}
+
+a:hover,
+a:focus,
+a:active,
+.link:hover {
+    color: #125EAD !important;
+    text-decoration: underline !important;
+}
+
+/* Dashboard/Widget links */
+.dashletPanel td a,
+.dashlet a,
+.dashletPanel a,
+#activitiesStream a,
+.activityStream a,
+.activityEntry a,
+.activity-stream a,
+.widget a,
+.home-dashboard a,
+.dashboard a {
+    color: #4A90E2 !important;
+}
+
+.dashletPanel td a:hover,
+.dashlet a:hover,
+.dashletPanel a:hover,
+#activitiesStream a:hover,
+.activityStream a:hover,
+.activityEntry a:hover,
+.activity-stream a:hover,
+.widget a:hover,
+.home-dashboard a:hover,
+.dashboard a:hover {
+    color: #125EAD !important;
+    text-decoration: underline !important;
+}
+
+/* List view links */
+.list-view a,
+.listView a,
+.list a,
+table.list a,
+.dataTable a,
+.p-datatable a,
+scrm-table a,
+scrm-list a {
+    color: #4A90E2 !important;
+}
+
+.list-view a:hover,
+.listView a:hover,
+.list a:hover,
+table.list a:hover,
+.dataTable a:hover,
+.p-datatable a:hover {
+    color: #125EAD !important;
+}
+
+/* Detail view links */
+.detail-view a,
+.detailView a,
+scrm-record-container a,
+.record-view a,
+.detail-view-container a,
+.tabDetailView a,
+.edit-view a,
+.editview a,
+.subpanel a,
+scrm-subpanel a,
+.subpanel-body a,
+.related-records a {
+    color: #4A90E2 !important;
+}
+
+.detail-view a:hover,
+.detailView a:hover,
+scrm-record-container a:hover,
+.record-view a:hover,
+.subpanel a:hover {
+    color: #125EAD !important;
+    text-decoration: underline !important;
+}
+
+/* SuiteCRM 8 Angular specific */
+scrm-field a,
+scrm-field-view a,
+scrm-dynamic-field a,
+scrm-relate-field a,
+.field-link,
+.record-link {
+    color: #4A90E2 !important;
+}
+
+scrm-field a:hover,
+scrm-field-view a:hover {
+    color: #125EAD !important;
+}
+
+/* ====================================
+   2. HEADER FONT SIZE - Double and Bold
+   ==================================== */
+
+/* Navigation links - larger and bolder */
+.navbar .nav-link,
+.navbar .nav-item > a,
+.nav-menu a,
+scrm-module-menu a,
+scrm-navbar a,
+scrm-navbar-ui a,
+scrm-home-menu a,
+[class*="navbar"] a:not(.btn):not(.dropdown-item),
+scrm-menu-item a,
+.navbar-nav > li > a {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+
+/* Module menu items specifically */
+scrm-module-menu .menu-item,
+scrm-module-menu .nav-link,
+.module-nav a,
+.top-nav a {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+
+/* ====================================
+   3. NAV ACTIVE MODULE - Light Blue
+   ==================================== */
+
+/* Active nav item - light blue instead of pink/teal */
+.navbar-nav > li.active > a,
+.navbar-nav > li.open > a,
+.nav-item.active > a,
+.nav-link.active,
+scrm-menu-item.active a,
+.navbar .nav > li.active > a,
+.navbar-nav .nav-link.active,
+.navbar-1 .navbar-nav > li.active > a,
+[class*="active"] .nav-link,
+.navbar-nav .active a,
+scrm-module-menu .active,
+scrm-module-menu a.active {
+    color: #4A90E2 !important;
+    border-color: #4A90E2 !important;
+    background-color: rgba(74, 144, 226, 0.1) !important;
+}
+
+/* Dropdown toggle when active */
+.navbar-nav > li.active > a.dropdown-toggle,
+.navbar-nav > li.open > a.dropdown-toggle {
+    color: #4A90E2 !important;
+}
+
+/* ====================================
+   4. LIST PAGES - Rounded Corners
+   ==================================== */
+
+/* List page content section - rounded corners */
+.list-view-container,
+.listViewBody,
+scrm-list-container,
+.table-responsive,
+.list-view,
+.table-container,
+.list-container,
+scrm-table-wrapper,
+.datatable-wrapper,
+scrm-list-widget,
+scrm-table-ui,
+.p-datatable {
+    border-radius: 12px !important;
+    overflow: hidden !important;
+}
+
+/* List table rounded corners */
+.list-view table,
+table.list,
+.listView table,
+.data-table {
+    border-radius: 12px !important;
+    overflow: hidden !important;
+}
+
+/* ====================================
+   5. DETAIL PAGES - Title Card & Links
+   ==================================== */
+
+/* Detail page title card - match list page style */
+.detail-view-header,
+.detailView .moduleTitle,
+scrm-record-header,
+.record-view-header,
+.module-title-row,
+.record-header,
+scrm-record-header-ui {
+    background: #ffffff !important;
+    border-radius: 8px !important;
+    padding: 15px 20px !important;
+    margin-bottom: 15px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08) !important;
+    border: 1px solid #edebe9 !important;
+}
+
+/* ====================================
+   6. WIDGET CONTENT HEADER - Full Width
+   ==================================== */
+
+/* Make table headers fill full width of card */
+.dashletPanel table,
+.dashlet table,
+table.list,
+.widget table {
+    width: 100% !important;
+    table-layout: auto !important;
+}
+
+.dashletPanel thead,
+.dashlet thead,
+table.list thead {
+    width: 100% !important;
+}
+
+/* Widget header styling */
+.hd.dashlet,
+.dashlet-header,
+.widget-header {
+    background: #ffffff !important;
+    border-bottom: 2px solid #125EAD !important;
+    padding: 10px 15px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Widget title text - dark blue */
+.hd.dashlet,
+.hd.dashlet h3,
+.hd.dashlet span,
+.hd.dashlet .glyphicon,
+.hd.dashlet .suitepicon,
+.hd.dashlet i,
+.dashlet-header *,
+.widget-header * {
+    color: #125EAD !important;
+}
+
+/* ====================================
+   7. BULK ACTION - Center + Dropdown Arrow
+   ==================================== */
+
+/* Center the bulk action inner box */
+.bulk-action-container,
+.bulk-actions-container,
+.list-view-tableactions,
+.table-header-actions,
+[class*="bulk-action"] {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+}
+
+/* Inner box styling */
+.bulk-action,
+.bulk-actions,
+.bulk-action-box {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    padding: 8px 15px !important;
+    background: #f8f9fa !important;
+    border-radius: 6px !important;
+    border: 1px solid #edebe9 !important;
+}
+
+/* Add dropdown arrow to bulk action selector */
+.bulk-action select,
+.bulk-actions select,
+select[name*="bulk"],
+select[name*="action"],
+.action-select {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23605e5c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 8px center !important;
+    background-size: 16px !important;
+    padding-right: 30px !important;
+    cursor: pointer !important;
+}
+
+/* Style the middle box (selector container) */
+.list-view-tableactions .middle-box,
+.action-dropdown-container,
+scrm-action-dropdown,
+.p-dropdown {
+    position: relative !important;
+}
+
+.list-view-tableactions .middle-box::after,
+.action-dropdown-container::after,
+scrm-action-dropdown::after {
+    content: "" !important;
+    position: absolute !important;
+    right: 10px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 0 !important;
+    height: 0 !important;
+    border-left: 5px solid transparent !important;
+    border-right: 5px solid transparent !important;
+    border-top: 5px solid #605e5c !important;
+    pointer-events: none !important;
+}
+
+/* ====================================
+   8. FOOTER - Powered by Logical Front
+   ==================================== */
+
+/* Hide original footer text */
+#footer,
+.footer,
+footer,
+.copyright,
+.powered-by,
+[class*="footer-text"],
+[class*="powered"] {
+    visibility: visible !important;
+}
+
+/* Override footer content */
+#footer::after,
+.footer::after,
+footer::after {
+    content: "© Powered by Logical Front" !important;
+    display: block !important;
+    text-align: center !important;
+    padding: 10px !important;
+    color: #605e5c !important;
+    font-size: 12px !important;
+}
+
+/* Footer link styling */
+#footer a,
+.footer a,
+footer a {
+    color: #4A90E2 !important;
+}
+
+#footer a:hover,
+.footer a:hover,
+footer a:hover {
+    color: #125EAD !important;
+}
+
+/* Hide SugarCRM/SuiteCRM branding */
+.sugarcrm-link,
+.suitecrm-link,
+a[href*="sugarcrm"],
+a[href*="suitecrm"],
+.powered-by-sugar,
+.powered-by-suite {
+    display: none !important;
+}
+
+/* ====================================
+   9. LOGIN BUTTON - Brand Color
+   ==================================== */
+
+/* Login button - use brand green */
+.btn-login,
+button[type="submit"].login-btn,
+.login-form button[type="submit"],
+scrm-login button[type="submit"],
+.login-container button.btn-primary {
+    background-color: #4BB74E !important;
+    border-color: #4BB74E !important;
+    color: #ffffff !important;
+}
+
+.btn-login:hover,
+button[type="submit"].login-btn:hover,
+.login-form button[type="submit"]:hover {
+    background-color: #2F7D32 !important;
+    border-color: #2F7D32 !important;
+}
+
+/* ====================================
+   10. OVERRIDE INCORRECT COLORS
+   ==================================== */
+
+/* Remove any remaining orange/coral (#4A90E2) */
+[style*="#4A90E2"],
+[style*="rgb(192, 57, 43)"] {
+    color: #4A90E2 !important;
+}
+
+/* Remove any remaining teal (#4A90E2) */
+[style*="#4A90E2"],
+[style*="rgb(23, 162, 184)"] {
+    color: #4A90E2 !important;
+}
+
+/* General cleanup - ensure no pink/coral/teal colors */
+.text-coral,
+.text-teal,
+.text-pink,
+.coral,
+.teal,
+.pink {
+    color: #4A90E2 !important;
+}
+
+/* ====================================
+   END OF 089 FIXES
+   ==================================== */
+
+/* Hide subnav (Top Card) - removed per user request 089 */
+.lf-subnav,
+#lf-subnav-placeholder,
+nav.lf-subnav {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
