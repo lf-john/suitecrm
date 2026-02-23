@@ -1,0 +1,74 @@
+/* ============================================
+   WIDGET HEADERS FIX V5 - EXACT SELECTOR MATCH
+
+   The problem was found in _subpanel.scss:
+
+   div.widget-panel .panel-card .card-header {
+     background-color: $white;
+     color: $midnight-blue;
+     border-top: 3px solid $midnight-blue;
+   }
+
+   This must be overridden with equal or higher specificity.
+
+   Date: February 13, 2026
+   ============================================ */
+
+/* Exact match override - same specificity */
+div.widget-panel .panel-card .card-header {
+    background-color: #125EAD !important;
+    color: #ffffff !important;
+    border-top: none !important;
+    border-bottom: none !important;
+}
+
+/* Higher specificity - add body */
+body div.widget-panel .panel-card .card-header {
+    background-color: #125EAD !important;
+    color: #ffffff !important;
+    border-top: none !important;
+}
+
+/* Target children for text color */
+div.widget-panel .panel-card .card-header * {
+    color: #ffffff !important;
+}
+
+div.widget-panel .panel-card .card-header .panel-title,
+div.widget-panel .panel-card .card-header .panel-title .title,
+div.widget-panel .panel-card .card-header scrm-label,
+div.widget-panel .panel-card .card-header scrm-label span {
+    color: #ffffff !important;
+}
+
+/* Icons */
+div.widget-panel .panel-card .card-header svg,
+div.widget-panel .panel-card .card-header fa-icon,
+div.widget-panel .panel-card .card-header i {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+}
+
+/* Also target accordion.widget-panel in case that's used */
+.accordion.widget-panel .panel-card .card-header {
+    background-color: #125EAD !important;
+    color: #ffffff !important;
+    border-top: none !important;
+}
+
+.accordion.widget-panel .panel-card .card-header * {
+    color: #ffffff !important;
+}
+
+/* Buttons in header */
+div.widget-panel .panel-card .card-header button,
+div.widget-panel .panel-card .card-header .btn {
+    color: #ffffff !important;
+}
+
+/* Ensure panel-card itself doesn't override */
+div.widget-panel .panel-card > .card-header,
+div.accordion.widget-panel .panel-card > .card-header {
+    background-color: #125EAD !important;
+    background: #125EAD !important;
+}

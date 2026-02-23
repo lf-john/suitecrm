@@ -1,0 +1,43 @@
+// SuiteCRM 8.6.1 Theme - Logical Front Dynamics
+// Main stylesheet that imports all design assets
+
+// Import design system files in correct order
+@import 'variables';      // Colors, spacing, typography tokens
+@import 'typography';     // Text styles, animations, utilities
+@import 'components';     // UI components, widgets, layouts
+
+// Global reset and base styles
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+// Page backgrounds with brand gradient
+body.home-page,
+body.account-detail-page,
+body.opportunity-detail-page,
+body.contact-detail-page,
+body.quotes-detail-page,
+body.accounts-list-page,
+body.opportunities-list-page,
+body.contacts-list-page,
+body.quotes-list-page {
+  @include brand-page-background;
+}
+
+// Apply list page header styling
+body.accounts-list-page .page-header,
+body.opportunities-list-page .page-header,
+body.contacts-list-page .page-header,
+body.quotes-list-page .page-header {
+  @include list-page-header;
+}
+
+// Apply detail page header styling
+body.account-detail-page .page-header,
+body.opportunity-detail-page .page-header,
+body.contact-detail-page .page-header,
+body.quotes-detail-page .page-header {
+  @include detail-page-header;
+}

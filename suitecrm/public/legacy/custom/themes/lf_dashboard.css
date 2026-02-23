@@ -1,0 +1,1569 @@
+/* ============================================
+   LF Planning & Reporting Dashboard CSS
+   Based on planning_dashboard.html & reporting_dashboard.html mockups
+   ============================================ */
+
+:root {
+    /* Logical Front Primary Colors */
+    --lf-primary: #125EAD;
+    --lf-secondary: #4BB74E;
+    --lf-primary-light: #4A90E2;
+    --lf-primary-dark: #0A3D6B;
+    --lf-secondary-light: #7BC97B;
+    --lf-secondary-dark: #2F7D32;
+
+    /* Microsoft Dynamics Gray Scale */
+    --dynamics-gray-50: #faf9f8;
+    --dynamics-gray-100: #f3f2f1;
+    --dynamics-gray-200: #edebe9;
+    --dynamics-gray-300: #e1dfdd;
+    --dynamics-gray-400: #d2d0ce;
+    --dynamics-gray-500: #a19f9d;
+    --dynamics-gray-600: #8a8886;
+    --dynamics-gray-700: #605e5c;
+    --dynamics-gray-800: #323130;
+    --dynamics-gray-900: #201f1e;
+
+    /* Semantic Colors */
+    --success-color: var(--lf-secondary);
+    --warning-color: #ff8c00;
+    --error-color: #d13438;
+    --info-color: var(--lf-primary);
+    --border-color: var(--dynamics-gray-200);
+
+    /* Shadows */
+    --shadow-light: 0 2px 4px rgba(0,0,0,0.08);
+    --shadow-medium: 0 4px 8px rgba(0,0,0,0.12);
+    --shadow-heavy: 0 8px 16px rgba(0,0,0,0.16);
+
+    /* Border Radius */
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --radius-xl: 12px;
+
+    /* Legacy aliases */
+    --lf-blue: #125EAD;
+    --lf-green: #4BB74E;
+    --lf-achievement-green: #2F7D32;
+    --lf-achievement-yellow: #E6C300;
+    --lf-achievement-orange: #ff8c00;
+    --lf-achievement-red: #d13438;
+}
+
+/* ============================================
+   iFrame Compatibility - Remove default margins
+   ============================================ */
+
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* ============================================
+   Main Content Wrapper - Gradient Background
+   ============================================ */
+
+.lf-main-content {
+    background: linear-gradient(135deg, var(--lf-primary) 0%, var(--lf-secondary) 100%);
+    min-height: 100vh;
+    padding: 12px 24px 24px 24px;  /* Further reduced top padding for iFrame header */
+    margin: 0;
+    box-sizing: border-box;
+}
+
+/* Legacy content wrapper for full-width in iframe */
+.lf-content-wrapper {
+    background: linear-gradient(135deg, var(--lf-primary) 0%, var(--lf-secondary) 100%);
+    min-height: 100vh;
+    margin: 0;
+    padding: 12px 24px 24px 24px;  /* Further reduced top padding for iFrame header */
+    box-sizing: border-box;
+}
+
+/* ============================================
+   Title Card (Page Header)
+   ============================================ */
+
+.lf-page-header {
+    background: white;
+    padding: 16px 20px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-medium);
+    margin-bottom: 24px;
+}
+
+.lf-title-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.lf-title-left {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.lf-title-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-left: auto;
+}
+
+.lf-page-title {
+    color: var(--dynamics-gray-800);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+/* View Toggle in Title Card */
+.lf-view-toggle {
+    background: var(--dynamics-gray-100);
+    border-radius: var(--radius-lg);
+    padding: 4px;
+    display: flex;
+}
+
+.lf-view-button {
+    background: none;
+    border: none;
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--dynamics-gray-600);
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.lf-view-button.active {
+    background: var(--lf-primary);
+    color: white;
+    box-shadow: var(--shadow-light);
+}
+
+.lf-view-button:hover:not(.active) {
+    background: var(--dynamics-gray-200);
+}
+
+/* Rep Dropdown in Title Card */
+.lf-rep-dropdown {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    color: var(--dynamics-gray-800);
+    background: white;
+    cursor: pointer;
+    min-width: 180px;
+}
+
+.lf-rep-dropdown:focus {
+    outline: none;
+    border-color: var(--lf-primary);
+    box-shadow: 0 0 0 2px rgba(18, 94, 173, 0.1);
+}
+
+/* Week Selector in Title Card */
+.lf-week-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.lf-week-dropdown {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    color: var(--dynamics-gray-800);
+    background: white;
+    cursor: pointer;
+    min-width: 200px;
+}
+
+.lf-week-dropdown:focus {
+    outline: none;
+    border-color: var(--lf-primary);
+    box-shadow: 0 0 0 2px rgba(18, 94, 173, 0.1);
+}
+
+.lf-week-nav-btn {
+    background: white;
+    border: 1px solid var(--border-color);
+    padding: 8px 12px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--dynamics-gray-700);
+    transition: all 0.2s ease;
+}
+
+.lf-week-nav-btn:hover {
+    background: var(--dynamics-gray-50);
+    border-color: var(--lf-primary);
+    color: var(--lf-primary);
+}
+
+.lf-week-nav-btn.lf-btn-current {
+    background: white;
+    border: 1px solid var(--lf-primary);
+    color: var(--lf-primary);
+    font-weight: 600;
+}
+
+/* ============================================
+   Page Wrapper & Header
+   ============================================ */
+
+.lf-page-wrapper {
+    background: var(--dynamics-gray-100);
+    min-height: 100vh;
+    color: var(--dynamics-gray-800);
+}
+
+.lf-page-subtitle {
+    color: var(--dynamics-gray-600);
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+/* ============================================
+   Dashboard Grid - 3 Column Layout
+   ============================================ */
+
+.lf-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    padding: 0;
+    align-items: stretch;
+    min-height: calc(100vh - 200px);
+}
+
+/* Alias for legacy */
+.lf-dashboard {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    padding: 0;
+    align-items: stretch;
+    min-height: calc(100vh - 200px);
+}
+
+/* Ensure dashboard columns stretch to equal height */
+.lf-dashboard > div,
+.lf-dashboard-grid > div {
+    display: flex;
+    flex-direction: column;
+}
+
+.lf-dashboard .lf-section-card,
+.lf-dashboard-grid .lf-section-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* ============================================
+   Section Card (Main Content Containers)
+   ============================================ */
+
+.lf-section-card {
+    background: white;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-medium);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.2s ease;
+}
+
+.lf-section-card:hover {
+    box-shadow: var(--shadow-heavy);
+    transform: translateY(-2px);
+}
+
+.lf-card-header {
+    background: linear-gradient(to bottom, white, var(--dynamics-gray-100));
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.lf-card-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--dynamics-gray-800);
+    margin: 0 0 4px 0;
+}
+
+.lf-card-header .timer {
+    font-size: 12px;
+    color: var(--dynamics-gray-600);
+    font-weight: 500;
+}
+
+.lf-card-content {
+    padding: 16px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Legacy card alias */
+.lf-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    box-shadow: var(--shadow-light);
+}
+
+/* ============================================
+   View Toggle Buttons
+   ============================================ */
+
+.lf-view-toggle {
+    background: var(--dynamics-gray-100);
+    border-radius: var(--radius-lg);
+    padding: 4px;
+    display: flex;
+}
+
+.lf-view-button {
+    background: none;
+    border: none;
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--dynamics-gray-600);
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.lf-view-button.active {
+    background: var(--lf-primary);
+    color: white;
+    box-shadow: var(--shadow-light);
+}
+
+.lf-view-button:hover:not(.active) {
+    background: var(--dynamics-gray-200);
+}
+
+/* ============================================
+   Week Selector
+   ============================================ */
+
+.lf-week-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.lf-week-dropdown {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    color: var(--dynamics-gray-800);
+    background: white;
+    cursor: pointer;
+    min-width: 220px;
+}
+
+.lf-week-dropdown:focus {
+    outline: none;
+    border-color: var(--lf-primary);
+    box-shadow: 0 0 0 2px rgba(18, 94, 173, 0.1);
+}
+
+.lf-week-nav-btn {
+    background: white;
+    border: 1px solid var(--border-color);
+    padding: 8px 12px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--dynamics-gray-700);
+    transition: all 0.2s ease;
+}
+
+.lf-week-nav-btn:hover {
+    background: var(--dynamics-gray-50);
+    border-color: var(--lf-primary);
+    color: var(--lf-primary);
+}
+
+/* Rep Dropdown */
+.lf-rep-dropdown {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    color: var(--dynamics-gray-800);
+    background: white;
+    cursor: pointer;
+    min-width: 200px;
+}
+
+.lf-rep-dropdown:focus {
+    outline: none;
+    border-color: var(--lf-primary);
+    box-shadow: 0 0 0 2px rgba(18, 94, 173, 0.1);
+}
+
+/* ============================================
+   Metrics Grid
+   ============================================ */
+
+.lf-metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.lf-metric-card {
+    background: var(--dynamics-gray-50);
+    padding: 12px;
+    border-radius: var(--radius-lg);
+    text-align: center;
+}
+
+.lf-metric-value {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.lf-metric-value.primary { color: var(--lf-primary); }
+.lf-metric-value.success { color: var(--lf-secondary); }
+.lf-metric-value.warning { color: var(--warning-color); }
+.lf-metric-value.error { color: var(--error-color); }
+
+.lf-metric-label {
+    font-size: 12px;
+    color: var(--dynamics-gray-600);
+}
+
+/* ============================================
+   Section Titles
+   ============================================ */
+
+.lf-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--dynamics-gray-800);
+}
+
+/* ============================================
+   Risk Sections
+   ============================================ */
+
+.lf-risk-header {
+    color: white;
+    padding: 8px;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    text-align: center;
+}
+
+.lf-risk-header.critical {
+    background: var(--error-color);
+}
+
+.lf-risk-header.warning {
+    background: var(--warning-color);
+}
+
+.lf-risk-header .count {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.lf-risk-header .label {
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
+.lf-risk-list {
+    max-height: 200px;
+    background: var(--dynamics-gray-50);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    padding: 8px;
+    overflow-y: auto;
+}
+
+.lf-deal-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    border-bottom: 1px solid var(--dynamics-gray-200);
+    background: white;
+    border-radius: var(--radius-sm);
+    margin-bottom: 4px;
+}
+
+.lf-deal-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.lf-deal-name {
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--dynamics-gray-800);
+}
+
+.lf-deal-meta {
+    font-size: 11px;
+    color: var(--dynamics-gray-600);
+}
+
+.lf-deal-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.lf-status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.lf-status-indicator.critical { background: var(--error-color); }
+.lf-status-indicator.warning { background: var(--warning-color); }
+.lf-status-indicator.healthy { background: var(--lf-secondary); }
+
+/* ============================================
+   Priority Cards
+   ============================================ */
+
+.lf-rep-priority-card {
+    background: var(--dynamics-gray-50);
+    border-radius: var(--radius-lg);
+    padding: 12px;
+    border-left: 4px solid var(--lf-primary);
+    margin-bottom: 12px;
+    transition: all 0.2s ease;
+}
+
+.lf-rep-priority-card:hover {
+    box-shadow: var(--shadow-light);
+    transform: translateX(2px);
+}
+
+.lf-rep-name {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: var(--lf-primary);
+}
+
+.lf-priority-item {
+    background: white;
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 4px;
+    border-left: 2px solid var(--lf-secondary);
+}
+
+.lf-priority-account {
+    font-weight: 500;
+    font-size: 12px;
+    margin-bottom: 2px;
+    color: var(--dynamics-gray-800);
+}
+
+.lf-priority-stage {
+    font-size: 10px;
+    color: var(--dynamics-gray-600);
+    background: var(--dynamics-gray-100);
+    padding: 2px 6px;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+/* ============================================
+   Stacked Bar Charts
+   ============================================ */
+
+.lf-stacked-chart {
+    background: var(--dynamics-gray-100);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    position: relative;
+    min-height: 150px;
+}
+
+.lf-stacked-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.lf-stacked-bar {
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 12px;
+    padding: 8px;
+    transition: all 0.2s ease;
+}
+
+.lf-stacked-bar:hover {
+    transform: scaleX(1.02);
+}
+
+.lf-chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 12px;
+    padding: 8px;
+    background: white;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.lf-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--dynamics-gray-700);
+}
+
+.lf-legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+}
+
+/* ============================================
+   Summary Boxes
+   ============================================ */
+
+.lf-summary-box {
+    background: var(--lf-primary);
+    color: white;
+    padding: 12px;
+    border-radius: var(--radius-lg);
+    margin-top: 16px;
+}
+
+.lf-summary-box.success {
+    background: var(--lf-secondary);
+}
+
+.lf-summary-title {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.lf-summary-content {
+    font-size: 11px;
+    line-height: 1.4;
+    opacity: 0.9;
+}
+
+/* Info Box */
+.lf-info-box {
+    background: var(--dynamics-gray-50);
+    padding: 12px;
+    border-radius: var(--radius-lg);
+    margin-bottom: 12px;
+}
+
+.lf-info-box-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--lf-primary);
+    margin-bottom: 8px;
+}
+
+.lf-info-box-content {
+    font-size: 11px;
+    color: var(--dynamics-gray-600);
+    line-height: 1.4;
+}
+
+/* Error Box */
+.lf-error-box {
+    background: var(--error-color);
+    color: white;
+    padding: 12px;
+    border-radius: var(--radius-lg);
+    margin-top: 12px;
+}
+
+.lf-error-box-title {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.lf-error-box-content {
+    font-size: 11px;
+    line-height: 1.4;
+    opacity: 0.9;
+}
+
+/* ============================================
+   Achievement Badges & Status
+   ============================================ */
+
+.lf-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.lf-badge.tier-green {
+    background: var(--lf-secondary-dark);
+    color: white;
+}
+
+.lf-badge.tier-yellow {
+    background: #E6C300;
+    color: var(--dynamics-gray-900);
+}
+
+.lf-badge.tier-orange {
+    background: var(--warning-color);
+    color: white;
+}
+
+.lf-badge.tier-red {
+    background: var(--error-color);
+    color: white;
+}
+
+/* Legacy badge compatibility */
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.lf-status-in_progress {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffc107;
+}
+
+.lf-status-submitted {
+    background-color: #cce5ff;
+    color: #004085;
+    border: 1px solid #007bff;
+}
+
+.lf-status-reviewed {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #28a745;
+}
+
+/* Achievement colors */
+.achievement-green { color: var(--lf-achievement-green); font-weight: bold; }
+.achievement-yellow { color: var(--lf-achievement-yellow); font-weight: bold; }
+.achievement-orange { color: var(--lf-achievement-orange); font-weight: bold; }
+.achievement-red { color: var(--lf-achievement-red); font-weight: bold; }
+
+/* Target states */
+.on-target { color: var(--lf-achievement-green) !important; }
+.off-target { color: var(--lf-achievement-red) !important; }
+.gap-negative { color: var(--lf-achievement-red) !important; }
+
+/* ============================================
+   Tables (2-Column Layout for Rep Targets)
+   ============================================ */
+
+.lf-two-column-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+}
+
+.lf-table-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.lf-table-header {
+    background: linear-gradient(to bottom, white, var(--dynamics-gray-100));
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    color: var(--dynamics-gray-800);
+}
+
+/* Table Styling */
+.lf-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.lf-table th {
+    background: var(--dynamics-gray-100);
+    color: var(--dynamics-gray-800);
+    font-weight: 600;
+    padding: 12px;
+    text-align: left;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.lf-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--dynamics-gray-800);
+}
+
+.lf-table tr:hover {
+    background: var(--dynamics-gray-50);
+}
+
+.lf-table input[type="number"],
+.lf-table input[type="text"],
+.lf-table select {
+    padding: 6px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.lf-table input:focus,
+.lf-table select:focus {
+    outline: none;
+    border-color: var(--lf-primary);
+    box-shadow: 0 0 0 2px rgba(18, 94, 173, 0.1);
+}
+
+/* ============================================
+   Form Elements
+   ============================================ */
+
+.lf-form-section {
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.lf-form-section h3 {
+    margin: 0 0 16px 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--dynamics-gray-800);
+    font-size: 16px;
+}
+
+.lf-field-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 12px;
+    align-items: center;
+}
+
+.lf-field-label {
+    font-weight: 500;
+    color: var(--dynamics-gray-700);
+    min-width: 120px;
+}
+
+.lf-input,
+.lf-select {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    color: var(--dynamics-gray-800);
+    background: white;
+}
+
+.lf-input:focus,
+.lf-select:focus {
+    outline: none;
+    border-color: var(--lf-primary);
+    box-shadow: 0 0 0 2px rgba(18, 94, 173, 0.1);
+}
+
+/* Buttons */
+.lf-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.lf-btn-primary {
+    background: var(--lf-primary);
+    color: white;
+}
+
+.lf-btn-primary:hover {
+    background: var(--lf-primary-dark);
+}
+
+.lf-btn-success {
+    background: var(--lf-secondary);
+    color: white;
+}
+
+.lf-btn-success:hover {
+    background: var(--lf-secondary-dark);
+}
+
+.lf-btn-secondary {
+    background: var(--dynamics-gray-200);
+    color: var(--dynamics-gray-800);
+}
+
+.lf-btn-secondary:hover {
+    background: var(--dynamics-gray-300);
+}
+
+.lf-btn-danger {
+    background: var(--error-color);
+    color: white;
+}
+
+.lf-btn-danger:hover {
+    background: #b82d30;
+}
+
+/* ============================================
+   Planning View Specific Styles
+   ============================================ */
+
+.lf-planning-wrapper {
+    background-color: var(--dynamics-gray-100);
+    color: var(--dynamics-gray-800);
+    padding: 24px;
+    min-height: 100vh;
+}
+
+.lf-planning-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding: 16px 20px;
+    background: white;
+    border-radius: var(--radius-lg);
+    border-bottom: 3px solid var(--lf-primary);
+}
+
+.lf-planning-header h1 {
+    margin: 0;
+    font-size: 1.5em;
+    color: var(--lf-primary);
+}
+
+/* Totals Container */
+.lf-totals-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.total-box {
+    padding: 16px;
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    text-align: center;
+    font-weight: 500;
+    color: var(--dynamics-gray-700);
+}
+
+.total-box span {
+    display: block;
+    font-size: 1.5em;
+    font-weight: 700;
+    margin-top: 8px;
+    color: var(--lf-primary);
+}
+
+/* Health Summary */
+.lf-health-summary-section {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 2px solid var(--border-color);
+}
+
+.lf-health-summary-section h2 {
+    margin-bottom: 16px;
+    color: var(--dynamics-gray-800);
+}
+
+.lf-health-container {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+}
+
+.health-box {
+    padding: 12px;
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    text-align: center;
+    font-size: 0.9em;
+    color: var(--dynamics-gray-700);
+}
+
+.health-box span {
+    display: block;
+    font-size: 1.2em;
+    font-weight: 600;
+    margin-top: 4px;
+    color: var(--lf-primary);
+}
+
+/* Planning Actions */
+.lf-planning-actions {
+    margin-top: 24px;
+    padding: 16px 20px;
+    background: white;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.lf-planning-actions .button {
+    padding: 10px 24px;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    border-radius: var(--radius-md);
+}
+
+.lf-planning-actions .button.primary {
+    background: var(--lf-primary);
+    color: white;
+}
+
+.lf-planning-actions .button.primary:hover {
+    background: var(--lf-primary-dark);
+}
+
+.lf-planning-actions .button:not(.primary) {
+    background: var(--dynamics-gray-200);
+    color: var(--dynamics-gray-800);
+}
+
+.lf-planning-actions .button:not(.primary):hover {
+    background: var(--dynamics-gray-300);
+}
+
+.lf-message {
+    margin-left: 16px;
+    font-weight: 500;
+}
+
+/* Pipeline Tables */
+#pipeline-table,
+#developing-pipeline-table,
+#prospecting-table {
+    width: 100%;
+    background: white;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+#pipeline-table th,
+#developing-pipeline-table th,
+#prospecting-table th {
+    background: var(--dynamics-gray-100);
+    color: var(--dynamics-gray-800);
+    font-weight: 600;
+    padding: 12px;
+}
+
+#pipeline-table td,
+#developing-pipeline-table td,
+#prospecting-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--dynamics-gray-800);
+    background: white;
+}
+
+#pipeline-table a,
+#developing-pipeline-table a,
+#prospecting-table a {
+    color: var(--lf-primary);
+    text-decoration: none;
+}
+
+#pipeline-table a:hover,
+#developing-pipeline-table a:hover,
+#prospecting-table a:hover {
+    text-decoration: underline;
+}
+
+.pipeline-progression {
+    font-weight: 600;
+    text-align: right;
+}
+
+/* Prospecting Actions */
+.remove-prospect-row {
+    background: var(--error-color);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.remove-prospect-row:hover {
+    background: #b82d30;
+}
+
+#add-prospect-row {
+    margin-top: 12px;
+    margin-bottom: 24px;
+}
+
+/* ============================================
+   Config Page Styles
+   ============================================ */
+
+.lf-config-wrapper {
+    background-color: var(--dynamics-gray-100);
+    color: var(--dynamics-gray-800);
+    padding: 24px;
+    max-width: 1000px;
+}
+
+.lf-config-wrapper h2 {
+    color: var(--lf-primary);
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 3px solid var(--lf-primary);
+}
+
+.config-section {
+    margin-bottom: 24px;
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    border-radius: var(--radius-lg);
+    background: white;
+}
+
+.config-section h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--dynamics-gray-800);
+}
+
+.field-container {
+    margin-bottom: 16px;
+    color: var(--dynamics-gray-800);
+}
+
+.field-container label {
+    display: inline-block;
+    width: 250px;
+    font-weight: 500;
+    color: var(--dynamics-gray-700);
+}
+
+.field-container input[type="number"],
+.field-container select,
+.field-container textarea {
+    padding: 8px 12px;
+    color: var(--dynamics-gray-800);
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+}
+
+.field-container input:focus,
+.field-container select:focus,
+.field-container textarea:focus {
+    outline: none;
+    border-color: var(--lf-primary);
+    box-shadow: 0 0 0 2px rgba(18, 94, 173, 0.1);
+}
+
+.stage-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.stage-table th,
+.stage-table td {
+    border: 1px solid var(--border-color);
+    padding: 10px;
+    text-align: left;
+    color: var(--dynamics-gray-800);
+}
+
+.stage-table th {
+    background: var(--dynamics-gray-100);
+}
+
+/* ============================================
+   Rep Targets Page (2-Column Layout)
+   ============================================ */
+
+.lf-rep-targets-wrapper {
+    background-color: var(--dynamics-gray-100);
+    color: var(--dynamics-gray-800);
+    padding: 24px;
+}
+
+.lf-rep-targets-wrapper h2 {
+    color: var(--lf-primary);
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 3px solid var(--lf-primary);
+}
+
+/* ============================================
+   Messages
+   ============================================ */
+
+.message {
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    border-radius: var(--radius-md);
+}
+
+.message.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* ============================================
+   Responsive Breakpoints
+   ============================================ */
+
+@media (max-width: 768px) {
+    .lf-dashboard-grid,
+    .lf-dashboard {
+        grid-template-columns: 1fr;
+    }
+
+    .lf-two-column-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .lf-title-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .lf-title-left,
+    .lf-title-right {
+        width: 100%;
+    }
+
+    .lf-week-selector {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 8px;
+    }
+
+    .lf-totals-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .lf-health-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .lf-planning-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .lf-planning-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .lf-message {
+        margin-left: 0;
+        margin-top: 12px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1200px) {
+    .lf-dashboard-grid,
+    .lf-dashboard {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .lf-health-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+
+.text-lf-blue { color: var(--lf-primary); }
+.text-lf-green { color: var(--lf-secondary); }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.hidden { display: none !important; }
+.flex-row { display: flex; flex-direction: row; }
+.flex-col { display: flex; flex-direction: column; }
+.gap-8 { gap: 8px; }
+.gap-12 { gap: 12px; }
+.gap-16 { gap: 16px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-24 { margin-bottom: 24px; }
+.p-16 { padding: 16px; }
+
+/* ============================================
+   Planning Page - Category Styling
+   ============================================ */
+
+.category-cell {
+    font-weight: 600;
+    text-align: center;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+}
+
+.category-closing {
+    background: rgba(47, 125, 50, 0.15);
+    color: #2F7D32;
+}
+
+.category-closing .category-display {
+    color: #2F7D32;
+}
+
+.category-progression {
+    background: rgba(18, 94, 173, 0.15);
+    color: #125EAD;
+}
+
+.category-progression .category-display {
+    color: #125EAD;
+}
+
+.category-new {
+    background: rgba(75, 183, 78, 0.15);
+    color: #4BB74E;
+}
+
+.category-new .category-display {
+    color: #4BB74E;
+}
+
+.at-risk-cell {
+    text-align: center;
+}
+
+.at-risk-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--error-color);
+}
+
+/* Pipeline Table Styling */
+#pipeline-table th,
+#developing-pipeline-table th,
+#prospecting-table th {
+    background: var(--dynamics-gray-100);
+    font-weight: 600;
+    color: var(--dynamics-gray-800);
+    padding: 12px 8px;
+    text-align: left;
+    border-bottom: 2px solid var(--lf-primary);
+}
+
+#pipeline-table td,
+#developing-pipeline-table td,
+#prospecting-table td {
+    padding: 10px 8px;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--dynamics-gray-200);
+}
+
+#pipeline-table tbody tr:hover,
+#developing-pipeline-table tbody tr:hover,
+#prospecting-table tbody tr:hover {
+    background: var(--dynamics-gray-50);
+}
+
+#pipeline-table select,
+#developing-pipeline-table select,
+#prospecting-table select {
+    padding: 6px 8px;
+    border: 1px solid var(--dynamics-gray-300);
+    border-radius: var(--radius-sm);
+    background: white;
+    min-width: 120px;
+}
+
+#pipeline-table input[type="text"],
+#developing-pipeline-table input[type="text"],
+#prospecting-table input[type="text"],
+#prospecting-table input[type="number"] {
+    padding: 6px 8px;
+    border: 1px solid var(--dynamics-gray-300);
+    border-radius: var(--radius-sm);
+    width: 100%;
+}
+
+/* ============================================
+   Sub-Navigation (Page Tabs)
+   ============================================ */
+
+.lf-subnav {
+    display: flex;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 6px;
+    border-radius: var(--radius-lg);
+    margin-bottom: 16px;
+}
+
+.lf-subnav-link {
+    display: inline-block;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.lf-subnav-link:hover {
+    background: rgba(255, 255, 255, 0.35);
+    text-decoration: none;
+    color: white;
+}
+
+.lf-subnav-link.active {
+    background: white;
+    color: var(--lf-primary);
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: var(--shadow-light);
+}
+
+/* Admin-only navigation items */
+.lf-subnav-admin {
+    margin-left: auto;
+    display: flex;
+    gap: 4px;
+}
+
+.lf-subnav-admin .lf-subnav-link {
+    background: rgba(0, 0, 0, 0.1);
+    font-size: 12px;
+    padding: 8px 14px;
+}
+
+.lf-subnav-admin .lf-subnav-link:hover {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================
+   Hide SuiteCRM Footer Elements in LF iFrame Pages
+   ============================================ */
+
+/*
+ * IMPORTANT: These rules are scoped to LF module pages only.
+ * Do NOT hide global modal/YUI elements as they break home page dashlets.
+ */
+
+/* Hide Reset Password modal specifically by ID */
+#resetpassworddiv,
+#resetpassworddiv + button,
+[id*="resetpassword"] {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* Hide footer elements only within LF wrapper pages */
+.lf-main-content .footer,
+.lf-main-content #footer,
+.lf-main-content .moduleTitle,
+.lf-main-content #ajaxStatusDiv,
+.lf-content-wrapper .footer,
+.lf-content-wrapper #footer,
+.lf-content-wrapper .moduleTitle,
+.lf-content-wrapper #ajaxStatusDiv,
+.lf-planning-wrapper .footer,
+.lf-planning-wrapper #footer,
+.lf-planning-wrapper .moduleTitle,
+.lf-planning-wrapper #ajaxStatusDiv,
+.lf-config-wrapper .footer,
+.lf-config-wrapper #footer,
+.lf-config-wrapper .moduleTitle,
+.lf-config-wrapper #ajaxStatusDiv,
+.lf-rep-targets-wrapper .footer,
+.lf-rep-targets-wrapper #footer,
+.lf-rep-targets-wrapper .moduleTitle,
+.lf-rep-targets-wrapper #ajaxStatusDiv {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* Ensure lf-main-content takes full viewport without interference */
+.lf-main-content {
+    position: relative;
+    z-index: 1;
+}

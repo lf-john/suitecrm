@@ -1,0 +1,319 @@
+/**
+ * Logical Front Dynamics Custom Theme
+ * Doc 241 - COMPREHENSIVE FIX - All Remaining Items
+ * Each !important is documented with WHY it's needed
+ */
+
+// ============================================
+// TRANSPARENT - Show gradient background
+// ============================================
+#dashboard, #content, #pagecontent, #pageContainer, #bootstrap-container,
+.tab-content, .dashlet-page, .dashlet-table, td.dashboard-col,
+.dashboard-col, body, html {
+    /* !important: Override SuiteCRM default backgrounds to show gradient */
+    background: transparent !important;
+}
+
+table, tbody, tr:not(.pagination) {
+    /* !important: Tables must be transparent for gradient visibility */
+    background: transparent !important;
+}
+
+tr:not(.pagination) td {
+    /* !important: Table cells transparent except pagination row */
+    background: transparent !important;
+}
+
+// ============================================
+// WHITE - Widget content areas
+// ============================================
+.dashlet .bd, .bd.dashlet, .dashletNonTable,
+.sugarFeedDashlet, .daily-plans-dashlet {
+    /* !important: Widget content needs white background for text contrast */
+    background: #ffffff !important;
+}
+
+.dashlet tbody, .dashlet table tbody {
+    /* !important: Table bodies inside widgets need white background */
+    background: #ffffff !important;
+}
+
+// ============================================
+// BLUE - Widget headers
+// ============================================
+.hd.dashlet {
+    /* !important: Override SuiteCRM header colors with brand blue */
+    background: #125EAD !important;
+    color: #ffffff !important;
+}
+
+// ============================================
+// ITEM 4: Widget Drop Shadows - INCREASED INTENSITY
+// ============================================
+#pageContainer, #pagecontent, #content, #dashboard,
+#bootstrap-container, .tab-content {
+    /* !important: Container should have NO shadow - only widgets */
+    box-shadow: none !important;
+}
+
+.dashletPanel {
+    /* !important: Override SuiteCRM flat appearance with visible shadow */
+    background: transparent !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    border: none !important;
+}
+
+// ============================================
+// ITEMS 7-8: Remove White Lines Around Dashboard
+// ============================================
+#pageContainer, #pagecontent, #content, #dashboard,
+#bootstrap-container, .tab-content, .dashlet-page,
+.dashlet-table, .yui-skin-sam, .yui-module {
+    /* !important: Remove borders causing 3/4 box white line effect */
+    border: none !important;
+    outline: none !important;
+}
+
+#pageContainer::before, #pageContainer::after,
+#pagecontent::before, #pagecontent::after,
+#content::before, #content::after,
+#dashboard::before, #dashboard::after,
+.tab-content::before, .tab-content::after {
+    /* !important: Remove pseudo-elements that may create lines */
+    display: none !important;
+    content: none !important;
+}
+
+/* Target inline HTML border attributes */
+table[border], table[border="0"], table[border="1"],
+table[cellspacing] {
+    /* !important: Override inline HTML border attributes */
+    border: none !important;
+    border-collapse: collapse !important;
+    border-spacing: 0 !important;
+}
+
+td[bgcolor], tr[bgcolor] {
+    /* !important: Override inline bgcolor attributes */
+    background: transparent !important;
+}
+
+// ============================================
+// ITEM 6: Hide .ft footer div completely
+// ============================================
+.dashletPanel > .ft,
+.dashlet > .ft,
+.dashletPanel .ft,
+.ft.dashlet,
+.ft,
+.dashletPanel > div:last-child:not(.bd):not(.hd):not(table) {
+    /* !important: Hide footer divs that create white space */
+    display: none !important;
+    height: 0 !important;
+    visibility: hidden !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+}
+
+// Ensure no padding at bottom of widget body
+.dashletPanel .bd,
+.bd.dashlet {
+    /* !important: Remove bottom padding that creates white space */
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+// ============================================
+// PAGINATION - Gray background - ITEM 5: FULL WIDTH
+// ============================================
+
+// Make pagination row a full-width block
+.dashletPanel table tr.pagination,
+tr.pagination {
+    /* !important: Override table-row display for full-width layout */
+    display: block !important;
+    width: 100% !important;
+    background: #e1dfdd !important;
+    padding: 6px 12px !important;
+    box-sizing: border-box !important;
+}
+
+// The TD inside pagination
+.dashletPanel table tr.pagination > td,
+tr.pagination > td {
+    /* !important: TD becomes block for full width */
+    display: block !important;
+    width: 100% !important;
+    padding: 0 !important;
+    background: transparent !important;
+}
+
+// Inner table in pagination
+.dashletPanel table tr.pagination table,
+tr.pagination table {
+    /* !important: Force nested table to full width */
+    display: block !important;
+    width: 100% !important;
+    background: transparent !important;
+}
+
+.dashletPanel table tr.pagination table tr,
+tr.pagination table tr {
+    /* !important: Inner TR as flex for right-alignment */
+    display: flex !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    width: 100% !important;
+    background: transparent !important;
+}
+
+// Hide left spacer cell
+.dashletPanel table tr.pagination table td[align="left"],
+tr.pagination table td[align="left"],
+tr.pagination table td:first-child:not(:only-child) {
+    /* !important: Hide left spacer TD that creates white gap */
+    display: none !important;
+}
+
+// Right cell takes remaining space
+.dashletPanel table tr.pagination table td[align="right"],
+tr.pagination table td[align="right"],
+tr.pagination table td:last-child {
+    /* !important: Right-aligned pagination controls */
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    background: transparent !important;
+}
+
+// ============================================
+// ITEM 3: Page Numbers BOLD
+// ============================================
+.dashletPanel tr.pagination span.pageNumbers,
+.dashletPanel tr.pagination .pageNumbers,
+tr.pagination span.pageNumbers,
+tr.pagination .pageNumbers,
+span.pageNumbers,
+.pageNumbers {
+    /* !important: Make page numbers bold and readable */
+    font-weight: 700 !important;
+    font-size: 12px !important;
+    color: #333333 !important;
+}
+
+// ============================================
+// ITEM 2: Pagination Arrows VISIBLE
+// ============================================
+
+// Hide the broken icon font glyph
+.suitepicon-action-first,
+.suitepicon-action-left,
+.suitepicon-action-right,
+.suitepicon-action-last {
+    /* !important: Hide broken icon font, prepare for text replacement */
+    font-size: 0 !important;
+    line-height: 0 !important;
+    color: transparent !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 20px !important;
+    min-height: 20px !important;
+    position: relative !important;
+}
+
+// Use ::after (renders after any existing content)
+.suitepicon-action-first::after {
+    /* !important: Provide visible << arrow when icon font fails */
+    content: "\00AB";
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
+    color: #333333 !important;
+    line-height: 1 !important;
+    display: block !important;
+}
+
+.suitepicon-action-left::after {
+    /* !important: Provide visible < arrow when icon font fails */
+    content: "\2039";
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
+    color: #333333 !important;
+    line-height: 1 !important;
+    display: block !important;
+}
+
+.suitepicon-action-right::after {
+    /* !important: Provide visible > arrow when icon font fails */
+    content: "\203A";
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
+    color: #333333 !important;
+    line-height: 1 !important;
+    display: block !important;
+}
+
+.suitepicon-action-last::after {
+    /* !important: Provide visible >> arrow when icon font fails */
+    content: "\00BB";
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
+    color: #333333 !important;
+    line-height: 1 !important;
+    display: block !important;
+}
+
+// Pagination buttons styling
+.dashletPanel tr.pagination .button,
+.dashletPanel tr.pagination button,
+tr.pagination .button,
+tr.pagination button {
+    /* !important: Style pagination buttons consistently */
+    background: #ffffff !important;
+    border: 1px solid #aaa !important;
+    border-radius: 3px !important;
+    padding: 2px 6px !important;
+    margin: 0 2px !important;
+    min-width: 28px !important;
+    height: 28px !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.dashletPanel tr.pagination .button:hover:not(:disabled),
+tr.pagination .button:hover:not(:disabled),
+tr.pagination button:hover:not(:disabled) {
+    /* !important: Hover state for pagination buttons */
+    background: #f0f0f0 !important;
+    border-color: #125EAD !important;
+}
+
+.dashletPanel tr.pagination .button:disabled,
+tr.pagination .button:disabled,
+tr.pagination button:disabled {
+    /* !important: Disabled state styling */
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+}
+
+// Pagination row bottom corners rounded
+.dashletPanel .bd {
+    /* !important: Body has no radius - pagination row has it */
+    border-radius: 0 !important;
+}
+
+tr.pagination {
+    /* !important: Pagination row has rounded bottom corners */
+    border-bottom-left-radius: 12px !important;
+    border-bottom-right-radius: 12px !important;
+}

@@ -1,0 +1,60 @@
+/* DEBUG: Color-coded elements to identify code-to-page connections */
+
+/* Dashboard container - BRIGHT RED */
+#dashboard,
+.dashboard {
+    background: #FF0000 !important;
+}
+
+/* Dashlet panels - BRIGHT GREEN */
+.dashletPanel {
+    background: #00FF00 !important;
+}
+
+/* Widget header container - BRIGHT YELLOW */
+.hd.dashlet,
+.dashletPanel .hd {
+    background: #FFFF00 !important;
+}
+
+/* Title row/table - BRIGHT CYAN */
+.formHeader.h3Row,
+.formHeader.h3Row td {
+    background: #00FFFF !important;
+}
+
+/* Dashboard title span - BRIGHT MAGENTA */
+.dashboard-title,
+.dashlet-title {
+    background: #FF00FF !important;
+}
+
+/* Title text span - BRIGHT ORANGE */
+.dashboard-title span,
+.dashlet-title span {
+    background: #FFA500 !important;
+}
+
+/* Widget table headers - LIME */
+.dashletPanel table th,
+.bd table th {
+    background: #32CD32 !important;
+}
+
+/* Widget body - LIGHT BLUE */
+.bd.dashlet,
+.dashletPanel .bd {
+    background: #ADD8E6 !important;
+}
+
+/* Nav/pagination area - PINK */
+.dashletPanel .pagination,
+#paginationDiv {
+    background: #FFC0CB !important;
+}
+
+/* dashletTable layout table - PURPLE */
+.dashletTable,
+table.dashletTable {
+    background: #800080 !important;
+}

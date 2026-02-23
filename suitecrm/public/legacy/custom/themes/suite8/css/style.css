@@ -1,0 +1,79 @@
+/* Import Logical Front Theme */
+@import url('/legacy/themes/suite8/css/logical-front-theme.css');
+
+/* ============================================
+   Home Page Dialog Fix
+   Hide Bootstrap modals that incorrectly appear at page bottom
+   ============================================ */
+
+/*
+ * These Bootstrap modals are being rendered but should be hidden until triggered.
+ * They appear at the bottom of the home page due to improper initialization.
+ */
+
+/* Hide Add Dashlets modal */
+.modal-add-dashlet,
+.modal-add-dashlet .modal-content,
+.modal-add-dashlet .modal-dialog {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Hide Add Tab modal */
+.modal-add-tab,
+.modal-add-tab .modal-content,
+.modal-add-tab .modal-dialog {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Hide Edit Tabs modal */
+.modal-edit-tabs,
+.modal-edit-tabs .modal-content,
+.modal-edit-tabs .modal-dialog {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Hide Reset Password modal (generic modal) */
+.modal-generic,
+.modal-generic .modal-content,
+.modal-generic .modal-dialog,
+#title-generic {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Hide edit-dashboard-tabs panel with "Untitled" */
+.edit-dashboard-tabs {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* Hide modal backdrops that aren't active */
+.modal-backdrop:not(.in) {
+    display: none !important;
+}
+
+/* Generic fix: Hide all modals that don't have the 'in' class (not shown) */
+.modal:not(.in):not(.show) {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    left: -9999px !important;
+}

@@ -1,0 +1,1 @@
+{"version":3,"file":"standard-field.registry.d.ts","sourceRoot":"","sources":["../../../../core/app/core/src/lib/fields/standard-field.registry.ts"],"names":[],"mappings":"AA4BA,OAAO,EAAC,iBAAiB,EAAC,MAAM,eAAe,CAAC;AAChD,OAAO,EAAC,iBAAiB,EAAC,MAAM,uBAAuB,CAAC;;AAExD,qBAGa,qBAAsB,SAAQ,iBAAiB;;IAMxD,SAAS,CAAC,aAAa,IAAI,iBAAiB;yCANnC,qBAAqB;6CAArB,qBAAqB;CASjC"}

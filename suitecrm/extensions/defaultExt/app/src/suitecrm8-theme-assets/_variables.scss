@@ -1,0 +1,121 @@
+// SuiteCRM 8 Theme Variables - Logical Front Dynamics Theme
+// Extracted from V7 theme for migration to SuiteCRM 8.6.1
+
+// =============================================================================
+// LOGICAL FRONT PRIMARY COLORS
+// =============================================================================
+$lf-primary: #125EAD;
+$lf-secondary: #4BB74E;
+$lf-primary-light: #4A90E2;
+$lf-primary-dark: #0A3D6B;
+$lf-secondary-light: #7BC97B;
+$lf-secondary-dark: #2F7D32;
+
+// =============================================================================
+// MICROSOFT DYNAMICS GRAY SCALE
+// =============================================================================
+$dynamics-gray-50: #faf9f8;
+$dynamics-gray-100: #f3f2f1;
+$dynamics-gray-200: #edebe9;
+$dynamics-gray-300: #e1dfdd;
+$dynamics-gray-400: #d2d0ce;
+$dynamics-gray-500: #a19f9d;
+$dynamics-gray-600: #8a8886;
+$dynamics-gray-700: #605e5c;
+$dynamics-gray-800: #323130;
+$dynamics-gray-900: #201f1e;
+
+// =============================================================================
+// SEMANTIC COLORS
+// =============================================================================
+$success-color: $lf-secondary;
+$warning-color: #ff8c00;
+$error-color: #d13438;
+$info-color: $lf-primary;
+$border-color: $dynamics-gray-200;
+$hover-bg: $dynamics-gray-50;
+$active-bg: rgba(18, 94, 173, 0.1);
+
+// =============================================================================
+// SHADOWS
+// =============================================================================
+$shadow-light: 0 2px 4px rgba(0,0,0,0.08);
+$shadow-medium: 0 4px 8px rgba(0,0,0,0.12);
+$shadow-heavy: 0 8px 16px rgba(0,0,0,0.16);
+
+// =============================================================================
+// TYPOGRAPHY SCALE
+// =============================================================================
+$font-size-xs: 11px;
+$font-size-sm: 13px;
+$font-size-base: 14px;
+$font-size-lg: 16px;
+$font-size-xl: 18px;
+$font-size-2xl: 24px;
+$font-size-3xl: 30px;
+
+// =============================================================================
+// LINE HEIGHTS
+// =============================================================================
+$line-height-tight: 1.25;
+$line-height-base: 1.5;
+$line-height-relaxed: 1.75;
+
+// =============================================================================
+// FONT WEIGHTS
+// =============================================================================
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// =============================================================================
+// BORDER RADIUS SCALE
+// =============================================================================
+$radius-sm: 4px;
+$radius-md: 6px;
+$radius-lg: 8px;
+$radius-xl: 12px;
+
+// =============================================================================
+// SPACING SCALE
+// =============================================================================
+$space-xs: 4px;
+$space-sm: 8px;
+$space-md: 16px;
+$space-lg: 24px;
+$space-xl: 32px;
+$space-2xl: 48px;
+
+// =============================================================================
+// FONT FAMILIES
+// =============================================================================
+$font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+// =============================================================================
+// BACKGROUND GRADIENTS
+// =============================================================================
+$brand-gradient: linear-gradient(135deg, $lf-primary 0%, $lf-secondary 100%);
+$page-background: $dynamics-gray-100;
+
+// =============================================================================
+// COMPONENT-SPECIFIC COLORS
+// =============================================================================
+$nav-text-color: $dynamics-gray-600;
+$nav-text-hover: $lf-primary;
+$card-background: #ffffff;
+$card-border: $border-color;
+
+// =============================================================================
+// TRANSITIONS
+// =============================================================================
+$transition-fast: 0.2s ease;
+$transition-medium: 0.3s ease;
+$transition-slow: 0.5s ease;
+
+// =============================================================================
+// Z-INDEX SCALE
+// =============================================================================
+$z-dropdown: 1000;
+$z-modal: 2000;
+$z-tooltip: 3000;

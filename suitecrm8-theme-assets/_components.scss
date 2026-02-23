@@ -1,0 +1,418 @@
+// SuiteCRM 8 Component Styles - Logical Front Dynamics Theme
+// Extracted widget, table, and UI component styles from V7 theme
+
+// =============================================================================
+// MODERN CARD SYSTEM
+// =============================================================================
+@mixin card-base {
+  background: white;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-light;
+  border: 1px solid $border-color;
+  transition: $transition-fast;
+}
+
+@mixin card-hover {
+  box-shadow: $shadow-medium;
+  transform: translateY(-1px);
+}
+
+@mixin card-elevated {
+  box-shadow: $shadow-medium;
+
+  &:hover {
+    box-shadow: $shadow-heavy;
+    transform: translateY(-2px);
+  }
+}
+
+.card {
+  @include card-base;
+
+  &:hover {
+    @include card-hover;
+  }
+}
+
+.card-elevated {
+  @include card-elevated;
+}
+
+// =============================================================================
+// NAVIGATION COMPONENTS
+// =============================================================================
+@mixin nav-item-base {
+  color: $nav-text-color;
+  text-decoration: none;
+  padding: 5px 10px;
+  font-size: $font-size-sm;
+  border-radius: $radius-md;
+  transition: $transition-fast;
+
+  &:hover {
+    color: $nav-text-hover;
+    background-color: $hover-bg;
+  }
+}
+
+.nav-item {
+  @include nav-item-base;
+
+  &.home {
+    font-size: $font-size-lg;
+    padding: 5px;
+  }
+}
+
+.nav-logo {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+}
+
+// Active navigation states
+.nav-item {
+  &.accounts.active,
+  &.contacts.active,
+  &.opportunities.active,
+  &.quotes.active {
+    color: $lf-primary;
+    font-weight: $font-weight-bold;
+    background-color: $active-bg;
+  }
+}
+
+// =============================================================================
+// SEARCH COMPONENT
+// =============================================================================
+.search-container {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.search-box {
+  padding: 5px 10px;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  width: 200px;
+  font-size: $font-size-sm;
+  color: $dynamics-gray-800;
+  background-color: #fff;
+  transition: border-color 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: $lf-primary;
+    box-shadow: 0 0 0 2px $active-bg;
+  }
+}
+
+.search-btn {
+  background: none;
+  border: none;
+  padding: 5px 8px;
+  cursor: pointer;
+  font-size: $font-size-lg;
+  color: $dynamics-gray-600;
+  border-radius: $radius-md;
+  transition: $transition-fast;
+
+  &:hover {
+    color: $lf-primary;
+    background-color: $hover-bg;
+  }
+}
+
+// =============================================================================
+// DASHBOARD WIDGETS
+// =============================================================================
+.dashboard-widgets {
+  display: flex;
+  flex-direction: column;
+  gap: $space-lg;
+}
+
+.widget {
+  @include card-base;
+  width: 50%;
+  transition: all 0.3s ease;
+  overflow: hidden;
+
+  &:hover {
+    box-shadow: $shadow-medium;
+    transform: translateY(-2px);
+    border-color: $lf-primary;
+  }
+}
+
+.widget-header {
+  background-color: #505050;
+  color: white;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: $font-size-sm;
+}
+
+.widget-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: $font-weight-normal;
+}
+
+.widget-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.widget-control-btn {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 2px;
+  font-size: 12px;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.widget-body {
+  padding: 0;
+}
+
+// =============================================================================
+// DATA TABLES
+// =============================================================================
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+
+  th {
+    background: $dynamics-gray-50;
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid $border-color;
+    color: $dynamics-gray-700;
+    font-weight: $font-weight-normal;
+    font-size: 12px;
+  }
+
+  td {
+    padding: 10px;
+    border-bottom: 1px solid $dynamics-gray-200;
+    vertical-align: middle;
+    font-size: 12px;
+    color: $dynamics-gray-800;
+
+    &:first-child {
+      padding-left: 12px;
+    }
+
+    &:last-child {
+      padding-right: 12px;
+      text-align: right;
+    }
+  }
+
+  tr {
+    transition: all 0.15s ease;
+
+    &:hover {
+      background: $hover-bg;
+      transform: scale(1.01);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+  }
+}
+
+// =============================================================================
+// LINKS AND ACTIONS
+// =============================================================================
+.record-link {
+  color: $lf-primary;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.action-buttons {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.actions {
+  display: flex;
+  gap: 5px;
+}
+
+.btn-action {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 2px;
+  font-size: 12px;
+  width: 16px;
+  height: 16px;
+  background: #ccc;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: #999;
+  }
+}
+
+// =============================================================================
+// PAGINATION
+// =============================================================================
+.pagination-container {
+  background-color: #6c757d;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pagination-info {
+  color: white;
+  font-size: 11px;
+}
+
+.pagination-controls {
+  display: flex;
+  gap: 2px;
+}
+
+.pagination-btn {
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  color: #333;
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
+
+  &.active {
+    background-color: #333;
+    color: white;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// =============================================================================
+// PAGE HEADERS
+// =============================================================================
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $space-lg;
+}
+
+// List pages styling
+@mixin list-page-header {
+  background: white;
+  padding: 15px 20px;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-light;
+}
+
+// Detail pages styling
+@mixin detail-page-header {
+  background: white;
+  padding: 15px 20px;
+  border-bottom: 1px solid $border-color;
+}
+
+// =============================================================================
+// LAYOUT CONTAINERS
+// =============================================================================
+.header {
+  background-color: #fff;
+  border-bottom: 1px solid $border-color;
+  padding: 2px 20px;
+  box-shadow: $shadow-light;
+}
+
+.nav-menu {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.dashboard-nav {
+  background-color: $dynamics-gray-700;
+  padding: 8px 20px;
+  color: white;
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: $font-weight-bold;
+  letter-spacing: 1px;
+
+  .nav-item {
+    color: white;
+    margin-right: 20px;
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $lf-primary-light;
+    }
+  }
+}
+
+.main-content {
+  padding: $space-lg;
+}
+
+// =============================================================================
+// FOOTER
+// =============================================================================
+.footer {
+  background-color: $dynamics-gray-800;
+  color: white;
+  padding: $space-lg;
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: $font-size-sm;
+
+  a {
+    color: white;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .back-to-top {
+    color: $lf-secondary-light;
+    font-weight: $font-weight-bold;
+
+    &:hover {
+      color: $lf-secondary;
+    }
+  }
+}

@@ -1,0 +1,139 @@
+/* 154 - Dashboard Override CSS
+   This file loads LAST to ensure proper cascade
+*/
+
+/* ========================================
+   1. DASHBOARD CONTAINER - TRANSPARENT
+   ======================================== */
+#dashboard,
+.dashboard,
+div#dashboard,
+div.dashboard,
+body #dashboard,
+body .dashboard,
+.view-module-Home #dashboard {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+.dashletTable,
+table.dashletTable,
+#dashletsSidebar,
+.tab-content,
+.tab-pane {
+    background: transparent !important;
+}
+
+/* ========================================
+   2. WIDGET PANELS - WHITE WITH ROUNDED CORNERS
+   ======================================== */
+.dashletPanel {
+    background: #ffffff !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+    overflow: hidden !important;
+    border: 1px solid #edebe9 !important;
+    margin-bottom: 15px !important;
+}
+
+/* ========================================
+   3. WIDGET HEADERS - BLUE WITH WHITE TEXT
+   ======================================== */
+.hd.dashlet,
+.dashletPanel .hd,
+.dashlet .hd {
+    background: #125EAD !important;
+    border-radius: 12px 12px 0 0 !important;
+    padding: 0 !important;
+}
+
+.hd-center {
+    background: transparent !important;
+    padding: 10px 12px !important;
+}
+
+/* Title text */
+.dashlet-title,
+.dashboard-title,
+td.dashlet-title,
+.dashlet-title span,
+.dashboard-title span {
+    background: transparent !important;
+    color: #ffffff !important;
+}
+
+/* Title row */
+.formHeader.h3Row,
+.formHeader.h3Row tr,
+.formHeader.h3Row tbody,
+.formHeader.h3Row td {
+    background: transparent !important;
+    color: #ffffff !important;
+}
+
+/* Icon elements */
+.suitepicon,
+.hd.dashlet .suitepicon {
+    color: #ffffff !important;
+    background: transparent !important;
+}
+
+/* Hide decorative corners */
+.tl, .tr {
+    display: none !important;
+}
+
+/* Tool buttons */
+.dashletToolSet {
+    background: transparent !important;
+}
+
+.dashletToolSet a {
+    color: #ffffff !important;
+    opacity: 0.8 !important;
+}
+
+.dashletToolSet a:hover {
+    opacity: 1 !important;
+}
+
+.dashletToolSet svg {
+    fill: #ffffff !important;
+}
+
+/* ========================================
+   4. WIDGET TABLE HEADERS - LIGHT BG, BLUE TEXT
+   Per prototype: .widget-table th style
+   ======================================== */
+.dashletPanel table th,
+.bd table th,
+.dashletPanel thead th,
+.dashlet table th {
+    background: #ffffff !important;
+    color: #125EAD !important;
+    font-weight: 700 !important;
+    border-bottom: 1px solid #edebe9 !important;
+    text-transform: uppercase !important;
+    font-size: 12px !important;
+}
+
+/* ========================================
+   5. WIDGET BODY
+   ======================================== */
+.bd.dashlet,
+.dashletPanel .bd,
+.dashlet-body {
+    background: #ffffff !important;
+    border-radius: 0 0 12px 12px !important;
+}
+
+/* ========================================
+   6. WIDGET NAVIGATION AREA
+   ======================================== */
+.dashletPanel .pagination,
+.dashletPanel #paginationDiv,
+.bd > #paginationDiv,
+.dashletPanel .paginationpagination {
+    background: #e1dfdd !important;
+    padding: 8px 12px !important;
+}
