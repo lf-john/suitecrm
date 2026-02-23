@@ -4,3 +4,5 @@ env.example
 logs/
 suitecrm/upload/*
 !suitecrm/upload/.gitkeep
+*.sql
+suitecrm/.angular/cache/*
