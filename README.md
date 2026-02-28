@@ -1,220 +1,165 @@
-# SuiteCRM v8 Docker Development Environment
+# SuiteCRM v8 Docker — Production Deployment
 
-## Project Overview
-This project provides a complete Docker-based development environment for SuiteCRM v8, including all necessary services and tools for development, testing, and migration from SuiteCRM v7.
+## Architecture
 
-## Architecture Overview
-- **SuiteCRM v8**: Latest version with Symfony framework
-- **Database**: MySQL 8.0
-- **Cache**: Redis 7
-- **Search**: Elasticsearch 7.17.0
-- **Web Server**: Nginx
-- **PHP**: 8.1+
-- **Container Orchestration**: Docker Compose
-- **Management Tools**: PHPMyAdmin, Redis Commander
+| Service | Container | Image | Port |
+|---------|-----------|-------|------|
+| SuiteCRM v8 (PHP-FPM) | suitecrm_app | suitecrm-docker-suitecrm | 9000 (internal) |
+| MySQL 8.0 | suitecrm_db | mysql:8.0 | 3306 (internal) |
+| Redis 7 | suitecrm_redis | redis:7-alpine | 6379 (internal) |
+| Nginx | suitecrm_nginx | suitecrm-docker-nginx | 80, 443 |
 
-## Quick Start
+Access: `https://crm.logicalfront.com`
+
+## Volume Strategy
+
+This deployment uses **named Docker volumes** (not bind mounts):
+
+| Volume | Mount Point | Purpose |
+|--------|-------------|---------|
+| `suitecrm_app_code` (external) | `/var/www/html` | SuiteCRM application code |
+| `suitecrm_nginx_confd` (external) | `/etc/nginx/conf.d` | Nginx site config |
+| `suitecrm_ssl_certs` (external) | `/etc/nginx/ssl` | SSL certificates |
+| `suitecrm_uploads` | `/var/www/html/upload` | User-uploaded files |
+| `suitecrm_mysql_data` | `/var/lib/mysql` | Database storage |
+| `suitecrm_redis_data` | `/data` | Redis persistence |
+
+The three external volumes must be created before starting the stack. See **Fresh Setup** below.
+
+## Fresh Setup
 
 ### Prerequisites
-- Docker and Docker Compose installed
-- Make utility (optional but recommended)
-- At least 4GB RAM available for containers
+- Docker and Docker Compose
+- SSL certificates in `docker/nginx/ssl/`
+- A `.env` file (see `.env` section below)
 
-### 1. Environment Setup
+### Steps
+
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd suitecrm-custom
+# 1. Clone the repo
+git clone git@github.com:lf-john/suitecrm.git /opt/suitecrm
+cd /opt/suitecrm
 
-# Copy environment template
-make setup-env
-# or manually: cp env.example .env
+# 2. Create external volumes
+docker volume create suitecrm_app_code
+docker volume create suitecrm_nginx_confd
+docker volume create suitecrm_ssl_certs
 
-# Review and update .env file with your settings
+# 3. Populate volumes from repo
+docker run --rm -v suitecrm_app_code:/vol -v /opt/suitecrm/suitecrm:/src alpine \
+  sh -c "cp -a /src/. /vol/"
+docker run --rm -v suitecrm_nginx_confd:/vol -v /opt/suitecrm/docker/nginx/conf.d:/src alpine \
+  sh -c "cp -a /src/. /vol/"
+docker run --rm -v suitecrm_ssl_certs:/vol -v /opt/suitecrm/docker/nginx/ssl:/src alpine \
+  sh -c "cp -a /src/. /vol/"
+
+# 4. Start the stack
+docker compose up -d --build
+
+# 5. Import database (if restoring from a dump)
+docker exec -i suitecrm_db mysql -u root -prootpassword suitecrm_db < /path/to/dump.sql
+
+# 6. Clear cache
+docker exec suitecrm_app bash -c "export TMPDIR=/tmp && php -d sys_temp_dir=/tmp bin/console cache:clear --env=prod"
+docker exec suitecrm_app chown -R www-data:www-data /var/www/html/cache
+
+# 7. Set up cron (see Cron section below)
 ```
 
-### 2. Start the Environment
-```bash
-# Quick development setup (recommended for first time)
-make dev
+## The `.env` File
 
-# Or step by step:
-make up          # Start all services
-make install     # Install SuiteCRM v8
-make post-install # Run post-installation setup
-make verify      # Verify installation
+Symfony requires a `.env` file at `/var/www/html/.env` inside the container (which maps to `suitecrm/.env` on disk). This file is **gitignored** but must exist for the application to boot.
+
+Key variables that must be set:
+- `DATABASE_URL` — MySQL connection string
+- `SITE_URL` — Full URL (e.g., `https://crm.logicalfront.com`)
+- `CORS_ALLOW_ORIGIN` — Allowed origins regex
+- `APP_SECRET` — Symfony secret key
+- `DEPRECATION_LOG_LEVEL`, `SECURITY_LOG_LEVEL` — Set to `error`
+- SAML placeholder values (required even when using native auth)
+
+A working `.env` file is saved at `suitecrm/.env` in the repo for reference.
+
+## Deploying Code Changes
+
+Since we use named volumes, file edits on disk don't appear in the container automatically. To deploy changes:
+
+```bash
+# Copy changed files into the container
+docker cp /opt/suitecrm/suitecrm/public/legacy/custom/. \
+  suitecrm_app:/var/www/html/public/legacy/custom/
+
+# Fix permissions
+docker exec suitecrm_app chown -R www-data:www-data /var/www/html/public/legacy/custom/
+
+# Clear cache
+docker exec suitecrm_app bash -c "export TMPDIR=/tmp && php -d sys_temp_dir=/tmp bin/console cache:clear --env=prod"
+docker exec suitecrm_app chown -R www-data:www-data /var/www/html/cache
 ```
 
-### 3. Access Your SuiteCRM
-- **SuiteCRM**: http://localhost:8080
-- **SuiteCRM SSL**: https://localhost:8443
-- **PHPMyAdmin**: http://localhost:8083
-- **Redis Commander**: http://localhost:8084
+## Cron Jobs
 
-## Makefile Commands
+Two cron entries are required on the **host machine** (not inside the container). Add them to root's crontab (`sudo crontab -e`):
 
-The project includes a comprehensive Makefile with the following commands:
+```cron
+# SuiteCRM scheduler — runs every minute, processes internal scheduled jobs
+* * * * * docker exec -u www-data suitecrm_app php /var/www/html/public/legacy/cron.php > /dev/null 2>&1
 
-### 🚀 Setup & Installation
-| Command | Description |
-|---------|-------------|
-| `make help` | Show all available commands |
-| `make setup-env` | Copy environment template to .env |
-| `make dev` | Quick development setup (setup-env + up) |
-| `make full-install` | Complete installation process |
-
-### 🐳 Container Management
-| Command | Description |
-|---------|-------------|
-| `make build` | Build all Docker containers |
-| `make up` | Start all services |
-| `make up-build` | Build and start all services |
-| `make down` | Stop all services |
-| `make restart` | Restart all services |
-| `make stop` | Stop services without removing containers |
-| `make clean` | Remove all containers, volumes and images |
-
-### 📋 Installation & Setup
-| Command | Description |
-|---------|-------------|
-| `make install` | Install SuiteCRM v8 (run after 'make up') |
-| `make post-install` | Run post-installation configuration |
-| `make verify` | Verify SuiteCRM installation |
-| `make rebuild-suitecrm` | Rebuild SuiteCRM container with updated scripts |
-
-### 📊 Monitoring & Logs
-| Command | Description |
-|---------|-------------|
-| `make logs` | Show logs from all services |
-| `make logs-app` | Show SuiteCRM application logs |
-| `make logs-web` | Show Nginx web server logs |
-| `make logs-db` | Show database logs |
-| `make status` | Show status of all services |
-| `make health` | Check health of all services |
-| `make suitecrm-status` | Check SuiteCRM installation status |
-
-### 🔧 Development Tools
-| Command | Description |
-|---------|-------------|
-| `make shell` | Access SuiteCRM container shell |
-| `make shell-root` | Access SuiteCRM container shell as root |
-| `make db-shell` | Access MySQL database shell |
-| `make redis-cli` | Access Redis CLI |
-| `make permissions` | Fix file permissions |
-
-### 📦 Backup & Restore
-| Command | Description |
-|---------|-------------|
-| `make backup` | Create backup of database and files |
-| `make restore BACKUP_DATE=20240101_120000` | Restore from backup |
-
-### 🛠️ Development Helpers
-| Command | Description |
-|---------|-------------|
-| `make composer-install` | Install PHP dependencies |
-| `make npm-install` | Install Node.js dependencies |
-| `make build-assets` | Build frontend assets |
-| `make update` | Update all containers to latest versions |
-
-## Environment Configuration
-
-The `.env` file contains all configuration options. Key settings include:
-
-### Application Settings
-```bash
-APP_ENV=prod                    # Environment (dev/prod)
-SITE_URL=http://localhost:8080  # SuiteCRM URL
+# Opportunity Weekly Snapshot — Fridays at 9:00 AM Mountain Time (16:00 UTC)
+0 16 * * 5 docker exec -u www-data suitecrm_app php /var/www/html/public/legacy/custom/modules/LF_WeeklyPlan/snapshot_cron.php > /dev/null 2>&1
 ```
 
-### Database Configuration
+The `setup3.sh` script can install these automatically — see the `--cron` option.
+
+**Why host-level cron?** Docker containers don't persist cron entries across rebuilds. Host cron with `docker exec` is simpler, more visible (`crontab -l`), and survives container restarts.
+
+## Common Operations
+
 ```bash
-DB_HOST=db
-DB_PORT=3306
-DB_NAME=suitecrm_db
-DB_USER=suitecrm_user
-DB_PASSWORD=suitecrm_password
+# Check container status
+docker compose ps
+
+# View logs
+docker compose logs -f              # All services
+docker logs suitecrm_app            # App only
+docker logs suitecrm_nginx          # Nginx only
+
+# Access container shell
+docker exec -it suitecrm_app bash
+
+# Database shell
+docker exec -it suitecrm_db mysql -u root -prootpassword suitecrm_db
+
+# Restart
+docker compose restart
+
+# Stop
+docker compose down
+
+# Backup database
+docker exec suitecrm_db mysqldump -u root -prootpassword suitecrm_db > backup.sql
 ```
 
-### Service Ports
-```bash
-HTTP_PORT=8080          # SuiteCRM HTTP
-HTTPS_PORT=8443         # SuiteCRM HTTPS
-MYSQL_PORT=3306         # MySQL
-PHPMYADMIN_PORT=8083    # PHPMyAdmin
-REDIS_COMMANDER_PORT=8084 # Redis Commander
-```
+## Dev Environment Setup
 
-## Service Architecture
+To run a dev replica on a different machine:
 
-### Core Services
-- **suitecrm**: Main SuiteCRM v8 application
-- **nginx**: Web server and reverse proxy
-- **db**: MySQL 8.0 database
-- **redis**: Redis cache server
-- **elasticsearch**: Search engine
+1. Clone the repo and follow **Fresh Setup** above
+2. Add to `/etc/hosts` on the dev machine: `<machine-ip> crm.logicalfront.com`
+3. Add the same hosts entry on your workstation pointing to the dev machine
+4. Import a production database dump
+5. The hostname, ports, SSL, and all config are identical to production
 
-### Management Tools
-- **phpmyadmin**: Database management interface
-- **redis-commander**: Redis cache management interface
+## Hostname Configuration
 
-### Network Configuration
-- All services run on a custom bridge network (`suitecrm_network`)
-- Internal communication uses service names
-- External access through mapped ports
+The hostname `crm.logicalfront.com` is stored in 9 locations across 5 files. All should match:
 
-## Development Workflow
+| File | Setting |
+|------|---------|
+| `suitecrm/.env` | `SITE_URL`, `CORS_ALLOW_ORIGIN` |
+| `config/suitecrm/env.local` | `SITE_URL`, `CORS_ALLOW_ORIGIN` |
+| `docker/nginx/conf.d/suitecrm.conf` | `server_name` |
+| `suitecrm/public/legacy/config.php` | `site_url`, `host_name` |
+| `suitecrm/public/legacy/config_override.php` | `site_url`, `http_referer.list` |
 
-### 1. Initial Setup
-```bash
-make dev                    # Quick setup
-make full-install          # Complete installation
-```
-
-### 2. Daily Development
-```bash
-make up                    # Start services
-make logs-app             # Monitor application logs
-make shell                # Access container for development
-```
-
-### 3. Making Changes
-```bash
-make rebuild-suitecrm     # Rebuild after script changes
-make permissions          # Fix permissions after file changes
-```
-
-### 4. Backup & Maintenance
-```bash
-make backup               # Create backup
-make health               # Check service health
-make clean                # Clean up (removes all data!)
-```
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Port conflicts**: Update ports in `.env` file
-2. **Permission issues**: Run `make permissions`
-3. **Container not starting**: Check logs with `make logs`
-4. **Database connection**: Verify database is running with `make status`
-
-### Useful Commands
-```bash
-make health               # Check all services
-make suitecrm-status      # Check SuiteCRM status
-make logs-app             # View application logs
-make shell                # Debug inside container
-```
-
-## Migration Phases
-1. ✅ Environment Setup & Docker Configuration
-2. ✅ Development Environment Ready
-3. ⏳ Migration Framework Implementation
-4. ⏳ Customization Migration
-5. ⏳ Testing & Deployment
-
-## Next Steps
-- Complete SuiteCRM v8 installation using `make full-install`
-- Begin migration framework development
-- Test customizations in the new environment
+The `setup3.sh` script handles hostname substitution automatically.

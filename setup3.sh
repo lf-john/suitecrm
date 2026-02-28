@@ -72,13 +72,13 @@ if ss -tlnp 2>/dev/null | grep -q ":${PORT} " || netstat -tlnp 2>/dev/null | gre
 fi
 
 # ─── Step 1: Copy .env to the correct location ──────────────────────
-info "Step 1/8: Installing .env file..."
+info "Step 1/9: Installing .env file..."
 
 cp "$ZIP_DIR/.env" "$REPO_DIR/suitecrm/.env"
 info "  Copied .env to suitecrm/.env"
 
 # ─── Step 2: Update hostname in all config files ────────────────────
-info "Step 2/8: Updating hostname to '$HOSTNAME' in all config files..."
+info "Step 2/9: Updating hostname to '$HOSTNAME' in all config files..."
 
 # suitecrm/.env - SITE_URL and CORS
 sed -i "s|SITE_URL=.*|SITE_URL=\"http://${HOSTNAME}:${PORT}\"|" "$REPO_DIR/suitecrm/.env"
@@ -114,20 +114,20 @@ if [[ -f "$LEGACY_CONFIG" ]]; then
 fi
 
 # ─── Step 3: Handle Docker network subnet conflict ──────────────────
-info "Step 3/8: Checking Docker network availability..."
+info "Step 3/9: Checking Docker network availability..."
 
 if docker network ls --format '{{.Name}}' | grep -q "suitecrm"; then
     warn "  Existing SuiteCRM Docker network found. Will reuse."
 fi
 
 # ─── Step 4: Start containers ───────────────────────────────────────
-info "Step 4/8: Starting Docker containers..."
+info "Step 4/9: Starting Docker containers..."
 
 cd "$REPO_DIR"
 docker compose up -d 2>&1 | sed 's/^/  /'
 
 # ─── Step 5: Wait for database ──────────────────────────────────────
-info "Step 5/8: Waiting for database to be ready..."
+info "Step 5/9: Waiting for database to be ready..."
 
 MAX_WAIT=60
 WAITED=0
@@ -143,7 +143,7 @@ echo ""
 info "  Database is ready (waited ${WAITED}s)"
 
 # ─── Step 6: Import database ────────────────────────────────────────
-info "Step 6/8: Importing database..."
+info "Step 6/9: Importing database..."
 
 SQL_FILE="$REPO_DIR/suitecrm_initial_migration.sql"
 [[ -f "$SQL_FILE" ]] || error "SQL file not found: $SQL_FILE"
@@ -171,7 +171,7 @@ docker exec suitecrm_db mysql -u root -prootpassword suitecrm_db -e \
     "UPDATE config SET value = 'http://${HOSTNAME}:${PORT}' WHERE category = 'system' AND name = 'site_url';" 2>/dev/null || true
 
 # ─── Step 7: Copy uploads into the named volume ─────────────────────
-info "Step 7/8: Restoring uploaded files..."
+info "Step 7/9: Restoring uploaded files..."
 
 UPLOAD_SRC="$ZIP_DIR/upload"
 if [[ -d "$UPLOAD_SRC" ]] && [[ "$(ls -A "$UPLOAD_SRC" 2>/dev/null)" ]]; then
@@ -185,7 +185,7 @@ else
 fi
 
 # ─── Step 8: Clear cache and fix permissions ─────────────────────────
-info "Step 8/8: Clearing cache and fixing permissions..."
+info "Step 8/9: Clearing cache and fixing permissions..."
 
 docker exec suitecrm_app rm -rf /var/www/html/cache/prod
 docker exec suitecrm_app mkdir -p /var/www/html/public/extensions
@@ -210,3 +210,35 @@ echo "  To check status:  docker compose ps"
 echo "  To view logs:     docker compose logs -f"
 echo "  To stop:          docker compose down"
 echo ""
+
+# ─── Step 9: Set up cron jobs ─────────────────────────────────────────
+info "Step 9/9: Setting up cron jobs..."
+
+CRON_ENTRY_SCHEDULER="* * * * * docker exec -u www-data suitecrm_app php /var/www/html/public/legacy/cron.php > /dev/null 2>&1"
+CRON_ENTRY_SNAPSHOT="0 16 * * 5 docker exec -u www-data suitecrm_app php /var/www/html/public/legacy/custom/modules/LF_WeeklyPlan/snapshot_cron.php > /dev/null 2>&1"
+
+CRON_ADDED=0
+
+# Check and add SuiteCRM scheduler cron
+if ! crontab -l 2>/dev/null | grep -q "suitecrm_app.*cron.php"; then
+    (crontab -l 2>/dev/null; echo "# SuiteCRM scheduler (runs every minute)"; echo "$CRON_ENTRY_SCHEDULER") | crontab -
+    info "  Added SuiteCRM scheduler cron (every minute)"
+    CRON_ADDED=$((CRON_ADDED + 1))
+else
+    info "  SuiteCRM scheduler cron already exists, skipping"
+fi
+
+# Check and add snapshot cron
+if ! crontab -l 2>/dev/null | grep -q "suitecrm_app.*snapshot_cron.php"; then
+    (crontab -l 2>/dev/null; echo "# Opportunity Weekly Snapshot (Fridays 9AM Mountain / 16:00 UTC)"; echo "$CRON_ENTRY_SNAPSHOT") | crontab -
+    info "  Added snapshot cron (Fridays at 16:00 UTC)"
+    CRON_ADDED=$((CRON_ADDED + 1))
+else
+    info "  Snapshot cron already exists, skipping"
+fi
+
+if [[ $CRON_ADDED -gt 0 ]]; then
+    info "  $CRON_ADDED cron entries added. Verify with: crontab -l"
+else
+    info "  All cron entries already configured"
+fi

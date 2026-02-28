@@ -33,7 +33,13 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
         xml \
         bcmath
 
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
+
 # Set working directory
 WORKDIR /var/www/html
 
 EXPOSE 9000
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["php-fpm"]
