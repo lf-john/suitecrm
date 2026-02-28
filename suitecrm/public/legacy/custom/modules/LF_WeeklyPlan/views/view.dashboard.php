@@ -195,20 +195,34 @@ class LF_WeeklyPlanViewDashboard extends SugarView
         $staleDays = (int)LF_PRConfig::getConfig('risk', 'stale_deal_days') ?: 14;
         $currentYear = (int)date('Y', strtotime($weekStart));
         $configWeekStartDay = WeekHelper::getConfiguredWeekStartDay();
+        $isCurrentWeek = WeekHelper::isCurrentWeek($weekStart, $configWeekStartDay);
 
-        // Get pipeline data and transform to format expected by JS
-        $pipelineByStageRaw = OpportunityQuery::getPipelineByStage($repId);
+        // Check if snapshot exists for this week
+        $weekEndAt = OpportunityQuery::getSnapshotWeekEndAt($weekStart);
+        $hasSnapshot = OpportunityQuery::hasSnapshot($weekEndAt);
+
+        // Get pipeline data — from snapshot if available, live for current week, empty otherwise
+        if ($hasSnapshot) {
+            $pipelineByStageRaw = OpportunityQuery::getSnapshotPipelineByStage($weekEndAt, $repId);
+        } elseif ($isCurrentWeek) {
+            $pipelineByStageRaw = OpportunityQuery::getPipelineByStage($repId);
+        } else {
+            // Past/future week with no snapshot — empty
+            $pipelineByStageRaw = [];
+        }
         $pipelineByStage = [];
         foreach ($pipelineByStageRaw as $row) {
             $stageName = $row['sales_stage'] ?? 'Unknown';
             $pipelineByStage[$stageName] = [
                 'amount' => (float)($row['total_amount'] ?? 0),
+                'profit' => (float)($row['total_profit'] ?? 0),
                 'count' => (int)($row['deal_count'] ?? 0)
             ];
         }
 
         // Transform pipelineByRep to include byStage data per rep
-        $pipelineByRepRaw = OpportunityQuery::getPipelineByRep();
+        // Only show rep pipeline data for current week (live) or weeks with snapshots
+        $pipelineByRepRaw = ($isCurrentWeek || $hasSnapshot) ? OpportunityQuery::getPipelineByRep() : [];
         $pipelineByRep = [];
         foreach ($pipelineByRepRaw as $row) {
             $repUserId = $row['assigned_user_id'];
@@ -216,26 +230,34 @@ class LF_WeeklyPlanViewDashboard extends SugarView
                 $pipelineByRep[$repUserId] = [
                     'name' => trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? '')),
                     'total' => 0,
+                    'totalProfit' => 0,
                     'byStage' => []
                 ];
             }
             $pipelineByRep[$repUserId]['total'] += (float)($row['total_amount'] ?? 0);
+            $pipelineByRep[$repUserId]['totalProfit'] += (float)($row['total_profit'] ?? 0);
         }
 
-        // Get byStage data for each rep
+        // Get byStage data for each rep — from snapshot if available
         foreach (array_keys($pipelineByRep) as $userId) {
-            $repPipelineRaw = OpportunityQuery::getPipelineByStage($userId);
+            if ($hasSnapshot) {
+                $repPipelineRaw = OpportunityQuery::getSnapshotPipelineByStage($weekEndAt, $userId);
+            } else {
+                $repPipelineRaw = OpportunityQuery::getPipelineByStage($userId);
+            }
             foreach ($repPipelineRaw as $row) {
                 $stageName = $row['sales_stage'] ?? 'Unknown';
                 $pipelineByRep[$userId]['byStage'][$stageName] = [
                     'amount' => (float)($row['total_amount'] ?? 0),
+                    'profit' => (float)($row['total_profit'] ?? 0),
                     'count' => (int)($row['deal_count'] ?? 0)
                 ];
             }
         }
 
         // Transform stale deals to include opportunity_name for display
-        $staleDealsRaw = OpportunityQuery::getStaleDeals($staleDays, $repId);
+        // Stale/at-risk deals are current-state indicators — only show for current week
+        $staleDealsRaw = $isCurrentWeek ? OpportunityQuery::getStaleDeals($staleDays, $repId) : [];
         $staleDeals = [];
         foreach ($staleDealsRaw as $deal) {
             $staleDeals[] = [
@@ -245,6 +267,7 @@ class LF_WeeklyPlanViewDashboard extends SugarView
                 'account_name' => $deal['account_name'] ?? 'No Account',
                 'sales_stage' => $deal['sales_stage'],
                 'amount' => (float)($deal['amount'] ?? 0),
+                'profit' => (float)($deal['opportunity_profit'] ?? 0),
                 'date_closed' => $deal['date_closed'],
                 'assigned_user_id' => $deal['assigned_user_id'],
                 'days_since_activity' => (int)($deal['days_since_activity'] ?? 0)
@@ -261,7 +284,10 @@ class LF_WeeklyPlanViewDashboard extends SugarView
                 'pipeline_coverage_multiplier' => (float)LF_PRConfig::getConfig('quotas', 'pipeline_coverage_multiplier'),
                 'stageProbabilities' => json_decode(LF_PRConfig::getConfig('stages', 'stage_probabilities') ?: '[]', true),
                 'brand_blue' => '#125EAD',
-                'brand_green' => '#4BB74E'
+                'brand_green' => '#4BB74E',
+                'default_weekly_new_pipeline' => (float)LF_PRConfig::getConfig('targets', 'default_new_pipeline_target'),
+                'default_weekly_progression' => (float)LF_PRConfig::getConfig('targets', 'default_progression_target'),
+                'default_weekly_closed' => (float)LF_PRConfig::getConfig('targets', 'default_closed_target')
             ],
             'reps' => LF_RepTargets::getActiveReps(),
             'repTargets' => LF_RepTargets::getTargetsForYear($currentYear),
@@ -273,8 +299,8 @@ class LF_WeeklyPlanViewDashboard extends SugarView
             'pipelineByStage' => $pipelineByStage,
             'pipelineByRep' => $pipelineByRep,
             'staleDeals' => $staleDeals,
-            'atRiskDeals' => OpportunityQuery::getAtRiskDeals($repId),
-            'planItems' => $this->getPlanItemsForWeek($weekStart, $repId),
+            'atRiskDeals' => $isCurrentWeek ? OpportunityQuery::getAtRiskDeals($repId) : [],
+            'planItems' => ($isCurrentWeek || $hasSnapshot) ? $this->getPlanItemsForWeek($weekStart, $repId) : [],
             'closedYtd' => OpportunityQuery::getClosedYTD($currentYear, $repId),
         ];
     }
@@ -286,37 +312,75 @@ class LF_WeeklyPlanViewDashboard extends SugarView
     {
         $db = DBManagerFactory::getInstance();
         $items = [];
-        
+
         // Find plans for this week
-        $sql = "SELECT id, assigned_user_id FROM lf_weekly_plan 
+        $sql = "SELECT id, assigned_user_id FROM lf_weekly_plan
                 WHERE week_start_date = " . $db->quoted($weekStart) . " AND deleted = 0";
         if ($repId) {
             $sql .= " AND assigned_user_id = " . $db->quoted($repId);
         }
-        
+
         $res = $db->query($sql);
         $planIds = [];
         while ($row = $db->fetchByAssoc($res)) {
             $planIds[] = $row['id'];
         }
-        
+
         if (empty($planIds)) return $items;
-        
+
         $planIdList = "'" . implode("','", array_map(fn($id) => $db->quote($id), $planIds)) . "'";
 
-        // Get Op Items
-        $sql = "SELECT * FROM lf_plan_op_items WHERE lf_weekly_plan_id IN ($planIdList) AND deleted = 0";
+        // Check for snapshot data
+        $weekEndAt = OpportunityQuery::getSnapshotWeekEndAt($weekStart);
+        $hasSnapshot = OpportunityQuery::hasSnapshot($weekEndAt);
+
+        // Get Op Items — use snapshot for amount/profit/stage when available
+        if ($hasSnapshot) {
+            $sql = "SELECT poi.*,
+                           COALESCE(s.revenue, o.amount) AS amount,
+                           COALESCE(s.profit, o.opportunity_profit) AS profit,
+                           o.name AS opportunity_name,
+                           a.name AS account_name,
+                           wp.assigned_user_id,
+                           COALESCE(s.stage_name, o.sales_stage) AS current_stage
+                    FROM lf_plan_op_items poi
+                    LEFT JOIN opportunities o ON poi.opportunity_id = o.id AND o.deleted = 0
+                    LEFT JOIN accounts_opportunities ao ON ao.opportunity_id = o.id AND ao.deleted = 0
+                    LEFT JOIN accounts a ON a.id = ao.account_id AND a.deleted = 0
+                    LEFT JOIN opportunity_weekly_snapshot s ON s.opportunity_id = poi.opportunity_id
+                        AND s.week_end_at = " . $db->quoted($weekEndAt) . " AND s.deleted = 0
+                    LEFT JOIN lf_weekly_plan wp ON poi.lf_weekly_plan_id = wp.id
+                    WHERE poi.lf_weekly_plan_id IN ($planIdList) AND poi.deleted = 0
+                      AND poi.projected_stage IS NOT NULL AND poi.projected_stage != ''";
+        } else {
+            $sql = "SELECT poi.*, o.amount, o.opportunity_profit AS profit, o.name AS opportunity_name,
+                           a.name AS account_name,
+                           wp.assigned_user_id,
+                           o.sales_stage AS current_stage
+                    FROM lf_plan_op_items poi
+                    LEFT JOIN opportunities o ON poi.opportunity_id = o.id AND o.deleted = 0
+                    LEFT JOIN accounts_opportunities ao ON ao.opportunity_id = o.id AND ao.deleted = 0
+                    LEFT JOIN accounts a ON a.id = ao.account_id AND a.deleted = 0
+                    LEFT JOIN lf_weekly_plan wp ON poi.lf_weekly_plan_id = wp.id
+                    WHERE poi.lf_weekly_plan_id IN ($planIdList) AND poi.deleted = 0
+                      AND poi.projected_stage IS NOT NULL AND poi.projected_stage != ''";
+        }
         $res = $db->query($sql);
         while ($row = $db->fetchByAssoc($res)) {
-            $row['item_category'] = 'opportunity';
+            $row['item_category'] = $row['item_type'] ?? 'opportunity';
             $items[] = $row;
         }
 
         // Get Prospect Items
-        $sql = "SELECT * FROM lf_plan_prospect_items WHERE lf_weekly_plan_id IN ($planIdList) AND deleted = 0";
+        $sql = "SELECT pi.*, wp.assigned_user_id
+                FROM lf_plan_prospect_items pi
+                LEFT JOIN lf_weekly_plan wp ON pi.lf_weekly_plan_id = wp.id
+                WHERE pi.lf_weekly_plan_id IN ($planIdList) AND pi.deleted = 0";
         $res = $db->query($sql);
         while ($row = $db->fetchByAssoc($res)) {
-            $row['item_category'] = 'prospect';
+            $row['item_category'] = 'prospecting';
+            $row['amount'] = (float)($row['expected_revenue'] ?? $row['expected_value'] ?? 0);
+            $row['profit'] = (float)($row['expected_profit'] ?? 0);
             $items[] = $row;
         }
 

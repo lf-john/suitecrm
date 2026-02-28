@@ -25,6 +25,6 @@ $sugar_config_si = array (
   'setup_db_username_is_privileged' => true,
   'setup_site_admin_password' => 'AdminPass123!',
   'setup_site_admin_user_name' => 'admin',
-  'setup_site_url' => 'localhost:8088',
+  'setup_site_url' => 'https://crm.logicalfront.com',
   'setup_system_name' => 'SuiteCRM',
 );

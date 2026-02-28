@@ -40,22 +40,41 @@ class LF_WeeklyPlanViewPlanning extends SugarView
             }
         }
 
-        $weekStart = WeekHelper::getCurrentWeekStart();
+        if (!empty($_REQUEST['week_start'])) {
+            $weekStart = WeekHelper::getWeekStart($_REQUEST['week_start']);
+        } else {
+            $weekStart = WeekHelper::getCurrentWeekStart();
+        }
         $weekRange = WeekHelper::formatWeekRange($weekStart);
+        $isCurrentWeek = WeekHelper::isCurrentWeek($weekStart);
         $plan = LF_WeeklyPlan::getOrCreateForWeek($selectedUserId, $weekStart);
 
         // M2: Read analysis stage from config instead of hard-coding
-        $analysisStage = LF_PRConfig::getConfig('stages', 'analysis_stage') ?: '2-Analysis (1%)';
+        $analysisStage = LF_PRConfig::getConfig('stages', 'analysis_stage') ?: '2-Analysis (0%)';
 
-        // Load opportunities
-        $allOpenOpps = OpportunityQuery::getOpenOpportunities($selectedUserId);
-        $pipelineOpps = [];
-        foreach ($allOpenOpps as $opp) {
-            if (strpos($opp['sales_stage'], $analysisStage) === false) {
-                $pipelineOpps[] = $opp;
+        // Check if a snapshot exists for this week
+        $weekEndAt = OpportunityQuery::getSnapshotWeekEndAt($weekStart);
+        $hasSnapshot = OpportunityQuery::hasSnapshot($weekEndAt);
+
+        // Load opportunities — from snapshot if available, live data for current week, empty for past weeks without snapshot
+        if ($hasSnapshot) {
+            $pipelineOpps = OpportunityQuery::getSnapshotPipelineOpportunities($weekEndAt, $selectedUserId, $analysisStage);
+            $devPipelineOpps = OpportunityQuery::getSnapshotAnalysisOpportunities($weekEndAt, $selectedUserId, $analysisStage);
+        } elseif ($isCurrentWeek) {
+            // Current week with no snapshot yet — use live data
+            $allOpenOpps = OpportunityQuery::getOpenOpportunities($selectedUserId);
+            $pipelineOpps = [];
+            foreach ($allOpenOpps as $opp) {
+                if (strpos($opp['sales_stage'], $analysisStage) === false) {
+                    $pipelineOpps[] = $opp;
+                }
             }
+            $devPipelineOpps = OpportunityQuery::getAnalysisOpportunities($selectedUserId);
+        } else {
+            // Past/future week with no snapshot — show empty tables
+            $pipelineOpps = [];
+            $devPipelineOpps = [];
         }
-        $devPipelineOpps = OpportunityQuery::getAnalysisOpportunities($selectedUserId);
 
         // Load existing plan items
         $planItems = [];
@@ -170,11 +189,15 @@ class LF_WeeklyPlanViewPlanning extends SugarView
         LF_SubHeader::renderCSS();
         LF_SubHeader::renderJS();
 
-        // Render SuiteCRM-style sub-header with user selector for admins
+        // Render SuiteCRM-style sub-header with user selector and week navigation
+        $weekList = WeekHelper::getWeekList(9);
         LF_SubHeader::render('Sales Rep Planning', [
             'showUserSelector' => $current_user->is_admin,
             'users' => $allUsers,
             'selectedUserId' => $selectedUserId,
+            'showWeekSelector' => true,
+            'weekList' => $weekList,
+            'currentWeek' => $weekStart,
         ]);
 
         // Start content wrapper
@@ -195,8 +218,11 @@ class LF_WeeklyPlanViewPlanning extends SugarView
             'annual_quota' => $annualQuota,
             'coverage_multiplier' => $coverageMultiplier
         ]) . ';';
-        // Reference CSRF token for AJAX save operations
-        echo 'var LF_CSRF_TOKEN = (typeof SUGAR !== "undefined" && SUGAR.csrf) ? SUGAR.csrf.form_token : "";';
+        // Generate and store CSRF token in session
+        if (empty($_SESSION['lf_csrf_token'])) {
+            $_SESSION['lf_csrf_token'] = bin2hex(random_bytes(32));
+        }
+        echo 'var LF_CSRF_TOKEN = ' . json_encode($_SESSION['lf_csrf_token']) . ';';
         echo '</script>';
 
         // Week and status info bar
@@ -206,18 +232,70 @@ class LF_WeeklyPlanViewPlanning extends SugarView
 
         echo '<div class="lf-info-bar" style="background: white; padding: 16px; border-radius: 8px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #edebe9;">';
         echo '<div style="font-size: 16px; font-weight: 600; color: #323130;">' . htmlspecialchars($selectedUserName) . ' &mdash; ' . htmlspecialchars($weekRange) . '</div>';
+        echo '<div style="display: flex; align-items: center; gap: 12px;">';
+        if ($hasSnapshot) {
+            $snapshotTime = LF_PRConfig::getConfig('weeks', 'snapshot_time') ?: '09:00';
+            echo '<span style="background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">Snapshot: ' . htmlspecialchars($weekStart) . ' ' . htmlspecialchars($snapshotTime) . ' MT</span>';
+        } elseif (!$isCurrentWeek) {
+            echo '<span style="background: #f5f5f5; color: #666; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">No snapshot available</span>';
+        }
         echo '<span class="badge lf-status-' . htmlspecialchars($plan->status) . '">' . htmlspecialchars($statusLabel) . '</span>';
+        echo '</div>';
         echo '</div>';
 
         // Container for JS event delegation
-        echo '<div id="lf-planning-container" data-plan-id="' . htmlspecialchars($plan->id) . '">';
+        echo '<div id="lf-planning-container" data-plan-id="' . htmlspecialchars($plan->id) . '" data-plan-status="' . htmlspecialchars($plan->status) . '">';
 
-        // Totals Row
+        // Totals Row — use frozen values when plan is submitted
+        // Bypass SugarBean vardefs cache (Redis + file cache issues) — load frozen values directly from DB
+        $frozenClosing = 0;
+        $frozenProgression = 0;
+        $frozenNewPipeline = 0;
+        if ($plan->status === 'submitted') {
+            $frozenQuery = sprintf(
+                "SELECT frozen_closing, frozen_progression, frozen_new_pipeline FROM lf_weekly_plan WHERE id = %s AND deleted = 0",
+                $db->quoted($plan->id)
+            );
+            $frozenResult = $db->query($frozenQuery);
+            $frozenRow = $db->fetchByAssoc($frozenResult);
+            if ($frozenRow) {
+                $frozenClosing = (float)($frozenRow['frozen_closing'] ?? 0);
+                $frozenProgression = (float)($frozenRow['frozen_progression'] ?? 0);
+                $frozenNewPipeline = (float)($frozenRow['frozen_new_pipeline'] ?? 0);
+            }
+        }
+        $useFrozen = ($plan->status === 'submitted' && ($frozenClosing > 0 || $frozenProgression > 0 || $frozenNewPipeline > 0));
+
+        // Calculate At Risk total from plan items (not a frozen value — calculated from is_at_risk flags)
+        $atRiskTotal = 0;
+        if ($plan->status === 'submitted') {
+            $atRiskQuery = sprintf(
+                "SELECT SUM(COALESCE(s.profit, o.opportunity_profit, 0)) AS at_risk_total
+                 FROM lf_plan_op_items poi
+                 LEFT JOIN opportunities o ON poi.opportunity_id = o.id AND o.deleted = 0
+                 LEFT JOIN opportunity_weekly_snapshot s ON s.opportunity_id = poi.opportunity_id
+                     AND s.week_end_at = %s AND s.deleted = 0
+                 WHERE poi.lf_weekly_plan_id = %s AND poi.deleted = 0 AND poi.is_at_risk = 1",
+                $db->quoted($weekEndAt),
+                $db->quoted($plan->id)
+            );
+            $atRiskResult = $db->query($atRiskQuery);
+            $atRiskRow = $db->fetchByAssoc($atRiskResult);
+            $atRiskTotal = (float)($atRiskRow['at_risk_total'] ?? 0);
+        }
+
         echo '<div id="totals-row" class="lf-totals-container">';
-        echo '  <div id="total-closing-box" class="total-box">Closing: <span id="total-closing" data-value="0">0</span></div>';
-        echo '  <div id="total-at-risk-box" class="total-box">At Risk: <span id="total-at-risk" data-value="0">0</span></div>';
-        echo '  <div id="total-progression-box" class="total-box">Progression: <span id="total-progression" data-value="0">0</span></div>';
-        echo '  <div id="total-new-pipeline-box" class="total-box">New Pipeline: <span id="total-new-pipeline" data-value="0">0</span></div>';
+        if ($useFrozen) {
+            echo '  <div id="total-closing-box" class="total-box">Closing: <span id="total-closing" data-value="' . $frozenClosing . '">$' . number_format($frozenClosing, 0) . '</span></div>';
+            echo '  <div id="total-at-risk-box" class="total-box">At Risk: <span id="total-at-risk" data-value="' . $atRiskTotal . '">$' . number_format($atRiskTotal, 0) . '</span></div>';
+            echo '  <div id="total-progression-box" class="total-box">Progression: <span id="total-progression" data-value="' . $frozenProgression . '">$' . number_format($frozenProgression, 0) . '</span></div>';
+            echo '  <div id="total-new-pipeline-box" class="total-box">New Pipeline: <span id="total-new-pipeline" data-value="' . $frozenNewPipeline . '">$' . number_format($frozenNewPipeline, 0) . '</span></div>';
+        } else {
+            echo '  <div id="total-closing-box" class="total-box">Closing: <span id="total-closing" data-value="0">0</span></div>';
+            echo '  <div id="total-at-risk-box" class="total-box">At Risk: <span id="total-at-risk" data-value="0">0</span></div>';
+            echo '  <div id="total-progression-box" class="total-box">Progression: <span id="total-progression" data-value="0">0</span></div>';
+            echo '  <div id="total-new-pipeline-box" class="total-box">New Pipeline: <span id="total-new-pipeline" data-value="0">0</span></div>';
+        }
         echo '</div>';
 
         // Existing Pipeline Table
@@ -226,9 +304,11 @@ class LF_WeeklyPlanViewPlanning extends SugarView
         echo '<thead><tr>';
         echo '<th>Account</th>';
         echo '<th>Opportunity</th>';
-        echo '<th>Amount</th>';
+        echo '<th>Revenue</th>';
+        echo '<th>Profit</th>';
         echo '<th>Current Stage</th>';
         echo '<th>Projected Stage</th>';
+        echo '<th>Progression</th>';
         echo '<th>Category</th>';
         echo '<th>At Risk</th>';
         echo '<th>Day</th>';
@@ -239,18 +319,27 @@ class LF_WeeklyPlanViewPlanning extends SugarView
         foreach ($pipelineOpps as $opp) {
             $oppId = $opp['id'];
             $item = isset($planItems[$oppId]) ? $planItems[$oppId] : null;
-            
-            // M3: Null check on BeanFactory::getBean
-            $oppBean = BeanFactory::getBean('Opportunities', $oppId);
-            if (!$oppBean || empty($oppBean->id)) {
-                continue;
+
+            // Get account name — from snapshot account_id if available, otherwise BeanFactory
+            if ($hasSnapshot && !empty($opp['account_id'])) {
+                $acctQuery = "SELECT name FROM accounts WHERE id = " . $db->quoted($opp['account_id']) . " AND deleted = 0";
+                $acctResult = $db->query($acctQuery);
+                $acctRow = $db->fetchByAssoc($acctResult);
+                $accountName = $acctRow ? $acctRow['name'] : 'No Account';
+            } else {
+                $oppBean = BeanFactory::getBean('Opportunities', $oppId);
+                if (!$oppBean || empty($oppBean->id)) {
+                    continue;
+                }
+                $accountName = $oppBean->account_name;
             }
-            $accountName = $oppBean->account_name;
+            $profit = isset($opp['opportunity_profit']) ? (float)$opp['opportunity_profit'] : 0;
 
             echo '<tr data-opportunity-id="' . htmlspecialchars($oppId) . '">';
             echo '<td>' . htmlspecialchars($accountName) . '</td>';
-            echo '<td><a target="_top" href="#/opportunities/record/' . htmlspecialchars($oppId) . '">' . htmlspecialchars($opp['name']) . '</a></td>';
-            echo '<td class="amount" data-amount="' . htmlspecialchars($opp['amount']) . '">' . htmlspecialchars(number_format($opp['amount'], 2)) . '</td>';
+            echo '<td><a href="javascript:void(0)" onclick="window.top.location.href=\'/#/opportunities/record/' . htmlspecialchars($oppId) . '\'">' . htmlspecialchars($opp['name']) . '</a></td>';
+            echo '<td class="amount" data-amount="' . htmlspecialchars($opp['amount']) . '">' . htmlspecialchars(number_format($opp['amount'], 0)) . '</td>';
+            echo '<td class="profit" data-profit="' . htmlspecialchars($profit) . '">' . htmlspecialchars(number_format($profit, 0)) . '</td>';
             // Get current stage probability
             $currentStage = $opp['sales_stage'];
             $currentProb = isset($stageProbabilities[$currentStage]) ? (int)$stageProbabilities[$currentStage] : 0;
@@ -258,18 +347,25 @@ class LF_WeeklyPlanViewPlanning extends SugarView
 
             // Projected Stage Dropdown - show stages with higher probability than current
             $savedProjectedStage = $item ? ($item['projected_stage'] ?? '') : '';
-            echo '<td><select name="projected_stage[' . htmlspecialchars($oppId) . ']" class="projected-stage-select" data-opp-id="' . htmlspecialchars($oppId) . '">';
-            echo '<option value="">-- Select --</option>';
-            // Use probability comparison instead of array index to be more robust
-            foreach ($stageOrder as $stage) {
-                $stageProb = isset($stageProbabilities[$stage]) ? (int)$stageProbabilities[$stage] : 0;
-                // Show stages with probability higher than current stage
-                if ($stageProb > $currentProb) {
-                    $selected = ($savedProjectedStage === $stage) ? ' selected' : '';
-                    echo '<option value="' . htmlspecialchars($stage) . '"' . $selected . '>' . htmlspecialchars($stage) . '</option>';
+            if ($plan->status === 'submitted') {
+                // Read-only: show static text
+                $displayStage = $savedProjectedStage ?: 'None';
+                echo '<td>' . htmlspecialchars($displayStage) . '</td>';
+            } else {
+                echo '<td><select name="projected_stage[' . htmlspecialchars($oppId) . ']" class="projected-stage-select" data-opp-id="' . htmlspecialchars($oppId) . '">';
+                echo '<option value="">-- Select --</option>';
+                foreach ($stageOrder as $stage) {
+                    $stageProb = isset($stageProbabilities[$stage]) ? (int)$stageProbabilities[$stage] : 0;
+                    if ($stageProb > $currentProb) {
+                        $selected = ($savedProjectedStage === $stage) ? ' selected' : '';
+                        echo '<option value="' . htmlspecialchars($stage) . '"' . $selected . '>' . htmlspecialchars($stage) . '</option>';
+                    }
                 }
+                echo '</select></td>';
             }
-            echo '</select></td>';
+
+            // Progression value column (calculated by JS, shows per-row progression)
+            echo '<td class="pipeline-progression" data-value="0">0</td>';
 
             // Category - Auto-calculated display (read-only)
             // Logic: Closing (100%), Progression (>=10% to <100%), New (1% to higher)
@@ -324,60 +420,95 @@ class LF_WeeklyPlanViewPlanning extends SugarView
         echo '<thead><tr>';
         echo '<th>Account</th>';
         echo '<th>Opportunity</th>';
-        echo '<th>Amount</th>';
+        echo '<th>Revenue</th>';
+        echo '<th>Profit</th>';
         echo '<th>Projected Stage</th>';
         echo '<th>Day</th>';
         echo '<th>Plan</th>';
         echo '</tr></thead>';
         echo '<tbody>';
 
-        foreach ($devPipelineOpps as $opp) {
-            $oppId = $opp['id'];
-            // Filter by item_type = 'developing'
-            $item = (isset($planItems[$oppId]) && $planItems[$oppId]['item_type'] === 'developing') ? $planItems[$oppId] : null;
+        // When submitted, show frozen developing pipeline from plan items (not live data)
+        if ($plan->status === 'submitted') {
+            // Load developing plan items and show them as frozen snapshot
+            foreach ($planItems as $oppId => $item) {
+                if ($item['item_type'] !== 'developing') continue;
 
-            // M3: Null check on BeanFactory::getBean
-            $oppBean = BeanFactory::getBean('Opportunities', $oppId);
-            if (!$oppBean || empty($oppBean->id)) {
-                continue;
+                $oppBean = BeanFactory::getBean('Opportunities', $oppId);
+                if (!$oppBean || empty($oppBean->id)) continue;
+
+                $accountName = $oppBean->account_name;
+                // Use original_profit from snapshot if available, else current
+                $profit = !empty($item['original_profit']) ? (float)$item['original_profit'] : (float)$oppBean->opportunity_profit;
+                $revenue = (float)$oppBean->amount;
+
+                echo '<tr class="developing-pipeline-row" data-opportunity-id="' . htmlspecialchars($oppId) . '">';
+                echo '<td>' . htmlspecialchars($accountName) . '</td>';
+                echo '<td><a href="javascript:void(0)" onclick="window.top.location.href=\'/#/opportunities/record/' . htmlspecialchars($oppId) . '\'">' . htmlspecialchars($oppBean->name) . '</a></td>';
+                echo '<td class="dev-amount" data-amount="' . htmlspecialchars($revenue) . '">' . htmlspecialchars(number_format($revenue, 0)) . '</td>';
+                echo '<td class="dev-profit" data-profit="' . htmlspecialchars($profit) . '">' . htmlspecialchars(number_format($profit, 0)) . '</td>';
+
+                $displayStage = $item['projected_stage'] ?: 'None';
+                echo '<td>' . htmlspecialchars($displayStage) . '</td>';
+
+                // Day
+                $dayLabel = ucfirst($item['planned_day'] ?? '');
+                echo '<td>' . htmlspecialchars($dayLabel) . '</td>';
+
+                // Plan
+                echo '<td>' . htmlspecialchars($item['plan_description'] ?? '') . '</td>';
+                echo '</tr>';
             }
-            $accountName = $oppBean->account_name;
+        } else {
+            // Live/snapshot developing pipeline for editing
+            foreach ($devPipelineOpps as $opp) {
+                $oppId = $opp['id'];
+                $item = (isset($planItems[$oppId]) && $planItems[$oppId]['item_type'] === 'developing') ? $planItems[$oppId] : null;
 
-            echo '<tr class="developing-pipeline-row" data-opportunity-id="' . htmlspecialchars($oppId) . '">';
-            echo '<td>' . htmlspecialchars($accountName) . '</td>';
-            echo '<td><a target="_top" href="#/opportunities/record/' . htmlspecialchars($oppId) . '">' . htmlspecialchars($opp['name']) . '</a></td>';
-            echo '<td class="dev-amount" data-amount="' . htmlspecialchars($opp['amount']) . '">' . htmlspecialchars(number_format($opp['amount'], 2)) . '</td>';
-
-            // Projected Stage Dropdown (stages above 2-Analysis)
-            echo '<td><select name="dev_projected_stage[' . htmlspecialchars($oppId) . ']" class="dev-projected-stage-select">';
-            echo '<option value="">-- Select --</option>';
-            // M2: Config-driven analysis stage - get its probability
-            $analysisProb = isset($stageProbabilities[$analysisStage]) ? (int)$stageProbabilities[$analysisStage] : 1;
-            // Use probability comparison to show stages higher than analysis stage
-            foreach ($stageOrder as $stage) {
-                $stageProb = isset($stageProbabilities[$stage]) ? (int)$stageProbabilities[$stage] : 0;
-                // Show stages with probability higher than analysis stage but below 100%
-                if ($stageProb > $analysisProb && $stageProb < 100) {
-                    $selected = ($item && $item['projected_stage'] == $stage) ? ' selected' : '';
-                    echo '<option value="' . htmlspecialchars($stage) . '"' . $selected . '>' . htmlspecialchars($stage) . '</option>';
+                // Get account name — from snapshot account_id if available, otherwise BeanFactory
+                if ($hasSnapshot && !empty($opp['account_id'])) {
+                    $acctQuery = "SELECT name FROM accounts WHERE id = " . $db->quoted($opp['account_id']) . " AND deleted = 0";
+                    $acctResult = $db->query($acctQuery);
+                    $acctRow = $db->fetchByAssoc($acctResult);
+                    $accountName = $acctRow ? $acctRow['name'] : 'No Account';
+                } else {
+                    $oppBean = BeanFactory::getBean('Opportunities', $oppId);
+                    if (!$oppBean || empty($oppBean->id)) continue;
+                    $accountName = $oppBean->account_name;
                 }
+                $profit = isset($opp['opportunity_profit']) ? (float)$opp['opportunity_profit'] : 0;
+
+                echo '<tr class="developing-pipeline-row" data-opportunity-id="' . htmlspecialchars($oppId) . '">';
+                echo '<td>' . htmlspecialchars($accountName) . '</td>';
+                echo '<td><a href="javascript:void(0)" onclick="window.top.location.href=\'/#/opportunities/record/' . htmlspecialchars($oppId) . '\'">' . htmlspecialchars($opp['name']) . '</a></td>';
+                echo '<td class="dev-amount" data-amount="' . htmlspecialchars($opp['amount']) . '">' . htmlspecialchars(number_format($opp['amount'], 0)) . '</td>';
+                echo '<td class="dev-profit" data-profit="' . htmlspecialchars($profit) . '">' . htmlspecialchars(number_format($profit, 0)) . '</td>';
+
+                $devSavedStage = $item ? ($item['projected_stage'] ?? '') : '';
+                echo '<td><select name="dev_projected_stage[' . htmlspecialchars($oppId) . ']" class="dev-projected-stage-select">';
+                echo '<option value="">-- Select --</option>';
+                $analysisProb = isset($stageProbabilities[$analysisStage]) ? (int)$stageProbabilities[$analysisStage] : 1;
+                foreach ($stageOrder as $stage) {
+                    $stageProb = isset($stageProbabilities[$stage]) ? (int)$stageProbabilities[$stage] : 0;
+                    if ($stageProb > $analysisProb && $stageProb < 100) {
+                        $selected = ($item && $item['projected_stage'] == $stage) ? ' selected' : '';
+                        echo '<option value="' . htmlspecialchars($stage) . '"' . $selected . '>' . htmlspecialchars($stage) . '</option>';
+                    }
+                }
+                echo '</select></td>';
+
+                echo '<td><select name="dev_day[' . htmlspecialchars($oppId) . ']" class="dev-day-select">';
+                $days = ['monday' => 'Monday', 'tuesday' => 'Tuesday', 'wednesday' => 'Wednesday', 'thursday' => 'Thursday', 'friday' => 'Friday'];
+                foreach ($days as $val => $lbl) {
+                    $selected = ($item && $item['planned_day'] == $val) ? ' selected' : '';
+                    echo '<option value="' . htmlspecialchars($val) . '"' . $selected . '>' . htmlspecialchars($lbl) . '</option>';
+                }
+                echo '</select></td>';
+
+                $planDesc = $item ? $item['plan_description'] : '';
+                echo '<td><input type="text" name="dev_plan[' . htmlspecialchars($oppId) . ']" value="' . htmlspecialchars($planDesc) . '"></td>';
+                echo '</tr>';
             }
-            echo '</select></td>';
-
-            // Day Dropdown
-            echo '<td><select name="dev_day[' . htmlspecialchars($oppId) . ']" class="dev-day-select">';
-            $days = ['monday' => 'Monday', 'tuesday' => 'Tuesday', 'wednesday' => 'Wednesday', 'thursday' => 'Thursday', 'friday' => 'Friday'];
-            foreach ($days as $val => $lbl) {
-                $selected = ($item && $item['planned_day'] == $val) ? ' selected' : '';
-                echo '<option value="' . htmlspecialchars($val) . '"' . $selected . '>' . htmlspecialchars($lbl) . '</option>';
-            }
-            echo '</select></td>';
-
-            // Plan Text Input
-            $planDesc = $item ? $item['plan_description'] : '';
-            echo '<td><input type="text" name="dev_plan[' . htmlspecialchars($oppId) . ']" value="' . htmlspecialchars($planDesc) . '"></td>';
-
-            echo '</tr>';
         }
 
         echo '</tbody></table>';
@@ -404,7 +535,8 @@ class LF_WeeklyPlanViewPlanning extends SugarView
         echo '<thead><tr>';
         echo '<th>Source Type</th>';
         echo '<th>Day</th>';
-        echo '<th>Expected Value</th>';
+        echo '<th>Expected Revenue</th>';
+        echo '<th>Expected Profit</th>';
         echo '<th>Description</th>';
         echo '<th>Action</th>';
         echo '</tr></thead>';
@@ -431,8 +563,13 @@ class LF_WeeklyPlanViewPlanning extends SugarView
             }
             echo '</select></td>';
 
-            // Expected Value
-            echo '<td><input type="number" name="prospect_amount[' . htmlspecialchars($idx) . ']" class="prospect-amount" value="' . htmlspecialchars($item['expected_value']) . '"></td>';
+            // Expected Revenue
+            $revVal = (int)(float)($item['expected_revenue'] ?? $item['expected_value'] ?? 0);
+            echo '<td><input type="number" name="prospect_revenue[' . htmlspecialchars($idx) . ']" class="prospect-revenue" value="' . ($revVal ?: '') . '"></td>';
+
+            // Expected Profit
+            $profVal = (int)(float)($item['expected_profit'] ?? 0);
+            echo '<td><input type="number" name="prospect_profit[' . htmlspecialchars($idx) . ']" class="prospect-profit" value="' . ($profVal ?: '') . '"></td>';
 
             // Description
             echo '<td><input type="text" name="prospect_description[' . htmlspecialchars($idx) . ']" value="' . htmlspecialchars($item['plan_description']) . '"></td>';
@@ -474,6 +611,33 @@ class LF_WeeklyPlanViewPlanning extends SugarView
         echo '</div>';
 
         echo '</div>'; // end #lf-planning-container
+
+        // Read-only mode after plan is submitted
+        if ($plan->status === 'submitted') {
+            echo '<style>';
+            echo '#lf-planning-container select, #lf-planning-container input[type="text"], #lf-planning-container input[type="number"], #lf-planning-container input[type="checkbox"], #lf-planning-container textarea { pointer-events: none; opacity: 0.6; background-color: #f3f2f1; }';
+            echo '.lf-planning-actions { display: none; }';
+            echo '#add-prospect-row { display: none; }';
+            echo '.remove-prospect-row { display: none; }';
+            echo '</style>';
+            echo '<div style="background: #fff3cd; border: 1px solid #ffc107; color: #856404; padding: 12px 16px; border-radius: 8px; margin-top: 16px; text-align: center; font-weight: 600;">';
+            echo 'This plan has been submitted and is now read-only.';
+            echo '</div>';
+        }
+
+        // Read-only mode for past and future weeks (only current week is editable)
+        if (!$isCurrentWeek && $plan->status !== 'submitted') {
+            echo '<style>';
+            echo '#lf-planning-container select, #lf-planning-container input[type="text"], #lf-planning-container input[type="number"], #lf-planning-container input[type="checkbox"], #lf-planning-container textarea { pointer-events: none; opacity: 0.6; background-color: #f3f2f1; }';
+            echo '.lf-planning-actions { display: none; }';
+            echo '#add-prospect-row { display: none; }';
+            echo '.remove-prospect-row { display: none; }';
+            echo '</style>';
+            echo '<div style="background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 12px 16px; border-radius: 8px; margin-top: 16px; text-align: center; font-weight: 600;">';
+            echo 'Viewing a ' . ($weekStart < WeekHelper::getCurrentWeekStart() ? 'past' : 'future') . ' week. Only the current week can be edited.';
+            echo '</div>';
+        }
+
         echo '</div>'; // end .lf-planning-wrapper
         echo '</div>'; // end .lf-content-wrapper
     }

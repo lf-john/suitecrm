@@ -143,11 +143,13 @@ class LF_ReportSnapshot extends SugarBean
 
         // Query open opportunities for the given user
         $query = sprintf(
-            "SELECT id, name, account_name, amount, sales_stage
-             FROM opportunities
-             WHERE assigned_user_id = %s
-               AND sales_stage NOT IN ('Closed Won', 'Closed Lost', 'closed_won', 'closed_lost')
-               AND deleted = 0",
+            "SELECT o.id, o.name, COALESCE(a.name, '') as account_name, o.amount, o.sales_stage
+             FROM opportunities o
+             LEFT JOIN accounts_opportunities ao ON ao.opportunity_id = o.id AND ao.deleted = 0
+             LEFT JOIN accounts a ON a.id = ao.account_id AND a.deleted = 0
+             WHERE o.assigned_user_id = %s
+               AND o.sales_stage NOT IN ('Closed Won', 'Closed Lost', 'closed_won', 'closed_lost')
+               AND o.deleted = 0",
             $db->quoted($userId)
         );
 

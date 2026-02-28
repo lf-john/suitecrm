@@ -274,8 +274,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const target = remainingQuota * multiplier;
         
         let pipelineTotal = 0;
-        Object.values(pipelineByStage).forEach(s => pipelineTotal += (s.amount || 0));
-        
+        Object.values(pipelineByStage).forEach(s => pipelineTotal += (s.profit || 0));
+
         const gapToTarget = Math.max(0, target - pipelineTotal);
         const coverageRatio = remainingQuota > 0 ? (pipelineTotal / remainingQuota) : 0;
 
@@ -299,7 +299,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         Target = ($${formatCurrency(totalQuota)} - $${formatCurrency(closedYtd)}) x ${multiplier} = <strong style="color: #d13438;">$${formatCurrency(target)}</strong>
                     </div>
 
-                    <h4 style="margin: 20px 0 10px 0; font-size: 14px; color: #333;">Pipeline by Stage</h4>
+                    <h4 style="margin: 20px 0 10px 0; font-size: 14px; color: #333;">Pipeline Profit by Stage</h4>
                     ${renderStackedBar(pipelineByStage, pipelineTotal)}
 
                     <div class="lf-gap-alert" style="background: #fdeaea; border: 1px solid #d13438; color: #d13438; padding: 12px; border-radius: 6px; margin-top: 15px; text-align: center; font-weight: bold;">
@@ -319,8 +319,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const repId = rep.assigned_user_id;
                 const repPipeline = (pipelineByRep[repId] && pipelineByRep[repId].byStage) || {};
                 let repTotal = 0;
-                Object.values(repPipeline).forEach(s => repTotal += (s.amount || 0));
-                
+                Object.values(repPipeline).forEach(s => repTotal += (s.profit || 0));
+
                 const repDisplayName = rep.name || rep.full_name || (rep.first_name && rep.last_name ? (rep.first_name + ' ' + rep.last_name) : 'Rep');
 
                 html += `
@@ -337,8 +337,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const rep = reps.find(r => r.assigned_user_id === repId);
             const repPipeline = (pipelineByRep[repId] && pipelineByRep[repId].byStage) || {};
             let repTotal = 0;
-            Object.values(repPipeline).forEach(s => repTotal += (s.amount || 0));
-            
+            Object.values(repPipeline).forEach(s => repTotal += (s.profit || 0));
+
             const repDisplayName = rep ? (rep.name || rep.full_name || (rep.first_name && rep.last_name ? (rep.first_name + ' ' + rep.last_name) : 'Selected Rep')) : 'Selected Rep';
 
             html += `
@@ -384,15 +384,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const defaultColors = ['#125EAD', '#4BB74E', '#ff8c00', '#E6C300', '#d13438', '#7b1fa2', '#00796b'];
 
         const stages = Object.keys(pipelineData).sort((a, b) => {
-            // Sort by amount descending
-            return (pipelineData[b].amount || 0) - (pipelineData[a].amount || 0);
+            // Sort by profit descending
+            return (pipelineData[b].profit || pipelineData[b].amount || 0) - (pipelineData[a].profit || pipelineData[a].amount || 0);
         });
 
         if (mini) {
             // Mini version - simple horizontal bar
             let html = `<div style="height: 12px; display: flex; border-radius: 4px; overflow: hidden; background: #eee;">`;
             stages.forEach((stage, index) => {
-                const amount = pipelineData[stage].amount || 0;
+                const amount = pipelineData[stage].profit || pipelineData[stage].amount || 0;
                 const percent = (amount / total) * 100;
                 const color = Object.keys(stageColorMap).find(k => stage.includes(k))
                     ? stageColorMap[Object.keys(stageColorMap).find(k => stage.includes(k))]
@@ -407,13 +407,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Full vertical stacked bar chart
         const chartHeight = 200;
-        const maxAmount = Math.max(...stages.map(s => pipelineData[s].amount || 0));
+        const maxAmount = Math.max(...stages.map(s => pipelineData[s].profit || pipelineData[s].amount || 0));
 
         let html = `<div class="lf-vertical-chart" style="background: #f3f2f1; border-radius: 8px; padding: 16px; position: relative; min-height: ${chartHeight}px;">`;
         html += `<div class="lf-stacked-bars" style="display: flex; flex-direction: column; gap: 3px;">`;
 
         stages.forEach((stage, index) => {
-            const amount = pipelineData[stage].amount || 0;
+            const amount = pipelineData[stage].profit || pipelineData[stage].amount || 0;
             const heightPercent = maxAmount > 0 ? (amount / maxAmount) * 100 : 0;
             const barHeight = Math.max(20, Math.min(60, 20 + (heightPercent * 0.4)));
             const color = Object.keys(stageColorMap).find(k => stage.includes(k))
@@ -433,7 +433,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Legend
         html += `<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px;">`;
         stages.forEach((stage, index) => {
-            const amount = pipelineData[stage].amount || 0;
+            const amount = pipelineData[stage].profit || pipelineData[stage].amount || 0;
             if (amount > 0) {
                 const color = Object.keys(stageColorMap).find(k => stage.includes(k))
                     ? stageColorMap[Object.keys(stageColorMap).find(k => stage.includes(k))]
@@ -472,17 +472,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const allItems = [...planItems, ...prospectItems];
 
         // Category definitions with colors
+        // Note: DB stores 'developing' as item_type, map both variants
         const categories = {
             'closing': { label: 'Closing', color: '#d13438', order: 1 },
             'at_risk': { label: 'At Risk', color: '#ff8c00', order: 2 },
             'progression': { label: 'Progression', color: '#4BB74E', order: 3 },
-            'developing_pipeline': { label: 'Developing Pipeline', color: '#125EAD', order: 4 },
+            'developing': { label: 'Developing Pipeline', color: '#125EAD', order: 4 },
             'prospecting': { label: 'Prospecting', color: '#7b1fa2', order: 5 }
         };
 
         // Pipeline Progression categories (for Rep View split)
         const progressionCategories = ['closing', 'at_risk', 'progression'];
-        const newPipelineCategories = ['developing_pipeline', 'prospecting'];
+        const newPipelineCategories = ['developing', 'prospecting'];
 
         let html = `
             <div class="lf-card" style="background: #fff; border: 1px solid #edebe9; border-radius: 12px; overflow: hidden; height: 100%; box-shadow: 0 4px 8px rgba(0,0,0,0.12);">
@@ -491,15 +492,83 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div style="font-size: 12px; color: #605e5c; font-weight: 500;">15 minutes</div>
                 </div>
                 <div class="lf-card-body" style="padding: 16px; overflow-y: auto; max-height: calc(100vh - 250px);">
-                    <!-- Target metrics header -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                    <!-- Planned vs Expected header -->`;
+
+        // Filter plan items by selected rep when in rep view
+        const allPlanItemsRaw = data.planItems || [];
+        const allPlanItems = (state.viewMode === 'rep' && state.selectedRepId)
+            ? allPlanItemsRaw.filter(item => item.assigned_user_id === state.selectedRepId)
+            : allPlanItemsRaw;
+        const stageProbabilities = data.config?.stageProbabilities || {};
+        const defaultClosed = parseFloat(config.default_weekly_closed || 10000);
+
+        // Helper to get stage probability from stage name
+        function getStageProbability(stageName) {
+            if (!stageName) return 0;
+            if (stageProbabilities[stageName] !== undefined) return parseFloat(stageProbabilities[stageName]);
+            // Extract from stage name like "5-Specifications (30%)"
+            const m = stageName.match(/\((\d+)%\)/);
+            if (m) return parseInt(m[1]);
+            if (stageName.toLowerCase().includes('closed_won') || stageName.toLowerCase().includes('closed won')) return 100;
+            return 0;
+        }
+
+        let totalPlannedClosing = 0;
+        let totalPlannedProgression = 0;
+        let totalPlannedNewPipeline = 0;
+        allPlanItems.forEach(item => {
+            const cat = (item.item_category || item.item_type || '').toLowerCase();
+            const profit = parseFloat(item.profit) || 0;
+            const projectedProb = getStageProbability(item.projected_stage);
+            const currentProb = getStageProbability(item.current_stage);
+
+            if (cat === 'closing') {
+                totalPlannedClosing += profit;
+                // Closing items also contribute to progression: Profit × (Projected% - Current%) / 100
+                totalPlannedProgression += profit * (projectedProb - currentProb) / 100;
+            } else if (cat === 'at_risk' || cat === 'progression') {
+                totalPlannedProgression += profit * (projectedProb - currentProb) / 100;
+            } else if (cat === 'developing' || cat === 'prospecting') {
+                totalPlannedNewPipeline += profit;
+            }
+        });
+
+        // Calculate expected targets — rep view uses individual target, company view multiplies by reps with plans
+        let expectedClosed, expectedProgression, expectedNewPipeline;
+        if (state.viewMode === 'rep') {
+            const selectedRepId = state.selectedRepId;
+            const targets = repTargets[selectedRepId] || {};
+            expectedClosed = parseFloat(targets.weekly_closed || defaultClosed);
+            expectedProgression = parseFloat(targets.weekly_progression || defaultProgression);
+            expectedNewPipeline = parseFloat(targets.weekly_new_pipeline || defaultNewPipeline);
+        } else {
+            const repsWithPlans = new Set(allPlanItems.map(item => item.assigned_user_id)).size || 1;
+            expectedClosed = repsWithPlans * defaultClosed;
+            expectedProgression = repsWithPlans * defaultProgression;
+            expectedNewPipeline = repsWithPlans * defaultNewPipeline;
+        }
+
+        const closingPct = expectedClosed > 0 ? Math.round((totalPlannedClosing / expectedClosed) * 100) : 0;
+        const progressionPct = expectedProgression > 0 ? Math.round((totalPlannedProgression / expectedProgression) * 100) : 0;
+        const newPipelinePct = expectedNewPipeline > 0 ? Math.round((totalPlannedNewPipeline / expectedNewPipeline) * 100) : 0;
+
+        // 3 cards stacked vertically: Closing, Progression, New Pipeline
+        html += `
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
                         <div style="background: #faf9f8; padding: 12px; border-radius: 8px; text-align: center;">
-                            <div style="font-size: 20px; font-weight: 700; color: #125EAD;">$${formatCurrency(defaultNewPipeline)}</div>
-                            <div style="font-size: 12px; color: #605e5c;">New Pipeline / Rep</div>
+                            <div style="font-size: 20px; font-weight: 700; color: #d13438;">$${formatCurrency(totalPlannedClosing)}</div>
+                            <div style="font-size: 12px; color: #605e5c;">Closing Planned</div>
+                            <div style="font-size: 11px; color: #8a8886; margin-top: 4px;">vs $${formatCurrency(expectedClosed)} expected (${closingPct}%)</div>
                         </div>
                         <div style="background: #faf9f8; padding: 12px; border-radius: 8px; text-align: center;">
-                            <div style="font-size: 20px; font-weight: 700; color: #4BB74E;">$${formatCurrency(defaultProgression)}</div>
-                            <div style="font-size: 12px; color: #605e5c;">Progression / Rep</div>
+                            <div style="font-size: 20px; font-weight: 700; color: #4BB74E;">$${formatCurrency(totalPlannedProgression)}</div>
+                            <div style="font-size: 12px; color: #605e5c;">Progression Planned</div>
+                            <div style="font-size: 11px; color: #8a8886; margin-top: 4px;">vs $${formatCurrency(expectedProgression)} expected (${progressionPct}%)</div>
+                        </div>
+                        <div style="background: #faf9f8; padding: 12px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 20px; font-weight: 700; color: #125EAD;">$${formatCurrency(totalPlannedNewPipeline)}</div>
+                            <div style="font-size: 12px; color: #605e5c;">New Pipeline Planned</div>
+                            <div style="font-size: 11px; color: #8a8886; margin-top: 4px;">vs $${formatCurrency(expectedNewPipeline)} expected (${newPipelinePct}%)</div>
                         </div>
                     </div>`;
 
@@ -530,7 +599,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Calculate rep totals
                 let repCategoryTotals = {};
                 Object.keys(categories).forEach(cat => {
-                    const catTotal = itemsByCategory[cat].reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+                    const catTotal = itemsByCategory[cat].reduce((sum, item) => sum + (parseFloat(item.profit) || 0), 0);
                     repCategoryTotals[cat] = catTotal;
                     teamTotals[cat] += catTotal;
                 });
@@ -604,10 +673,14 @@ document.addEventListener('DOMContentLoaded', function() {
             // Filter items to selected rep
             const repItems = allItems.filter(item => item.assigned_user_id === selectedRepId);
 
-            // Split into Pipeline Progression and New Pipeline
-            const progressionItems = repItems.filter(item => {
+            // Split into 3 sections: Closing, Progression, New Pipeline
+            const closingItems = repItems.filter(item => {
                 const cat = (item.item_category || '').toLowerCase().replace(' ', '_');
-                return progressionCategories.includes(cat);
+                return cat === 'closing';
+            });
+            const progressionOnlyItems = repItems.filter(item => {
+                const cat = (item.item_category || '').toLowerCase().replace(' ', '_');
+                return cat === 'progression' || cat === 'at_risk';
             });
             const newPipelineItems = repItems.filter(item => {
                 const cat = (item.item_category || '').toLowerCase().replace(' ', '_');
@@ -615,35 +688,51 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             // Calculate totals
-            const progressionTotal = progressionItems.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
-            const newPipelineTotal = newPipelineItems.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+            const closingTotal = closingItems.reduce((sum, item) => sum + (parseFloat(item.profit) || 0), 0);
+            // Progression: Profit × (Projected% - Current%) / 100 for closing + progression + at_risk items
+            const allProgressionContributors = [...closingItems, ...progressionOnlyItems];
+            const progressionTotal = allProgressionContributors.reduce((sum, item) => {
+                const profit = parseFloat(item.profit) || 0;
+                const projectedProb = getStageProbability(item.projected_stage);
+                const currentProb = getStageProbability(item.current_stage);
+                return sum + (profit * (projectedProb - currentProb) / 100);
+            }, 0);
+            const newPipelineTotal = newPipelineItems.reduce((sum, item) => sum + (parseFloat(item.profit) || 0), 0);
 
+            // --- CLOSING SECTION ---
             html += `
-                <div style="margin-bottom: 15px; padding: 12px; background: #f5f5f5; border-radius: 6px;">
-                    <div style="font-weight: bold; font-size: 14px; color: #333;">${escapeHtml(repName)}</div>
-                    <div style="display: flex; gap: 20px; margin-top: 8px; font-size: 12px;">
-                        <div><span style="color: #666;">New Pipeline Target:</span> <strong style="color: #125EAD;">$${formatCurrency(newPipelineTarget)}</strong></div>
-                        <div><span style="color: #666;">Progression Target:</span> <strong style="color: #4BB74E;">$${formatCurrency(progressionTarget)}</strong></div>
-                    </div>
-                </div>
+                <h4 style="margin: 20px 0 10px 0; font-size: 13px; color: #d13438; border-bottom: 2px solid #d13438; padding-bottom: 5px;">
+                    Closing Priorities
+                    <span style="float: right; font-weight: normal; color: #666;">Total: $${formatCurrency(closingTotal)}</span>
+                </h4>`;
 
-                <h4 style="margin: 20px 0 10px 0; font-size: 13px; color: #4BB74E; border-bottom: 2px solid #4BB74E; padding-bottom: 5px;">
-                    Pipeline Progression Priorities
+            if (closingItems.length === 0) {
+                html += `<div style="padding: 15px; text-align: center; color: #999; font-size: 12px;">No closing priorities this week</div>`;
+            } else {
+                closingItems.forEach(item => {
+                    html += renderPriorityItem(item, '#d13438');
+                });
+            }
+
+            // --- PROGRESSION SECTION ---
+            html += `
+                <h4 style="margin: 25px 0 10px 0; font-size: 13px; color: #4BB74E; border-bottom: 2px solid #4BB74E; padding-bottom: 5px;">
+                    Progression Priorities
                     <span style="float: right; font-weight: normal; color: #666;">Total: $${formatCurrency(progressionTotal)}</span>
                 </h4>`;
 
-            if (progressionItems.length === 0) {
+            if (progressionOnlyItems.length === 0) {
                 html += `<div style="padding: 15px; text-align: center; color: #999; font-size: 12px;">No progression priorities this week</div>`;
             } else {
                 // Group by category within progression
                 const groupedProgression = {};
-                progressionCategories.forEach(cat => { groupedProgression[cat] = []; });
-                progressionItems.forEach(item => {
+                ['at_risk', 'progression'].forEach(cat => { groupedProgression[cat] = []; });
+                progressionOnlyItems.forEach(item => {
                     const cat = (item.item_category || '').toLowerCase().replace(' ', '_');
                     if (groupedProgression[cat]) groupedProgression[cat].push(item);
                 });
 
-                progressionCategories.forEach(cat => {
+                ['at_risk', 'progression'].forEach(cat => {
                     const catItems = groupedProgression[cat];
                     if (catItems.length > 0) {
                         const catInfo = categories[cat];
@@ -657,6 +746,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
 
+            // --- NEW PIPELINE SECTION ---
             html += `
                 <h4 style="margin: 25px 0 10px 0; font-size: 13px; color: #125EAD; border-bottom: 2px solid #125EAD; padding-bottom: 5px;">
                     New Pipeline Priorities
@@ -702,7 +792,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderPriorityItem(item, accentColor) {
         const accountName = item.account_name || 'Unknown Account';
         const oppName = item.opportunity_name || item.name || 'Unknown Opportunity';
-        const amount = parseFloat(item.amount) || 0;
+        const amount = parseFloat(item.profit) || 0;
         const stage = item.projected_stage || item.stage || 'Unknown Stage';
         const day = item.planned_day || item.day || '';
         const description = item.description || item.plan_description || '';
@@ -726,7 +816,7 @@ document.addEventListener('DOMContentLoaded', function() {
      * Column 3: Deal Risk Assessment
      * 
      * Shows opportunities with no activity exceeding configured stale_deal_days (default 14).
-     * Excludes '2-Analysis (1%)' stage.
+     * Excludes '2-Analysis (0%)' stage.
      * Sorted by days since last activity (most stale first).
      */
     function renderDealRisk() {
@@ -742,7 +832,7 @@ document.addEventListener('DOMContentLoaded', function() {
         staleDeals = staleDeals.filter(deal => {
             const days = parseInt(deal.days_since_activity || 0);
             return (days >= staleThreshold) && 
-                   (deal.sales_stage !== '2-Analysis (1%)');
+                   (deal.sales_stage !== '2-Analysis (0%)');
         });
 
         if (state.viewMode === 'rep' && state.selectedRepId) {
@@ -780,7 +870,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             staleDeals.slice(0, 10).forEach(deal => {
                 const days = parseInt(deal.days_since_activity || 0);
-                const amount = parseFloat(deal.amount || 0);
+                const amount = parseFloat(deal.opportunity_profit || deal.profit || deal.amount || 0);
                 const accountName = deal.account_name || 'No Account';
                 const oppName = deal.opportunity_name || deal.name || 'Unknown Opportunity';
 
@@ -823,7 +913,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div style="background: #faf9f8; border-radius: 0 0 8px 8px; padding: 8px; max-height: 200px; overflow-y: auto;">`;
 
             atRiskDeals.slice(0, 10).forEach(deal => {
-                const amount = parseFloat(deal.amount || 0);
+                const amount = parseFloat(deal.opportunity_profit || deal.profit || deal.amount || 0);
                 const accountName = deal.account_name || 'No Account';
                 const stageName = deal.sales_stage || 'Unknown Stage';
 
