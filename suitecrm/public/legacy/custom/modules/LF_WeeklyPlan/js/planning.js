@@ -18,7 +18,8 @@
                 updateCategoryForRow(target.closest('tr'));
                 updateAll();
             } else if (target.matches('.dev-projected-stage-select') ||
-                target.matches('.prospect-amount') ||
+                target.matches('.prospect-revenue') ||
+                target.matches('.prospect-profit') ||
                 target.matches('.at-risk-checkbox')) {
                 updateAll();
             }
@@ -99,6 +100,10 @@
         }
 
         function updateAll() {
+            // Skip recalculation when plan is submitted — frozen values are rendered by PHP
+            var planStatus = container.getAttribute('data-plan-status');
+            if (planStatus === 'submitted') return;
+
             updateProgression();
             updateTotals();
             updateHealthSummary();
@@ -107,13 +112,13 @@
         function updateProgression() {
             const rows = container.querySelectorAll('#pipeline-table tbody tr');
             rows.forEach(row => {
-                const amountCell = row.querySelector('.amount');
+                const profitCell = row.querySelector('.profit');
                 const stageCell = row.querySelector('.current-stage');
                 const projSelect = row.querySelector('.projected-stage-select');
-                
-                if (!amountCell || !stageCell || !projSelect) return;
 
-                const amount = parseFloat(amountCell.getAttribute('data-amount')) || 0;
+                if (!profitCell || !stageCell || !projSelect) return;
+
+                const profit = parseFloat(profitCell.getAttribute('data-profit')) || 0;
                 const currentStage = stageCell.getAttribute('data-stage');
                 const projectedStage = projSelect.value;
 
@@ -122,7 +127,7 @@
 
                 let progression = 0;
                 if (projectedStage) {
-                    progression = amount * (projectedProb - currentProb) / 100;
+                    progression = profit * (projectedProb - currentProb) / 100;
                 }
 
                 const progCell = row.querySelector('.pipeline-progression');
@@ -139,64 +144,64 @@
             let totalProgression = 0;
             let totalNewPipeline = 0;
 
-            // Pipeline rows
+            // Existing Pipeline rows
             const pipelineRows = container.querySelectorAll('#pipeline-table tbody tr');
             pipelineRows.forEach(row => {
-                const amountCell = row.querySelector('.amount');
+                const profitCell = row.querySelector('.profit');
                 const categoryInput = row.querySelector('.category-value');
                 const projSelect = row.querySelector('.projected-stage-select');
                 const atRiskCheckbox = row.querySelector('.at-risk-checkbox');
 
-                if (!amountCell || !projSelect) return;
+                if (!profitCell || !projSelect) return;
 
-                const amount = parseFloat(amountCell.getAttribute('data-amount')) || 0;
+                const profit = parseFloat(profitCell.getAttribute('data-profit')) || 0;
                 const category = categoryInput ? categoryInput.value : '';
                 const projectedStage = projSelect.value;
                 const projectedProb = getStageProb(projectedStage);
                 const isAtRisk = atRiskCheckbox && atRiskCheckbox.checked;
 
-                // At Risk total (separate from category)
+                // At Risk = Sum of Profit for at-risk items
                 if (isAtRisk) {
-                    totalAtRisk += amount;
+                    totalAtRisk += profit;
                 }
 
-                // Category-based totals
+                // Closing = Sum of Profit for closing items
                 if (category === 'closing') {
-                    totalClosing += amount;
-                } else if (category === 'progression') {
-                    // Calculate progression value (difference in weighted pipeline)
+                    totalClosing += profit;
+                }
+
+                // Progression = Profit × (Planned Stage % - Current Stage %) / 100
+                // Includes both progression AND closing items
+                if (category === 'closing' || category === 'progression') {
                     const currentProb = parseInt(row.querySelector('.current-stage')?.getAttribute('data-prob')) || 0;
-                    const progression = amount * (projectedProb - currentProb) / 100;
+                    const progression = profit * (projectedProb - currentProb) / 100;
                     totalProgression += progression;
-                } else if (category === 'new') {
-                    // New pipeline from existing opportunities moving from early stage
-                    totalNewPipeline += (amount * projectedProb / 100);
                 }
             });
 
-            // Developing Pipeline rows
+            // Developing Pipeline rows — New Pipeline = entire Profit
             const devPipelineRows = container.querySelectorAll('#developing-pipeline-table tbody tr');
             devPipelineRows.forEach(row => {
-                const amountCell = row.querySelector('.dev-amount');
+                const profitCell = row.querySelector('.dev-profit');
                 const projSelect = row.querySelector('.dev-projected-stage-select');
 
-                if (!amountCell || !projSelect) return;
+                if (!profitCell || !projSelect) return;
 
-                const amount = parseFloat(amountCell.getAttribute('data-amount')) || 0;
+                const profit = parseFloat(profitCell.getAttribute('data-profit')) || 0;
                 const projectedStage = projSelect.value;
-                const projectedProb = getStageProb(projectedStage);
 
                 if (projectedStage) {
-                    totalNewPipeline += (amount * projectedProb / 100);
+                    // New Pipeline = entire Profit for developing items
+                    totalNewPipeline += profit;
                 }
             });
 
-            // Prospecting rows
+            // Prospecting rows — New Pipeline = expected profit
             const prospectRows = container.querySelectorAll('#prospecting-table tbody tr');
             prospectRows.forEach(row => {
-                const amountInput = row.querySelector('.prospect-amount');
-                if (amountInput) {
-                    totalNewPipeline += parseFloat(amountInput.value) || 0;
+                const profitInput = row.querySelector('.prospect-profit');
+                if (profitInput) {
+                    totalNewPipeline += parseFloat(profitInput.value) || 0;
                 }
             });
 
@@ -395,14 +400,23 @@
                 td2.appendChild(select2);
                 newRow.appendChild(td2);
 
-                // Expected Value
+                // Expected Revenue
                 const td3 = document.createElement('td');
                 const input3 = document.createElement('input');
                 input3.type = 'number';
-                input3.name = 'prospect_amount[' + index + ']';
-                input3.className = 'prospect-amount';
+                input3.name = 'prospect_revenue[' + index + ']';
+                input3.className = 'prospect-revenue';
                 td3.appendChild(input3);
                 newRow.appendChild(td3);
+
+                // Expected Profit
+                const td3b = document.createElement('td');
+                const input3b = document.createElement('input');
+                input3b.type = 'number';
+                input3b.name = 'prospect_profit[' + index + ']';
+                input3b.className = 'prospect-profit';
+                td3b.appendChild(input3b);
+                newRow.appendChild(td3b);
 
                 // Description
                 const td4 = document.createElement('td');
@@ -484,14 +498,17 @@
             prospectRows.forEach(row => {
                 const sourceSelect = row.querySelector('.prospect-source');
                 const daySelect = row.querySelector('.prospect-day');
-                const amountInput = row.querySelector('.prospect-amount');
+                const revenueInput = row.querySelector('.prospect-revenue');
+                const profitInput = row.querySelector('.prospect-profit');
                 const descInput = row.querySelector('input[name^="prospect_description"]');
 
                 prospectItems.push({
                     id: row.getAttribute('data-prospect-id') || '',
                     source_type: sourceSelect ? sourceSelect.value : '',
                     planned_day: daySelect ? daySelect.value : '',
-                    expected_value: amountInput ? amountInput.value : 0,
+                    expected_revenue: revenueInput ? revenueInput.value : 0,
+                    expected_profit: profitInput ? profitInput.value : 0,
+                    expected_value: revenueInput ? revenueInput.value : 0,
                     plan_description: descInput ? descInput.value : ''
                 });
             });
@@ -507,6 +524,13 @@
             const data = collectFormData();
             data.status = status;
 
+            // When submitting, include frozen totals for snapshot
+            if (status === 'submitted') {
+                data.frozen_closing = parseFloat(document.getElementById('total-closing')?.getAttribute('data-value')) || 0;
+                data.frozen_progression = parseFloat(document.getElementById('total-progression')?.getAttribute('data-value')) || 0;
+                data.frozen_new_pipeline = parseFloat(document.getElementById('total-new-pipeline')?.getAttribute('data-value')) || 0;
+            }
+
             const messageEl = document.getElementById('save-message');
             if (messageEl) {
                 messageEl.textContent = 'Saving...';
@@ -517,7 +541,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-Token': (window.SUGAR && window.SUGAR.csrf) ? window.SUGAR.csrf.form_token : ''
+                    'X-CSRF-Token': typeof LF_CSRF_TOKEN !== 'undefined' ? LF_CSRF_TOKEN : ''
                 },
                 body: JSON.stringify(data)
             })

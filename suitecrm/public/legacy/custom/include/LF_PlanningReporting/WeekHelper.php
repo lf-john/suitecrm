@@ -28,9 +28,27 @@ class WeekHelper
      */
     public static function getCurrentWeekStart($weekStartDay = 5)
     {
-        $timezone = self::getUserTimezone();
-        $today = new DateTime('now', new DateTimeZone($timezone));
-        return self::getWeekStart($today->format('Y-m-d'), $weekStartDay);
+        // Use Mountain Time for week boundary calculation
+        // The new week doesn't start until the configured snapshot time (default 9:00 AM MT)
+        $mtTimezone = new DateTimeZone('America/Denver');
+        $now = new DateTime('now', $mtTimezone);
+
+        $snapshotTime = LF_PRConfig::getConfig('weeks', 'snapshot_time') ?: '09:00';
+        list($snapshotHour, $snapshotMinute) = explode(':', $snapshotTime);
+
+        // If today is the week start day but before snapshot time, treat as previous week
+        $currentDow = (int)$now->format('w');
+        if ($currentDow === $weekStartDay) {
+            $currentTime = $now->format('H:i');
+            if ($currentTime < $snapshotTime) {
+                // Before snapshot time on start day — still previous week
+                $yesterday = clone $now;
+                $yesterday->modify('-1 day');
+                return self::getWeekStart($yesterday->format('Y-m-d'), $weekStartDay);
+            }
+        }
+
+        return self::getWeekStart($now->format('Y-m-d'), $weekStartDay);
     }
 
     /**

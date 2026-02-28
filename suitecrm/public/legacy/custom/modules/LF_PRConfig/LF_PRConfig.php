@@ -13,7 +13,7 @@ if (!defined('sugarEntry') || !sugarEntry) {
  *   - Plain values (strings, integers): stored as-is, retrieved with getConfig()
  *     Examples: '500000', '14', '5', '3-Confirmation (10%)'
  *   - JSON values (arrays, objects): stored as JSON strings, retrieved with getConfigJson()
- *     Examples: '["Cold Call","Referral"]', '{"2-Analysis (1%)":1,...}'
+ *     Examples: '["Cold Call","Referral"]', '{"2-Analysis (0%)":1,...}'
  *
  * @see install.php for the full list of default config entries
  */

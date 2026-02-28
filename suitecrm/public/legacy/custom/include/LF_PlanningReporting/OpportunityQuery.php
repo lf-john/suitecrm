@@ -19,7 +19,7 @@ class OpportunityQuery
     /**
      * Get pipeline data grouped by sales stage.
      *
-     * Excludes '2-Analysis (1%)', 'closed_won', and 'closed_lost' stages.
+     * Excludes '2-Analysis (0%)', 'closed_won', and 'closed_lost' stages.
      *
      * @param string|null $repId Optional assigned_user_id to filter by
      * @return array[] Each row: ['sales_stage' => string, 'total_amount' => string, 'deal_count' => string]
@@ -31,7 +31,7 @@ class OpportunityQuery
         $sql = "SELECT sales_stage, SUM(amount) AS total_amount, COUNT(*) AS deal_count
                 FROM opportunities
                 WHERE deleted = 0
-                  AND sales_stage NOT IN ('2-Analysis (1%)', 'Closed Won', 'Closed Lost', 'closed_won', 'closed_lost')";
+                  AND sales_stage NOT IN ('2-Analysis (0%)', 'Closed Won', 'Closed Lost', 'closed_won', 'closed_lost')";
 
         if ($repId !== null) {
             $sql .= " AND assigned_user_id = " . $db->quoted($repId);
@@ -51,7 +51,7 @@ class OpportunityQuery
      * Get pipeline data grouped by sales rep.
      *
      * JOINs with users table to retrieve rep first_name and last_name.
-     * Excludes '2-Analysis (1%)', 'closed_won', and 'closed_lost' stages.
+     * Excludes '2-Analysis (0%)', 'closed_won', and 'closed_lost' stages.
      *
      * @return array[] Each row: ['assigned_user_id' => string, 'first_name' => string, 'last_name' => string, 'total_amount' => string, 'deal_count' => string]
      */
@@ -63,7 +63,7 @@ class OpportunityQuery
                 FROM opportunities o
                 JOIN users u ON o.assigned_user_id = u.id
                 WHERE o.deleted = 0
-                  AND o.sales_stage NOT IN ('2-Analysis (1%)', 'Closed Won', 'Closed Lost', 'closed_won', 'closed_lost')
+                  AND o.sales_stage NOT IN ('2-Analysis (0%)', 'Closed Won', 'Closed Lost', 'closed_won', 'closed_lost')
                 GROUP BY o.assigned_user_id, u.first_name, u.last_name";
 
         $result = $db->query($sql);
@@ -119,7 +119,7 @@ class OpportunityQuery
      * meetings, tasks, and notes for each opportunity. Returns deals where
      * the last activity is older than $days days, ordered by most stale first.
      *
-     * Excludes '2-Analysis (1%)', 'closed_won', and 'closed_lost' stages.
+     * Excludes '2-Analysis (0%)', 'closed_won', and 'closed_lost' stages.
      *
      * @param int $days Number of days threshold for stale detection
      * @param string|null $repId Optional assigned_user_id to filter by
@@ -131,7 +131,7 @@ class OpportunityQuery
         $safeDays = (int) $days;
 
         $where = "WHERE o.deleted = 0
-                    AND o.sales_stage NOT IN ('2-Analysis (1%)', 'Closed Won', 'Closed Lost', 'closed_won', 'closed_lost')";
+                    AND o.sales_stage NOT IN ('2-Analysis (0%)', 'Closed Won', 'Closed Lost', 'closed_won', 'closed_lost')";
 
         if ($repId !== null) {
             $where .= "\n                    AND o.assigned_user_id = " . $db->quoted($repId);
@@ -195,7 +195,7 @@ class OpportunityQuery
     {
         global $db;
 
-        $sql = "SELECT id, name, sales_stage, amount, date_closed, assigned_user_id
+        $sql = "SELECT id, name, sales_stage, amount, opportunity_profit, date_closed, assigned_user_id
              FROM opportunities
              WHERE deleted = 0
                AND sales_stage NOT IN ('Closed Won', 'Closed Lost', 'closed_won', 'closed_lost')
@@ -210,7 +210,7 @@ class OpportunityQuery
     }
 
     /**
-     * Get opportunities in '2-Analysis (1%)' stage for a specific rep.
+     * Get opportunities in '2-Analysis (0%)' stage for a specific rep.
      *
      * @param string $repId The assigned_user_id to filter by
      * @return array[] Each row: ['id' => string, 'name' => string, 'sales_stage' => string, 'amount' => string, 'date_closed' => string, 'assigned_user_id' => string]
@@ -219,10 +219,10 @@ class OpportunityQuery
     {
         global $db;
 
-        $sql = "SELECT id, name, sales_stage, amount, date_closed, assigned_user_id
+        $sql = "SELECT id, name, sales_stage, amount, opportunity_profit, date_closed, assigned_user_id
              FROM opportunities
              WHERE deleted = 0
-               AND sales_stage = '2-Analysis (1%)'
+               AND sales_stage = '2-Analysis (0%)'
                AND assigned_user_id = " . $db->quoted($repId);
 
         $result = $db->query($sql);
@@ -267,7 +267,7 @@ class OpportunityQuery
         }
 
         $sql = sprintf(
-            "SELECT id, name, sales_stage, amount, date_closed, assigned_user_id
+            "SELECT id, name, sales_stage, amount, opportunity_profit, probability, date_closed, assigned_user_id
              FROM opportunities
              WHERE deleted = 0
                AND sales_stage NOT IN ('Closed Lost', 'closed_lost')
@@ -316,6 +316,142 @@ class OpportunityQuery
         }
 
         $sql .= " ORDER BY o.amount DESC";
+
+        $result = $db->query($sql);
+        $rows = [];
+        while ($row = $db->fetchByAssoc($result)) {
+            $rows[] = $row;
+        }
+        return $rows;
+    }
+
+    /**
+     * Convert a week start date to the snapshot week_end_at UTC datetime.
+     *
+     * @param string $weekStart Date string (Y-m-d)
+     * @return string UTC datetime string (e.g., '2026-02-20 16:00:00')
+     */
+    public static function getSnapshotWeekEndAt(string $weekStart): string
+    {
+        require_once('custom/modules/LF_PRConfig/LF_PRConfig.php');
+        $snapshotTime = LF_PRConfig::getConfig('weeks', 'snapshot_time') ?: '09:00';
+
+        $mt = new DateTimeZone('America/Denver');
+        $dt = new DateTime("$weekStart $snapshotTime:00", $mt);
+        $dt->setTimezone(new DateTimeZone('UTC'));
+        return $dt->format('Y-m-d H:i:s');
+    }
+
+    /**
+     * Check if a snapshot exists for the given week_end_at.
+     *
+     * @param string $weekEndAt UTC datetime string
+     * @return bool
+     */
+    public static function hasSnapshot(string $weekEndAt): bool
+    {
+        global $db;
+        $result = $db->query(sprintf(
+            "SELECT COUNT(*) as cnt FROM opportunity_weekly_snapshot WHERE week_end_at = %s AND deleted = 0",
+            $db->quoted($weekEndAt)
+        ));
+        $row = $db->fetchByAssoc($result);
+        return $row && (int)$row['cnt'] > 0;
+    }
+
+    /**
+     * Get open (non-analysis) opportunities from snapshot data for a specific rep.
+     *
+     * @param string $weekEndAt UTC datetime
+     * @param string $repId Assigned user ID
+     * @param string $analysisStage The analysis stage name to exclude
+     * @return array[]
+     */
+    public static function getSnapshotPipelineOpportunities(string $weekEndAt, string $repId, string $analysisStage = '2-Analysis (0%)'): array
+    {
+        global $db;
+        $sql = sprintf(
+            "SELECT s.opportunity_id as id, o.name, s.stage_name as sales_stage, s.revenue as amount,
+                    s.profit as opportunity_profit, o.date_closed, s.assigned_user_id, s.account_id,
+                    s.stage_pct, s.closed_status
+             FROM opportunity_weekly_snapshot s
+             JOIN opportunities o ON o.id = s.opportunity_id AND o.deleted = 0
+             WHERE s.week_end_at = %s
+               AND s.assigned_user_id = %s
+               AND s.closed_status = 'OPEN'
+               AND s.stage_name != %s
+               AND s.deleted = 0
+             ORDER BY s.profit DESC",
+            $db->quoted($weekEndAt),
+            $db->quoted($repId),
+            $db->quoted($analysisStage)
+        );
+        $result = $db->query($sql);
+        $rows = [];
+        while ($row = $db->fetchByAssoc($result)) {
+            $rows[] = $row;
+        }
+        return $rows;
+    }
+
+    /**
+     * Get analysis-stage opportunities from snapshot data for a specific rep.
+     *
+     * @param string $weekEndAt UTC datetime
+     * @param string $repId Assigned user ID
+     * @param string $analysisStage The analysis stage name
+     * @return array[]
+     */
+    public static function getSnapshotAnalysisOpportunities(string $weekEndAt, string $repId, string $analysisStage = '2-Analysis (0%)'): array
+    {
+        global $db;
+        $sql = sprintf(
+            "SELECT s.opportunity_id as id, o.name, s.stage_name as sales_stage, s.revenue as amount,
+                    s.profit as opportunity_profit, o.date_closed, s.assigned_user_id, s.account_id,
+                    s.stage_pct, s.closed_status
+             FROM opportunity_weekly_snapshot s
+             JOIN opportunities o ON o.id = s.opportunity_id AND o.deleted = 0
+             WHERE s.week_end_at = %s
+               AND s.assigned_user_id = %s
+               AND s.closed_status = 'OPEN'
+               AND s.stage_name = %s
+               AND s.deleted = 0
+             ORDER BY s.profit DESC",
+            $db->quoted($weekEndAt),
+            $db->quoted($repId),
+            $db->quoted($analysisStage)
+        );
+        $result = $db->query($sql);
+        $rows = [];
+        while ($row = $db->fetchByAssoc($result)) {
+            $rows[] = $row;
+        }
+        return $rows;
+    }
+
+    /**
+     * Get pipeline data grouped by stage from snapshot.
+     *
+     * @param string $weekEndAt UTC datetime
+     * @param string|null $repId Optional assigned_user_id to filter by
+     * @return array[]
+     */
+    public static function getSnapshotPipelineByStage(string $weekEndAt, ?string $repId = null): array
+    {
+        global $db;
+        $sql = sprintf(
+            "SELECT stage_name as sales_stage, SUM(revenue) AS total_amount, SUM(profit) AS total_profit, COUNT(*) AS deal_count
+             FROM opportunity_weekly_snapshot
+             WHERE week_end_at = %s
+               AND deleted = 0
+               AND closed_status = 'OPEN'
+               AND stage_name NOT IN ('2-Analysis (0%%)', 'Closed Won', 'Closed Lost', 'closed_won', 'closed_lost')",
+            $db->quoted($weekEndAt)
+        );
+        if ($repId !== null) {
+            $sql .= " AND assigned_user_id = " . $db->quoted($repId);
+        }
+        $sql .= " GROUP BY stage_name";
 
         $result = $db->query($sql);
         $rows = [];

@@ -387,7 +387,7 @@ $sugar_config = array (
   ),
   'showDetailData' => true,
   'showThemePicker' => true,
-  'site_url' => 'http://crm3.logicalfront.com:8088',
+  'site_url' => 'https://crm.logicalfront.com',
   'slow_query_time_msec' => '100',
   'snooze_alert_timer' => 600,
   'stackTrace' => false,

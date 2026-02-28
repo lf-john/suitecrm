@@ -27,6 +27,11 @@ class LF_PRConfigViewConfig extends SugarView
             sugar_die('Access denied: Admin role required');
         }
 
+        // Generate CSRF token if not set
+        if (empty($_SESSION['csrf_form_token'])) {
+            $_SESSION['csrf_form_token'] = bin2hex(random_bytes(32));
+        }
+
         $message = '';
         $messageType = '';
 
@@ -66,6 +71,9 @@ class LF_PRConfigViewConfig extends SugarView
                 }
             }
 
+            // Regenerate CSRF token after processing POST
+            $_SESSION['csrf_form_token'] = bin2hex(random_bytes(32));
+
             if ($success) {
                 $message = 'Configuration saved successfully.';
                 $messageType = 'success';
@@ -86,6 +94,7 @@ class LF_PRConfigViewConfig extends SugarView
 
         $weeks_start = LF_PRConfig::getConfig('weeks', 'week_start_day');
         $weeks_to_show = LF_PRConfig::getConfig('weeks', 'weeks_to_show');
+        $snapshot_time = LF_PRConfig::getConfig('weeks', 'snapshot_time') ?: '09:00';
 
         $display_green = LF_PRConfig::getConfig('display', 'achievement_tier_green');
         $display_yellow = LF_PRConfig::getConfig('display', 'achievement_tier_yellow');
@@ -182,6 +191,10 @@ class LF_PRConfigViewConfig extends SugarView
         echo '<div class="field-container">';
         echo '<label>Weeks to Show:</label>';
         echo '<input type="number" name="config_weeks__weeks_to_show" value="' . htmlspecialchars($weeks_to_show) . '" min="1" max="52" required>';
+        echo '</div>';
+        echo '<div class="field-container">';
+        echo '<label>Snapshot Time (Mountain):</label>';
+        echo '<input type="time" name="config_weeks__snapshot_time" value="' . htmlspecialchars($snapshot_time) . '" required>';
         echo '</div>';
         echo '</div></div>';
 

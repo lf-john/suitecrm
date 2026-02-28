@@ -292,7 +292,7 @@ services:
       $cookieExpire: 0
       $cookiePath: /
       $cookieDomain: ~
-      $cookieSecure: false
+      $cookieSecure: true
 
   App\Security\CSRFValidationListener:
     tags: [ { name: kernel.event_listener, event: kernel.request, method: onKernelRequest, priority: 12 } ]

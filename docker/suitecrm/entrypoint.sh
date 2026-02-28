@@ -4,9 +4,17 @@ set -e
 echo "Starting SuiteCRM v8.6.1 container..."
 
 # Create necessary directories with proper ownership
-mkdir -p /var/www/html/cache/dev /var/www/html/cache/prod /var/www/html/upload /var/www/html/tmp /var/www/html/logs
-chown -R suitecrm:www-data /var/www/html/cache /var/www/html/upload /var/www/html/tmp /var/www/html/logs
-chmod -R 775 /var/www/html/cache /var/www/html/upload /var/www/html/tmp /var/www/html/logs
+mkdir -p /var/www/html/cache/dev /var/www/html/cache/prod /var/www/html/upload /var/www/html/tmp /var/www/html/logs/dev /var/www/html/logs/prod /var/www/html/public/extensions /var/www/html/public/bundles
+chown -R www-data:www-data /var/www/html/cache /var/www/html/upload /var/www/html/tmp /var/www/html/logs /var/www/html/custom /var/www/html/public/extensions /var/www/html/public/bundles
+chmod -R 775 /var/www/html/cache /var/www/html/upload /var/www/html/tmp /var/www/html/logs /var/www/html/custom /var/www/html/public/extensions /var/www/html/public/bundles
+
+# Fix public/ directory so Symfony cache warmup can manage extensions/bundles subdirectories
+chgrp www-data /var/www/html/public/
+chmod 775 /var/www/html/public/
+
+# Fix legacy writable directories
+chown -R www-data:www-data /var/www/html/public/legacy/custom/ /var/www/html/public/legacy/cache/ /var/www/html/public/legacy/upload/ 2>/dev/null || true
+chmod -R 775 /var/www/html/public/legacy/custom/ /var/www/html/public/legacy/cache/ /var/www/html/public/legacy/upload/ 2>/dev/null || true
 
 echo "Directories created and ownership set"
 
@@ -43,14 +51,14 @@ while [ $DB_RETRY_COUNT -lt $DB_MAX_RETRIES ]; do
         DB_READY=true
         break
     fi
-    
+
     DB_RETRY_COUNT=$((DB_RETRY_COUNT + 1))
     echo "Database not ready, waiting... (attempt $DB_RETRY_COUNT/$DB_MAX_RETRIES)"
-    
+
     if [ $DB_RETRY_COUNT -gt 25 ]; then
         mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASSWORD" --connect-timeout=5 --disable-ssl -e "SELECT 1;" "$DB_NAME" 2>&1 || true
     fi
-    
+
     sleep 3
 done
 
@@ -62,40 +70,40 @@ fi
 # Check if SuiteCRM v8 is properly installed
 if [ ! -f "/var/www/html/composer.json" ] || [ ! -f "/var/www/html/VERSION" ]; then
     echo "SuiteCRM v8 not found. Downloading SuiteCRM v8.6.1..."
-    
+
     # Create temp directory for download
     TEMP_DIR=$(mktemp -d)
     cd $TEMP_DIR
-    
+
     # Download SuiteCRM v8.6.1 from the CORRECT URL
     echo "Downloading SuiteCRM v8.6.1 from GitHub releases..."
     wget -O suitecrm-8.6.1.zip "https://github.com/SuiteCRM/SuiteCRM-Core/releases/download/v8.6.1/SuiteCRM-8.6.1.zip"
-    
+
     if [ $? -eq 0 ]; then
         echo "Extracting SuiteCRM v8.6.1..."
         unzip -q suitecrm-8.6.1.zip
-        
+
         # Check if key SuiteCRM v8 files exist in current directory
         if [ -f "./composer.json" ] && [ -f "./angular.json" ]; then
             echo "SuiteCRM v8.6.1 files found in current directory"
             echo "Installing SuiteCRM v8.6.1 files..."
-            
+
             # Copy all files except the zip to web root
             find . -mindepth 1 -maxdepth 1 ! -name "suitecrm-8.6.1.zip" -exec cp -r {} /var/www/html/ \;
-            
+
             # Copy hidden files
             find . -mindepth 1 -maxdepth 1 -name ".*" -exec cp -r {} /var/www/html/ \; 2>/dev/null || true
-            
+
         else
             echo "ERROR: Required SuiteCRM v8 files not found after extraction"
             ls -la
             exit 1
         fi
-        
+
         # Cleanup
         cd /var/www/html
         rm -rf $TEMP_DIR
-        
+
         # Verify this is v8 by checking for key v8 files
         if [ -f "/var/www/html/bin/console" ] && [ -f "/var/www/html/angular.json" ]; then
             echo "SuiteCRM v8.6.1 installed successfully!"
@@ -119,16 +127,22 @@ find /var/www/html -type f -exec chmod 644 {} \; 2>/dev/null || true
 find /var/www/html -type d -exec chmod 755 {} \; 2>/dev/null || true
 
 # Ensure critical directories have proper permissions
-for dir in cache upload tmp logs; do
+for dir in cache upload tmp logs custom public/extensions public/bundles public/legacy/custom public/legacy/cache public/legacy/upload; do
     if [ ! -d "/var/www/html/$dir" ]; then
         mkdir -p "/var/www/html/$dir"
     fi
-    
+
     # Create cache subdirectories for Symfony
     if [ "$dir" = "cache" ]; then
         mkdir -p "/var/www/html/$dir/dev" "/var/www/html/$dir/prod" 2>/dev/null || true
     fi
-    
+
+    # Create logs subdirectories
+    if [ "$dir" = "logs" ]; then
+        mkdir -p "/var/www/html/$dir/dev" "/var/www/html/$dir/prod" 2>/dev/null || true
+    fi
+
+    chown -R www-data:www-data "/var/www/html/$dir" 2>/dev/null || true
     chmod -R 775 "/var/www/html/$dir" 2>/dev/null || {
         chmod -R 777 "/var/www/html/$dir" 2>/dev/null || true
     }
@@ -149,29 +163,29 @@ fi
 if [ -f "/var/www/html/package.json" ]; then
     echo "Building frontend assets..."
     cd /var/www/html
-    
+
     # Install npm dependencies
     echo "Installing npm dependencies..."
     npm ci 2>/dev/null || npm install 2>/dev/null || {
         echo "Trying npm install with legacy peer deps..."
         npm install --legacy-peer-deps 2>/dev/null || true
     }
-    
+
     # Build frontend assets if not already built
     if [ ! -d "/var/www/html/public/dist" ] || [ -z "$(ls -A /var/www/html/public/dist 2>/dev/null)" ]; then
         echo "Building Angular frontend..."
-        
+
         # Install Angular CLI if not present
         if ! command -v ng >/dev/null 2>&1; then
             npm install -g @angular/cli@latest 2>/dev/null || true
         fi
-        
+
         # Build projects individually
         ng build common 2>/dev/null || true
-        ng build core 2>/dev/null || true  
+        ng build core 2>/dev/null || true
         ng build defaultExt 2>/dev/null || true
         ng build shell 2>/dev/null || true
-        
+
         # Main build
         ng build --configuration=production 2>/dev/null || ng build --prod 2>/dev/null || {
             echo "Angular build failed, trying npm scripts..."
@@ -185,12 +199,16 @@ fi
 # Check installation state
 if [ -f "/var/www/html/config.php" ]; then
     echo "SuiteCRM appears to be installed"
-    
-    # Run maintenance tasks
+
+    # Run maintenance tasks as www-data to avoid root-owned cache files
     if [ -f "/var/www/html/bin/console" ]; then
         echo "Running maintenance tasks..."
-        php /var/www/html/bin/console cache:clear --env=prod 2>/dev/null || true
+        su -s /bin/bash www-data -c 'php /var/www/html/bin/console cache:clear --env=prod' 2>/dev/null || true
     fi
+
+    # Final permission fix to catch anything created as root during startup
+    chown -R www-data:www-data /var/www/html/cache/ /var/www/html/public/legacy/cache/ 2>/dev/null || true
+    chmod -R 775 /var/www/html/cache/ /var/www/html/public/legacy/cache/ 2>/dev/null || true
 else
     echo "SuiteCRM ready for web installation at http://localhost:8080/install.php"
 fi

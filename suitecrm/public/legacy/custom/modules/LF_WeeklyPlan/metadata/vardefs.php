@@ -75,6 +75,21 @@ $dictionary['LF_WeeklyPlan'] = [
             'name' => 'notes',
             'type' => 'text',
         ],
+        'frozen_closing' => [
+            'name' => 'frozen_closing',
+            'type' => 'decimal',
+            'len' => '26,6',
+        ],
+        'frozen_progression' => [
+            'name' => 'frozen_progression',
+            'type' => 'decimal',
+            'len' => '26,6',
+        ],
+        'frozen_new_pipeline' => [
+            'name' => 'frozen_new_pipeline',
+            'type' => 'decimal',
+            'len' => '26,6',
+        ],
     ],
     'indices' => [
         [
