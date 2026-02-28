@@ -13,7 +13,9 @@ $dictionary['LF_PlanOpItem'] = [
         ],
         'name' => [
             'name' => 'name',
-            'type' => 'name',
+            'type' => 'varchar', 'len' => '255',
+            'dbType' => 'varchar',
+            'len' => '255',
             'required' => true,
         ],
         'date_entered' => [

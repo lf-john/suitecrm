@@ -14,7 +14,7 @@ $dictionary['LF_WeeklyPlan'] = [
         ],
         'name' => [
             'name' => 'name',
-            'type' => 'name',
+            'type' => 'varchar', 'len' => '255',
             'required' => true,
         ],
         'date_entered' => [

@@ -2,6 +2,9 @@ version: "3.8"
 
 services:
   suitecrm:
+    build:
+      context: ./docker/suitecrm
+      dockerfile: Dockerfile
     image: suitecrm-docker-suitecrm
     container_name: suitecrm_app
     restart: unless-stopped
@@ -67,6 +70,9 @@ services:
       - suitecrm_network
 
   nginx:
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
     image: suitecrm-docker-nginx
     container_name: suitecrm_nginx
     restart: unless-stopped
