@@ -47,7 +47,20 @@ class LF_WeeklyPlanViewPlanning extends SugarView
         }
         $weekRange = WeekHelper::formatWeekRange($weekStart);
         $isCurrentWeek = WeekHelper::isCurrentWeek($weekStart);
-        $plan = LF_WeeklyPlan::getOrCreateForWeek($selectedUserId, $weekStart);
+        // Only auto-create plans for the current user viewing their own page
+        // Admin viewing another user's page should not create records as a GET side effect
+        if ($selectedUserId === $current_user->id) {
+            $plan = LF_WeeklyPlan::getOrCreateForWeek($selectedUserId, $weekStart);
+        } else {
+            $plan = LF_WeeklyPlan::getForWeek($selectedUserId, $weekStart);
+            if (!$plan) {
+                // No plan exists for this user/week — show message instead of creating one
+                echo '<div style="text-align: center; padding: 40px; color: #666;">';
+                echo '<p>No weekly plan exists for this user for the selected week.</p>';
+                echo '</div>';
+                return;
+            }
+        }
 
         // M2: Read analysis stage from config instead of hard-coding
         $analysisStage = LF_PRConfig::getConfig('stages', 'analysis_stage') ?: '2-Analysis (0%)';

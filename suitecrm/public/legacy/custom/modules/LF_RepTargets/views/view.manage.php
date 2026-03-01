@@ -27,6 +27,11 @@ class LF_RepTargetsViewManage extends SugarView
             sugar_die('Access denied: Admin role required');
         }
 
+        // Initialize CSRF token if not set (independent of Config page)
+        if (empty($_SESSION['csrf_form_token'])) {
+            $_SESSION['csrf_form_token'] = bin2hex(random_bytes(32));
+        }
+
         $this->handlePost();
 
         // Load default values from config
@@ -238,32 +243,32 @@ class LF_RepTargetsViewManage extends SugarView
         $actionType = $_POST['action_type'];
 
         if ($actionType === 'add_rep') {
-            $userId = $_POST['user_id'];
-            $fiscalYear = (int)$_POST['fiscal_year'];
+            $userId = $_POST['user_id'] ?? '';
+            $fiscalYear = (int)($_POST['fiscal_year'] ?? 0);
 
             if (!empty($userId) && !empty($fiscalYear)) {
                 $id = create_guid();
                 $now = gmdate('Y-m-d H:i:s');
                 $query = sprintf(
                     "INSERT INTO lf_rep_targets (id, name, date_entered, date_modified, modified_user_id, created_by, deleted, assigned_user_id, fiscal_year, is_active)
-                     VALUES ('%s', '%s', '%s', '%s', '%s', '%s', 0, '%s', %d, 1)",
-                    $db->quote($id),
-                    $db->quote('Rep Target ' . $fiscalYear),
-                    $db->quote($now),
-                    $db->quote($now),
-                    $db->quote($current_user->id),
-                    $db->quote($current_user->id),
-                    $db->quote($userId),
+                     VALUES (%s, %s, %s, %s, %s, %s, 0, %s, %d, 1)",
+                    $db->quoted($id),
+                    $db->quoted('Rep Target ' . $fiscalYear),
+                    $db->quoted($now),
+                    $db->quoted($now),
+                    $db->quoted($current_user->id),
+                    $db->quoted($current_user->id),
+                    $db->quoted($userId),
                     $fiscalYear
                 );
                 $db->query($query);
             }
         } elseif ($actionType === 'update_targets') {
-            $id = $_POST['id'];
-            $annualQuota = $_POST['annual_quota'] === '' ? "NULL" : (float)$_POST['annual_quota'];
-            $weeklyNewPipeline = $_POST['weekly_new_pipeline'] === '' ? "NULL" : (float)$_POST['weekly_new_pipeline'];
-            $weeklyProgression = $_POST['weekly_progression'] === '' ? "NULL" : (float)$_POST['weekly_progression'];
-            $weeklyClosed = $_POST['weekly_closed'] === '' ? "NULL" : (float)$_POST['weekly_closed'];
+            $id = $_POST['id'] ?? '';
+            $annualQuota = ($_POST['annual_quota'] ?? '') === '' ? "NULL" : (float)$_POST['annual_quota'];
+            $weeklyNewPipeline = ($_POST['weekly_new_pipeline'] ?? '') === '' ? "NULL" : (float)$_POST['weekly_new_pipeline'];
+            $weeklyProgression = ($_POST['weekly_progression'] ?? '') === '' ? "NULL" : (float)$_POST['weekly_progression'];
+            $weeklyClosed = ($_POST['weekly_closed'] ?? '') === '' ? "NULL" : (float)$_POST['weekly_closed'];
 
             if (!empty($id)) {
                 $now = gmdate('Y-m-d H:i:s');
@@ -273,35 +278,35 @@ class LF_RepTargetsViewManage extends SugarView
                         weekly_new_pipeline = %s,
                         weekly_progression = %s,
                         weekly_closed = %s,
-                        date_modified = '%s',
-                        modified_user_id = '%s'
-                     WHERE id = '%s'",
+                        date_modified = %s,
+                        modified_user_id = %s
+                     WHERE id = %s",
                     $annualQuota === "NULL" ? "NULL" : $annualQuota,
                     $weeklyNewPipeline === "NULL" ? "NULL" : $weeklyNewPipeline,
                     $weeklyProgression === "NULL" ? "NULL" : $weeklyProgression,
                     $weeklyClosed === "NULL" ? "NULL" : $weeklyClosed,
-                    $db->quote($now),
-                    $db->quote($current_user->id),
-                    $db->quote($id)
+                    $db->quoted($now),
+                    $db->quoted($current_user->id),
+                    $db->quoted($id)
                 );
                 $db->query($query);
             }
         } elseif ($actionType === 'toggle_active') {
-            $id = $_POST['id'];
-            $isActive = (int)$_POST['is_active'];
+            $id = $_POST['id'] ?? '';
+            $isActive = (int)($_POST['is_active'] ?? 0);
 
             if (!empty($id)) {
                 $now = gmdate('Y-m-d H:i:s');
                 $query = sprintf(
                     "UPDATE lf_rep_targets SET
                         is_active = %d,
-                        date_modified = '%s',
-                        modified_user_id = '%s'
-                     WHERE id = '%s'",
+                        date_modified = %s,
+                        modified_user_id = %s
+                     WHERE id = %s",
                     $isActive,
-                    $db->quote($now),
-                    $db->quote($current_user->id),
-                    $db->quote($id)
+                    $db->quoted($now),
+                    $db->quoted($current_user->id),
+                    $db->quoted($id)
                 );
                 $db->query($query);
             }

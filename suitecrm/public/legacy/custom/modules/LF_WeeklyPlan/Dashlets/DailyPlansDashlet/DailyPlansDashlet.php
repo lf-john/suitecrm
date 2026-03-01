@@ -9,6 +9,7 @@
 if (!defined('sugarEntry') || !sugarEntry) die('Not A Valid Entry Point');
 
 require_once('include/Dashlets/Dashlet.php');
+require_once('custom/include/LF_PlanningReporting/WeekHelper.php');
 
 class DailyPlansDashlet extends Dashlet
 {
@@ -63,13 +64,13 @@ class DailyPlansDashlet extends Dashlet
         $html .= '<h4 style="margin: 0; color: #125EAD; font-size: 16px;">' . htmlspecialchars($todayDate) . '</h4>';
         $html .= '</div>';
 
-        // Get current week's start date (Monday)
-        $weekStart = date('Y-m-d', strtotime('monday this week'));
+        // Get current week's start date using configured week start day
+        $weekStart = WeekHelper::getCurrentWeekStart();
 
         // Find the current user's weekly plan for this week
         $planQuery = "SELECT id FROM lf_weekly_plan
-                      WHERE assigned_user_id = '" . $db->quote($current_user->id) . "'
-                      AND week_start_date = '" . $db->quote($weekStart) . "'
+                      WHERE assigned_user_id = " . $db->quoted($current_user->id) . "
+                      AND week_start_date = " . $db->quoted($weekStart) . "
                       AND deleted = 0
                       LIMIT 1";
 
@@ -92,8 +93,8 @@ class DailyPlansDashlet extends Dashlet
                                 o.name as opportunity_name, o.id as opportunity_id, o.sales_stage, o.amount
                          FROM lf_plan_op_items poi
                          LEFT JOIN opportunities o ON poi.opportunity_id = o.id AND o.deleted = 0
-                         WHERE poi.lf_weekly_plan_id = '" . $db->quote($weeklyPlanId) . "'
-                         AND poi.planned_day = '" . $db->quote($todayKey) . "'
+                         WHERE poi.lf_weekly_plan_id = " . $db->quoted($weeklyPlanId) . "
+                         AND poi.planned_day = " . $db->quoted($todayKey) . "
                          AND poi.deleted = 0
                          ORDER BY poi.date_entered ASC";
 
@@ -107,8 +108,8 @@ class DailyPlansDashlet extends Dashlet
         $prospectQuery = "SELECT ppi.id, ppi.name, ppi.plan_description, ppi.source_type,
                                  ppi.expected_value, ppi.status, ppi.prospecting_notes
                           FROM lf_plan_prospect_items ppi
-                          WHERE ppi.lf_weekly_plan_id = '" . $db->quote($weeklyPlanId) . "'
-                          AND ppi.planned_day = '" . $db->quote($todayKey) . "'
+                          WHERE ppi.lf_weekly_plan_id = " . $db->quoted($weeklyPlanId) . "
+                          AND ppi.planned_day = " . $db->quoted($todayKey) . "
                           AND ppi.deleted = 0
                           ORDER BY ppi.date_entered ASC";
 

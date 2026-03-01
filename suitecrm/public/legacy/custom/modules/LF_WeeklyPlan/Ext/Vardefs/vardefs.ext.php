@@ -18,6 +18,8 @@ $dictionary['LF_WeeklyPlan'] = [
         'name' => [
             'name' => 'name',
             'type' => 'varchar', 'len' => '255',
+            'dbType' => 'varchar',
+            'len' => '255',
             'required' => true,
         ],
         'date_entered' => [
@@ -77,6 +79,24 @@ $dictionary['LF_WeeklyPlan'] = [
         'notes' => [
             'name' => 'notes',
             'type' => 'text',
+        ],
+        'frozen_closing' => [
+            'name' => 'frozen_closing',
+            'type' => 'decimal',
+            'dbType' => 'decimal',
+            'len' => '26,6',
+        ],
+        'frozen_progression' => [
+            'name' => 'frozen_progression',
+            'type' => 'decimal',
+            'dbType' => 'decimal',
+            'len' => '26,6',
+        ],
+        'frozen_new_pipeline' => [
+            'name' => 'frozen_new_pipeline',
+            'type' => 'decimal',
+            'dbType' => 'decimal',
+            'len' => '26,6',
         ],
     ],
     'indices' => [

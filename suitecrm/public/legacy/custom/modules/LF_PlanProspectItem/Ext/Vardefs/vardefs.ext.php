@@ -82,6 +82,18 @@ $dictionary['LF_PlanProspectItem'] = [
             'name' => 'prospecting_notes',
             'type' => 'text',
         ],
+        'expected_revenue' => [
+            'name' => 'expected_revenue',
+            'type' => 'decimal',
+            'dbType' => 'decimal',
+            'len' => '26,6',
+        ],
+        'expected_profit' => [
+            'name' => 'expected_profit',
+            'type' => 'decimal',
+            'dbType' => 'decimal',
+            'len' => '26,6',
+        ],
     ],
     'indices' => [
         [

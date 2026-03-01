@@ -106,6 +106,12 @@ $dictionary['LF_ReportSnapshot'] = [
             'name' => 'result_description',
             'type' => 'text',
         ],
+        'profit_at_snapshot' => [
+            'name' => 'profit_at_snapshot',
+            'type' => 'decimal',
+            'dbType' => 'decimal',
+            'len' => '26,6',
+        ],
     ],
     'indices' => [
         [

@@ -18,7 +18,15 @@ class LF_WeeklyPlanViewReport_save_json extends SugarView
 
     public function display()
     {
+        global $current_user;
         header('Content-Type: application/json');
+
+        // CSRF token validation
+        $csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+        if (empty($csrfToken) || !isset($_SESSION['lf_csrf_token']) || $csrfToken !== $_SESSION['lf_csrf_token']) {
+            echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
+            return;
+        }
 
         $input = file_get_contents('php://input');
         $data = json_decode($input, true);
@@ -45,12 +53,38 @@ class LF_WeeklyPlanViewReport_save_json extends SugarView
                 case 'save_prospect_notes':
                     $this->handleSaveProspectNotes($data);
                     break;
+                case 'save_all':
+                    $this->handleSaveAll($data);
+                    break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Unknown action']);
                     break;
             }
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Verify that the current user owns the weekly plan associated with a plan item.
+     */
+    private function verifyItemOwnership($bean, $planIdField = 'lf_weekly_plan_id')
+    {
+        global $current_user;
+        $db = DBManagerFactory::getInstance();
+
+        $planId = $bean->$planIdField ?? '';
+        if (empty($planId)) {
+            throw new Exception('Access denied');
+        }
+
+        $ownerCheck = $db->query(sprintf(
+            "SELECT assigned_user_id FROM lf_weekly_plan WHERE id = %s AND deleted = 0",
+            $db->quoted($planId)
+        ));
+        $ownerRow = $db->fetchByAssoc($ownerCheck);
+        if (!$ownerRow || $ownerRow['assigned_user_id'] !== $current_user->id) {
+            throw new Exception('Access denied');
         }
     }
 
@@ -74,6 +108,8 @@ class LF_WeeklyPlanViewReport_save_json extends SugarView
             throw new Exception('Prospect item not found');
         }
 
+        $this->verifyItemOwnership($prospectItem);
+
         $opportunity = $prospectItem->convertToOpportunity(
             $data['account_name'],
             $data['opportunity_name'],
@@ -96,6 +132,8 @@ class LF_WeeklyPlanViewReport_save_json extends SugarView
         if (!$prospectItem || empty($prospectItem->id)) {
             throw new Exception('Prospect item not found');
         }
+
+        $this->verifyItemOwnership($prospectItem);
 
         $prospectItem->status = 'no_opportunity';
         if (isset($data['notes'])) {
@@ -126,6 +164,29 @@ class LF_WeeklyPlanViewReport_save_json extends SugarView
         echo json_encode(['success' => true]);
     }
 
+    /**
+     * Verify that the current user owns the weekly report associated with a snapshot.
+     */
+    private function verifySnapshotOwnership($snapshot)
+    {
+        global $current_user;
+        $db = DBManagerFactory::getInstance();
+
+        $reportId = $snapshot->lf_weekly_report_id ?? '';
+        if (empty($reportId)) {
+            throw new Exception('Access denied');
+        }
+
+        $ownerCheck = $db->query(sprintf(
+            "SELECT assigned_user_id FROM lf_weekly_report WHERE id = %s AND deleted = 0",
+            $db->quoted($reportId)
+        ));
+        $ownerRow = $db->fetchByAssoc($ownerCheck);
+        if (!$ownerRow || $ownerRow['assigned_user_id'] !== $current_user->id) {
+            throw new Exception('Access denied');
+        }
+    }
+
     private function handleSaveResultDescription($data)
     {
         if (empty($data['snapshot_id'])) {
@@ -137,10 +198,47 @@ class LF_WeeklyPlanViewReport_save_json extends SugarView
             throw new Exception('Snapshot not found');
         }
 
+        $this->verifySnapshotOwnership($snapshot);
+
         $snapshot->result_description = $data['result_description'] ?? '';
         $snapshot->save();
 
         echo json_encode(['success' => true]);
+    }
+
+    private function handleSaveAll($data)
+    {
+        $saved = 0;
+
+        // Save all result descriptions
+        if (!empty($data['descriptions']) && is_array($data['descriptions'])) {
+            foreach ($data['descriptions'] as $item) {
+                if (empty($item['snapshot_id'])) continue;
+                $snapshot = BeanFactory::getBean('LF_ReportSnapshot', $item['snapshot_id']);
+                if ($snapshot && !empty($snapshot->id)) {
+                    $this->verifySnapshotOwnership($snapshot);
+                    $snapshot->result_description = $item['result_description'] ?? '';
+                    $snapshot->save();
+                    $saved++;
+                }
+            }
+        }
+
+        // Save all prospect notes
+        if (!empty($data['prospect_notes']) && is_array($data['prospect_notes'])) {
+            foreach ($data['prospect_notes'] as $item) {
+                if (empty($item['id'])) continue;
+                $prospectItem = BeanFactory::getBean('LF_PlanProspectItem', $item['id']);
+                if ($prospectItem && !empty($prospectItem->id)) {
+                    $this->verifyItemOwnership($prospectItem);
+                    $prospectItem->prospecting_notes = $item['notes'] ?? '';
+                    $prospectItem->save();
+                    $saved++;
+                }
+            }
+        }
+
+        echo json_encode(['success' => true, 'saved' => $saved]);
     }
 
     private function handleSaveProspectNotes($data)
@@ -153,6 +251,8 @@ class LF_WeeklyPlanViewReport_save_json extends SugarView
         if (!$prospectItem || empty($prospectItem->id)) {
             throw new Exception('Prospect item not found');
         }
+
+        $this->verifyItemOwnership($prospectItem);
 
         $prospectItem->prospecting_notes = $data['notes'] ?? '';
         $prospectItem->save();
