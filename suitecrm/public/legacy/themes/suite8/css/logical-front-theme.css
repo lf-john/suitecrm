@@ -1059,9 +1059,9 @@ scrm-bulk-action-menu .checkmark {
     padding: 0 !important;
 }
 
-/* Row checkbox cell — center vertically */
-.cdk-row .cdk-cell:first-child,
-.cdk-row cdk-cell:first-child {
+/* Row checkbox cell — center vertically (only in main list views, NOT subpanels) */
+.list-view .cdk-row .cdk-cell:first-child,
+scrm-list-table .cdk-row .cdk-cell:first-child {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -6436,10 +6436,14 @@ body:has(#report_module) .detail-view {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
 }
 
-/* Hide the tab row in reports — user wants the tab removed */
-body:has(#report_module) .detail-view .nav-tabs,
-body:has(#report_module) .detail-view ul.nav-tabs {
+/* Hide individual tab items in reports — but keep ACTIONS dropdown visible */
+body:has(#report_module) .detail-view .nav-tabs > li:not(#tab-actions) {
     display: none !important;
+}
+body:has(#report_module) .detail-view .nav-tabs {
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+    padding: 0 !important;
 }
 
 /* Hide ALL direct-child tables in #pagecontent on report pages (gap elements) */
@@ -6924,3 +6928,152 @@ scrm-record-content .field-layout-field-wrapper {
     margin: 0 auto !important;
 }
 
+/* ====================================
+   ISSUE FIXES (054)
+   ==================================== */
+
+/* Fix #4: Reports Detail — restore action buttons hidden by broad table/sibling rules */
+body:has(#report_module) #pagecontent > table:has(input.button),
+body:has(#report_module) #pagecontent > table:has(.actionsContainer),
+body:has(#report_module) #pagecontent > .buttons,
+body:has(#report_module) #pagecontent > table:first-of-type:has(td input) {
+    display: table !important;
+    visibility: visible !important;
+}
+
+/* Fix #5: Filter dropdowns — add white background so text is readable */
+scrm-list-header .filter-panel select,
+scrm-list-header .panel-card select,
+scrm-list-header .filter-panel .ng-select .ng-select-container,
+scrm-list-header .panel-card .ng-select .ng-select-container {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: var(--gray-800, #323130) !important;
+}
+scrm-list-header .filter-panel select option,
+scrm-list-header .panel-card select option {
+    background-color: #ffffff !important;
+    color: #323130 !important;
+}
+
+/* Fix #6: Account Details > Opportunities subpanel — left-align items */
+scrm-subpanel table {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+}
+scrm-subpanel td:first-child,
+scrm-subpanel th:first-child,
+scrm-subpanel .cdk-cell:first-child,
+scrm-subpanel .cdk-header-cell:first-child {
+    padding-left: 12px !important;
+    text-align: left !important;
+}
+
+/* Fix #7: Report Creation — Conditions tab switching */
+/* The .hidden class must explicitly hide panels (not in compiled theme CSS) */
+body:has(#report_module) .tab-panels .toggle-panel.hidden {
+    display: none !important;
+    visibility: hidden !important;
+}
+body:has(#report_module) .tab-panels .toggle-panel:not(.hidden) {
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* Fix #8: Report Creation — ensure condition line delete buttons are visible */
+body:has(#report_module) #aor_conditions_body button,
+body:has(#report_module) #aor_conditionLines button,
+body:has(#report_module) [id^="aor_conditions_delete_line"] {
+    display: inline-block !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
+
+
+/* Fix #4: Move ACTIONS button to Title card, right-aligned on report DETAIL pages */
+/* Uses body:has(#report_module) for max specificity to beat Dawn/style.css cached rules */
+body:has(#report_module) .view-action-DetailView {
+    position: relative !important;
+}
+body:has(#report_module) .view-action-DetailView .moduleTitle {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding-right: 120px !important;
+}
+body:has(#report_module) .view-action-DetailView #tab-actions {
+    position: absolute !important;
+    top: 6px !important;
+    right: 30px !important;
+    z-index: 100 !important;
+    list-style: none !important;
+}
+body:has(#report_module) .view-action-DetailView #tab-actions > a.dropdown-toggle {
+    display: inline-block !important;
+    background: #125EAD !important;
+    color: #ffffff !important;
+    padding: 8px 20px !important;
+    border-radius: 4px !important;
+    text-decoration: none !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.5px !important;
+}
+body:has(#report_module) .view-action-DetailView #tab-actions > a.dropdown-toggle:hover {
+    background: #0e4d91 !important;
+}
+body:has(#report_module) .view-action-DetailView #tab-actions .dropdown-menu {
+    position: absolute !important;
+    right: 0 !important;
+    left: auto !important;
+    background: #fff !important;
+    border: 1px solid #ccc !important;
+    box-shadow: 0 6px 12px rgba(0,0,0,.175) !important;
+    z-index: 101 !important;
+}
+
+/* Override normalize.css hiding of ACTIONS toggle on report EDIT pages */
+body:has(#report_module) .view-action-EditView #tab-actions > a.dropdown-toggle {
+    display: inline-block !important;
+}
+body:has(#report_module) .view-action-EditView #tab-actions {
+    position: relative !important;
+}
+body:has(#report_module) .view-action-EditView #tab-actions .dropdown-menu {
+    position: absolute !important;
+    background: #fff !important;
+    border: 1px solid #ccc !important;
+    box-shadow: 0 6px 12px rgba(0,0,0,.175) !important;
+}
+
+/* ================================================================
+   Fix #7: Report Editor — 2-column layout
+   Module Tree on left, Details Card (Fields/Conditions/Charts) on right
+   ================================================================ */
+body:has(#report_module) .aor-tab-content {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 16px !important;
+}
+body:has(#report_module) .aor-tab-content > #detailpanel_fields_select {
+    flex: 0 0 280px !important;
+    min-width: 250px !important;
+    max-width: 320px !important;
+}
+body:has(#report_module) .aor-tab-content > #detailpanel_fields_display,
+body:has(#report_module) .aor-tab-content > .tab-panels {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+}
+
+/* Fix 5: p-multiselect (PrimeNG) transparent background fix */
+.p-multiselect,
+.p-multiselect.p-component,
+.p-multiselect .p-multiselect-label-container {
+    background-color: #ffffff !important;
+}
+.p-multiselect.p-component {
+    border: 1px solid #e1dfdd !important;
+    border-radius: 4px !important;
+    min-height: 28px !important;
+}

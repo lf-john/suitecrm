@@ -18,7 +18,7 @@
     <link href="themes/suite8/css/grid.css" rel="stylesheet" type="text/css"/>
     <link href="themes/suite8/css/footable.core.css" rel="stylesheet" type="text/css"/>
     <!-- Logical Front Theme -->
-    <link href="themes/suite8/css/logical-front-theme.css" rel="stylesheet" type="text/css"/>
+    <link href="themes/suite8/css/logical-front-theme.css?v=1772550400" rel="stylesheet" type="text/css"/>
     <title>{if $BROWSER_TITLE}{$BROWSER_TITLE}{else}{$APP.LBL_BROWSER_TITLE}{/if}</title>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -47,4 +47,39 @@
     <script type="text/javascript" src='{sugar_getjspath file="themes/suite8/js/jscolor.js"}'></script>
     <script type="text/javascript" src='{sugar_getjspath file="cache/include/javascript/sugar_field_grp.js"}'></script>
     <script type="text/javascript" src='{sugar_getjspath file="vendor/tinymce/tinymce/tinymce.min.js"}'></script>
+    {literal}
+    <script type="text/javascript">
+    /* Fix #8: Patch markFieldLineDeleted & markConditionLineDeleted to use !important
+       The global CSS rule 'tbody tr { display: table-row !important }' prevents the
+       inline style.display='none' from working. This patch uses setProperty with !important. */
+    document.addEventListener('DOMContentLoaded', function() {
+        var patchInterval = setInterval(function() {
+            if (typeof markFieldLineDeleted === 'function' && !markFieldLineDeleted._lfPatched) {
+                var _origField = markFieldLineDeleted;
+                markFieldLineDeleted = function(ln) {
+                    _origField(ln);
+                    var row = document.getElementById('field_line' + ln);
+                    if (row) row.style.setProperty('display', 'none', 'important');
+                };
+                markFieldLineDeleted._lfPatched = true;
+            }
+            if (typeof markConditionLineDeleted === 'function' && !markConditionLineDeleted._lfPatched) {
+                var _origCond = markConditionLineDeleted;
+                markConditionLineDeleted = function(ln) {
+                    _origCond(ln);
+                    var row = document.getElementById('condition_line' + ln);
+                    if (row) row.style.setProperty('display', 'none', 'important');
+                };
+                markConditionLineDeleted._lfPatched = true;
+            }
+            /* Stop polling once both are patched or after 30 seconds */
+            if ((typeof markFieldLineDeleted !== 'undefined' && markFieldLineDeleted._lfPatched) ||
+                patchInterval._elapsed > 30000) {
+                clearInterval(patchInterval);
+            }
+            patchInterval._elapsed = (patchInterval._elapsed || 0) + 500;
+        }, 500);
+    });
+    </script>
+    {/literal}
 </head>

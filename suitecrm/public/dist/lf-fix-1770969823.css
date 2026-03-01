@@ -1,16 +1,5 @@
 /* ============================================
    WIDGET HEADERS FIX V5 - EXACT SELECTOR MATCH
-
-   The problem was found in _subpanel.scss:
-
-   div.widget-panel .panel-card .card-header {
-     background-color: $white;
-     color: $midnight-blue;
-     border-top: 3px solid $midnight-blue;
-   }
-
-   This must be overridden with equal or higher specificity.
-
    Date: February 13, 2026
    ============================================ */
 
@@ -49,7 +38,7 @@ div.widget-panel .panel-card .card-header i {
     fill: #ffffff !important;
 }
 
-/* Also target accordion.widget-panel in case that's used */
+/* Also target accordion.widget-panel */
 .accordion.widget-panel .panel-card .card-header {
     background-color: #125EAD !important;
     color: #ffffff !important;
@@ -71,4 +60,144 @@ div.widget-panel .panel-card > .card-header,
 div.accordion.widget-panel .panel-card > .card-header {
     background-color: #125EAD !important;
     background: #125EAD !important;
+}
+
+/* ================================================================
+   FIX: PrimeNG Multiselect dropdown panel — transparent background
+   ================================================================ */
+.p-multiselect-panel,
+.p-multiselect-panel.p-component {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 4px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Overlay container — fix million-pixel width bug and ensure proper positioning */
+.p-overlay.p-component {
+    z-index: 10000 !important;
+    min-width: 0 !important;
+    max-width: 350px !important;
+    width: auto !important;
+}
+
+.p-multiselect-panel .p-multiselect-header {
+    background-color: #f8f9fa !important;
+    border-bottom: 1px solid #dee2e6 !important;
+    padding: 8px !important;
+}
+
+.p-multiselect-panel .p-multiselect-items-wrapper {
+    background-color: #ffffff !important;
+}
+
+.p-multiselect-panel .p-multiselect-items .p-multiselect-item {
+    background-color: #ffffff !important;
+    color: #323130 !important;
+    padding: 6px 12px !important;
+}
+
+.p-multiselect-panel .p-multiselect-items .p-multiselect-item:hover {
+    background-color: #f0f0f0 !important;
+}
+
+.p-multiselect-panel .p-multiselect-empty-message {
+    background-color: #ffffff !important;
+    color: #6c757d !important;
+    padding: 8px 12px !important;
+}
+
+/* Multiselect input control — fix width overflow
+   NOTE: Do NOT use overflow:hidden — it clips the dropdown panel */
+.p-multiselect.p-component {
+    background-color: #ffffff !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 4px !important;
+    min-height: 28px !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Constrain multiselect width within filter panel to prevent million-pixel bug */
+scrm-list-filter .p-multiselect.p-component,
+.filter-panel .p-multiselect.p-component,
+.panel-card .p-multiselect.p-component {
+    width: 100% !important;
+    max-width: 300px !important;
+}
+
+/* Ensure w-100 multiselects don't overflow their parent container */
+.p-multiselect.p-component.p-inputwrapper {
+    max-width: 100% !important;
+}
+
+.p-multiselect .p-multiselect-label-container {
+    max-width: calc(100% - 35px) !important;
+    overflow: hidden !important;
+}
+
+.p-multiselect .p-multiselect-label {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+/* Filter panel multiselect sizing */
+.form-group .p-multiselect,
+.form-group p-multiselect {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+/* ================================================================
+   FIX: Subpanel text alignment and truncation
+   Broadened selectors for Firefox compatibility
+   ================================================================ */
+scrm-subpanel-table .cdk-cell,
+.subpanel-body .cdk-cell,
+scrm-subpanel-table td,
+.subpanel-body td,
+[class*="subpanel"] .cdk-cell,
+[class*="subpanel"] td,
+scrm-subpanel .cdk-cell,
+scrm-subpanel td {
+    text-align: left !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    /* Firefox fix: text-align doesn't work on flex containers.
+       Some cells (e.g., NAME) use display:flex from Angular. */
+    justify-content: flex-start !important;
+    align-items: center !important;
+}
+
+scrm-subpanel-table .cdk-column-name,
+.subpanel-body .cdk-column-name,
+scrm-subpanel-table .column-name,
+[class*="subpanel"] .cdk-column-name {
+    max-width: 250px !important;
+}
+
+/* Override checkbox centering on subpanel first cells (NAME column, not checkbox) */
+[class*="subpanel"] .cdk-row .cdk-cell:first-child,
+.card.panel-card[class*="subpanel"] .cdk-row .cdk-cell:first-child {
+    justify-content: flex-start !important;
+    text-align: left !important;
+    display: table-cell !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+scrm-subpanel-table .cdk-header-cell,
+.subpanel-body .cdk-header-cell,
+scrm-subpanel-table th,
+.subpanel-body th,
+[class*="subpanel"] .cdk-header-cell,
+[class*="subpanel"] th,
+scrm-subpanel .cdk-header-cell,
+scrm-subpanel th {
+    text-align: left !important;
 }
