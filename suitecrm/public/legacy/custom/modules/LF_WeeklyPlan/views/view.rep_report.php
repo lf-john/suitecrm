@@ -18,7 +18,7 @@ class LF_WeeklyPlanViewRep_report extends SugarView
     {
         parent::__construct();
         $this->options['show_header'] = true;
-        $this->options['show_footer'] = true;
+        $this->options['show_footer'] = false;
     }
 
     public function display()
@@ -46,8 +46,19 @@ class LF_WeeklyPlanViewRep_report extends SugarView
         }
         $weekEnd = WeekHelper::getWeekEnd($weekStart);
 
-        // Load or create the weekly report
-        $report = LF_WeeklyReport::getOrCreateForWeek($selectedUserId, $weekStart);
+        // Only auto-create reports for the current user viewing their own page
+        // Admin viewing another user's page should not create records
+        if ($selectedUserId === $current_user->id) {
+            $report = LF_WeeklyReport::getOrCreateForWeek($selectedUserId, $weekStart);
+        } else {
+            $report = LF_WeeklyReport::getForWeek($selectedUserId, $weekStart);
+            if (!$report) {
+                echo '<div style="text-align: center; padding: 40px; color: #666;">';
+                echo '<p>No weekly report exists for this user for the selected week.</p>';
+                echo '</div>';
+                return;
+            }
+        }
 
         // Load stage probabilities
         $probabilities = LF_PRConfig::getConfigJson('stages', 'stage_probabilities');
@@ -274,7 +285,11 @@ class LF_WeeklyPlanViewRep_report extends SugarView
         // JS data
         echo '<script src="custom/modules/LF_WeeklyPlan/js/rep_reporting.js"></script>';
         echo '<script>';
-        echo 'var LF_CSRF_TOKEN = (typeof SUGAR !== "undefined" && SUGAR.csrf) ? SUGAR.csrf.form_token : "";';
+        // Initialize CSRF token in session if not set
+        if (empty($_SESSION['lf_csrf_token'])) {
+            $_SESSION['lf_csrf_token'] = bin2hex(random_bytes(32));
+        }
+        echo 'var LF_CSRF_TOKEN = ' . json_encode($_SESSION['lf_csrf_token']) . ';';
         echo 'var LF_SAVE_ENDPOINT = "index.php?module=LF_WeeklyPlan&action=report_save_json";';
         echo '</script>';
 
@@ -427,7 +442,7 @@ class LF_WeeklyPlanViewRep_report extends SugarView
         echo '</tr></thead>';
         echo '<tbody>';
 
-        // Planned existing pipeline items
+        // Planned existing pipeline items (Existing Pipeline)
         foreach ($existingPipelineItems as $oppId => $item) {
             $opp = $opportunities[$oppId] ?? null;
             if (!$opp) continue;
@@ -573,7 +588,8 @@ class LF_WeeklyPlanViewRep_report extends SugarView
 
         // Action Buttons
         echo '<div class="lf-planning-actions" style="margin-top: 30px; text-align: right;">';
-        echo '<button type="button" id="updates-complete" class="button primary" style="padding: 10px 20px; font-size: 16px;">Updates Complete</button>';
+        echo '<button type="button" id="save-report" class="button primary" style="padding: 10px 20px; font-size: 16px; margin-right: 10px; background-color: #0078d4; color: white; border: none; border-radius: 4px; cursor: pointer;">Save</button>';
+        echo '<button type="button" id="updates-complete" class="button" style="padding: 10px 20px; font-size: 16px; background-color: #e1dfdd; color: #323130; border: 1px solid #8a8886; border-radius: 4px; cursor: pointer;">Updates Complete</button>';
         echo '<div id="submit-message" class="lf-message" style="margin-top: 10px;"></div>';
         echo '</div>';
 

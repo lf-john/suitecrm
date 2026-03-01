@@ -65,14 +65,54 @@ class LF_WeeklyPlan extends SugarBean
             return BeanFactory::getBean('LF_WeeklyPlan', $result);
         }
 
-        $bean = BeanFactory::newBean('LF_WeeklyPlan');
-        $bean->name = 'Plan - ' . $weekStartDate;
-        $bean->assigned_user_id = $userId;
-        $bean->week_start_date = $weekStartDate;
-        $bean->status = 'in_progress';
-        $bean->save();
+        // Create new plan — wrap in try/catch to handle race condition
+        // (unique index on assigned_user_id + week_start_date)
+        try {
+            $bean = BeanFactory::newBean('LF_WeeklyPlan');
+            $bean->name = 'Plan - ' . $weekStartDate;
+            $bean->assigned_user_id = $userId;
+            $bean->week_start_date = $weekStartDate;
+            $bean->status = 'in_progress';
+            $bean->save();
 
-        return $bean;
+            return $bean;
+        } catch (Exception $e) {
+            // Duplicate key — another request created it first; fetch and return
+            $retryResult = $db->getOne($query);
+            if ($retryResult !== false) {
+                return BeanFactory::getBean('LF_WeeklyPlan', $retryResult);
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Get an existing weekly plan for the given user and week (read-only, no creation).
+     *
+     * @param string $userId The assigned user ID
+     * @param string $weekStartDate The week start date in Y-m-d format
+     * @return LF_WeeklyPlan|null The existing plan bean, or null if not found
+     */
+    public static function getForWeek($userId, $weekStartDate)
+    {
+        $db = DBManagerFactory::getInstance();
+
+        $query = sprintf(
+            "SELECT id FROM lf_weekly_plan
+             WHERE assigned_user_id = %s
+               AND week_start_date = %s
+               AND deleted = 0",
+            $db->quoted($userId),
+            $db->quoted($weekStartDate)
+        );
+
+        $result = $db->getOne($query);
+
+        if ($result !== false) {
+            return BeanFactory::getBean('LF_WeeklyPlan', $result);
+        }
+
+        return null;
     }
 
     /**

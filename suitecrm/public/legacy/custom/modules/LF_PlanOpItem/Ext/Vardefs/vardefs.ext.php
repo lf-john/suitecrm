@@ -72,6 +72,22 @@ $dictionary['LF_PlanOpItem'] = [
             'name' => 'plan_description',
             'type' => 'text',
         ],
+        'is_at_risk' => [
+            'name' => 'is_at_risk',
+            'type' => 'bool',
+            'default' => '0',
+        ],
+        'original_stage' => [
+            'name' => 'original_stage',
+            'type' => 'varchar',
+            'len' => 100,
+        ],
+        'original_profit' => [
+            'name' => 'original_profit',
+            'type' => 'decimal',
+            'dbType' => 'decimal',
+            'len' => '26,6',
+        ],
     ],
     'indices' => [
         [
