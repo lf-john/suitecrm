@@ -8,9 +8,9 @@
 <html {$langHeader}>
 <head>
     <link rel="SHORTCUT ICON" href="{$FAVICON_URL}">
-    <meta http-equiv="Content-Type" content="text/html; charset={$APP.LBL_CHARSET}">
+    <meta http-equiv=1772754611"Content-Type" content="text/html; charset={$APP.LBL_CHARSET}">
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv=1772754611"X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1" />
     <!-- Bootstrap -->
     <link href="themes/suite8/css/normalize.css" rel="stylesheet" type="text/css"/>
@@ -18,7 +18,7 @@
     <link href="themes/suite8/css/grid.css" rel="stylesheet" type="text/css"/>
     <link href="themes/suite8/css/footable.core.css" rel="stylesheet" type="text/css"/>
     <!-- Logical Front Theme -->
-    <link href="themes/suite8/css/logical-front-theme.css?v=1772550400" rel="stylesheet" type="text/css"/>
+    <link href="themes/suite8/css/logical-front-theme.css?v=1772754611" rel="stylesheet" type="text/css"/>
     <title>{if $BROWSER_TITLE}{$BROWSER_TITLE}{else}{$APP.LBL_BROWSER_TITLE}{/if}</title>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -67,7 +67,8 @@
                 var _origCond = markConditionLineDeleted;
                 markConditionLineDeleted = function(ln) {
                     _origCond(ln);
-                    var row = document.getElementById('condition_line' + ln);
+                    /* Row ID is 'product_line' + ln (from conditionLines.js insertConditionLine) */
+                    var row = document.getElementById('product_line' + ln);
                     if (row) row.style.setProperty('display', 'none', 'important');
                 };
                 markConditionLineDeleted._lfPatched = true;

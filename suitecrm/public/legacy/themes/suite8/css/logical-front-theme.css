@@ -1190,7 +1190,8 @@ scrm-pagination .pagination-info {
   border-bottom: 1px solid var(--border-color) !important;
 }
 
-.cdk-row, tbody tr {
+/* Exclude report condition/field rows so markConditionLineDeleted() can hide rows */
+.cdk-row, tbody:not(#aor_conditions_body):not(#aor_fieldLines_body):not(.connectedSortableConditions):not(.connectedSortableFields) tr {
   display: table-row !important;
   background: #fff !important;
 }
@@ -7076,4 +7077,14 @@ body:has(#report_module) .aor-tab-content > .tab-panels {
     border: 1px solid #e1dfdd !important;
     border-radius: 4px !important;
     min-height: 28px !important;
+}
+
+/* Fix: White line above Details card on Report Detail page.
+   An empty buttons table (td.buttons with padding-bottom: 10px) sits between
+   .moduleTitle and .detail-view. Hide it and reduce moduleTitle margin. */
+body:has(#report_module) .moduleTitle + table {
+    display: none !important;
+}
+body:has(#report_module) .moduleTitle {
+    margin-bottom: 0 !important;
 }
