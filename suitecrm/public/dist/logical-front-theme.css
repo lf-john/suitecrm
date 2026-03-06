@@ -6924,3 +6924,196 @@ scrm-record-content .field-layout-field-wrapper {
     margin: 0 auto !important;
 }
 
+
+/* ====================================
+   ISSUE FIXES (054)
+   ==================================== */
+
+/* Fix #4: Reports Detail — restore action buttons hidden by broad table/sibling rules */
+body:has(#report_module) #pagecontent > table:has(input.button),
+body:has(#report_module) #pagecontent > table:has(.actionsContainer),
+body:has(#report_module) #pagecontent > .buttons,
+body:has(#report_module) #pagecontent > table:first-of-type:has(td input) {
+    display: table !important;
+    visibility: visible !important;
+}
+
+/* Fix #5: Filter dropdowns — add white background so text is readable */
+scrm-list-header .filter-panel select,
+scrm-list-header .panel-card select,
+scrm-list-header .filter-panel .ng-select .ng-select-container,
+scrm-list-header .panel-card .ng-select .ng-select-container {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: var(--gray-800, #323130) !important;
+}
+scrm-list-header .filter-panel select option,
+scrm-list-header .panel-card select option {
+    background-color: #ffffff !important;
+    color: #323130 !important;
+}
+
+/* Fix #6: Account Details > Opportunities subpanel — left-align items */
+scrm-subpanel table {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+}
+scrm-subpanel td:first-child,
+scrm-subpanel th:first-child,
+scrm-subpanel .cdk-cell:first-child,
+scrm-subpanel .cdk-header-cell:first-child {
+    padding-left: 12px !important;
+    text-align: left !important;
+}
+
+/* Fix #7: Report Creation — restore Conditions panel when active (not hidden) */
+body:has(#report_module) .tab-panels .toggle-panel:not(.hidden),
+body:has(#report_module) #detailpanel_conditions:not(.hidden),
+body:has(#report_module) #aor_conditionLines {
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* Fix #8: Report Creation — ensure condition line delete buttons are visible */
+body:has(#report_module) #aor_conditions_body button,
+body:has(#report_module) #aor_conditionLines button,
+body:has(#report_module) [id^="aor_conditions_delete_line"] {
+    display: inline-block !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
+
+
+/* Fix 5: p-multiselect (PrimeNG) transparent background fix */
+.p-multiselect,
+.p-multiselect.p-component,
+.p-multiselect .p-multiselect-label-container {
+    background-color: #ffffff !important;
+}
+.p-multiselect.p-component {
+    border: 1px solid #e1dfdd !important;
+    border-radius: 4px !important;
+    min-height: 28px !important;
+}
+
+/* ================================================================
+   Fix: Filter Panel Layout — prevent overlapping controls
+   Targets the Angular filter panel (scrm-list-filter / scrm-field-grid)
+   ================================================================ */
+
+/* Special fields (My Items, My Favorites, Open Items) — prevent label overlap.
+   Default is d-inline-block w-25 which is too narrow and has no gap.
+   Make label + checkbox side by side within each item. */
+.special-field-grid {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0 24px !important;
+    align-items: center !important;
+    padding-top: 4px !important;
+}
+.special-field-grid .special-field-grid-col {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 6px !important;
+    min-width: auto !important;
+    width: auto !important;
+    margin-bottom: 4px !important;
+}
+/* Remove excessive bottom padding from checkbox in filter special fields */
+.special-field-grid .special-field-grid-col .checkbox-field {
+    padding-bottom: 0 !important;
+    padding-top: 0 !important;
+    margin: 0 !important;
+}
+/* The checkbox-container collapses to 0 height because .checkmark is position:absolute.
+   Give it explicit dimensions so the custom checkbox is visible. */
+.special-field-grid .special-field-grid-col .checkbox-container {
+    min-height: 1.3em !important;
+    min-width: 1.3em !important;
+    display: inline-block !important;
+}
+.special-field-grid .special-field-grid-col label {
+    margin-bottom: 0 !important;
+    white-space: nowrap !important;
+    font-size: 12px !important;
+}
+
+/* Filter grid columns — ensure minimum readable width */
+.filter-panel scrm-field-grid .col.form-group,
+scrm-list-filter scrm-field-grid .col.form-group {
+    min-width: 180px !important;
+    flex: 1 1 200px !important;
+    max-width: 320px !important;
+}
+
+/* Filter grid rows — proper wrapping */
+.filter-panel scrm-field-grid .row,
+scrm-list-filter scrm-field-grid .row {
+    flex-wrap: wrap !important;
+    gap: 4px 0 !important;
+}
+
+/* Group/composite fields in filters (operator + value, e.g. currency/date ranges) —
+   Items have w-100 class which causes overflow in flex-row direction.
+   Force column direction so operator stacks above value input, both visible. */
+.filter-panel scrm-composite-field .field-group,
+scrm-list-filter scrm-composite-field .field-group,
+.filter-panel scrm-composite-field .composite-field-wrapper,
+scrm-list-filter scrm-composite-field .composite-field-wrapper {
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    gap: 4px !important;
+}
+.filter-panel scrm-composite-field .field-group-item,
+scrm-list-filter scrm-composite-field .field-group-item {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 28px !important;
+}
+/* Group fields (e.g. Assigned To) */
+.filter-panel scrm-group-field .field-group,
+scrm-list-filter scrm-group-field .field-group {
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    gap: 4px !important;
+}
+.filter-panel scrm-group-field .field-group-item,
+scrm-list-filter scrm-group-field .field-group-item {
+    width: 100% !important;
+    height: auto !important;
+}
+/* Ensure inputs inside composite/group fields are visible */
+.filter-panel scrm-composite-field input,
+scrm-list-filter scrm-composite-field input,
+.filter-panel scrm-group-field input,
+scrm-list-filter scrm-group-field input {
+    min-width: 100px !important;
+}
+
+/* Date picker popup — float above all filter controls */
+.p-datepicker,
+.p-datepicker-panel,
+p-calendar .p-datepicker {
+    z-index: 20000 !important;
+    background: #ffffff !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 4px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ngb-datepicker in filter panels — ensure visible */
+.filter-panel ngb-datepicker,
+scrm-list-filter ngb-datepicker {
+    z-index: 20000 !important;
+    background: #ffffff !important;
+}
+
+/* Classic view container — minimal spacing around legacy iframes */
+.classic-view-container {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+.classic-view-container iframe {
+    border: none !important;
+}
