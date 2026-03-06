@@ -8,9 +8,9 @@
 <html {$langHeader}>
 <head>
     <link rel="SHORTCUT ICON" href="{$FAVICON_URL}">
-    <meta http-equiv=1772754611"Content-Type" content="text/html; charset={$APP.LBL_CHARSET}">
+    <meta http-equiv="Content-Type" content="text/html; charset={$APP.LBL_CHARSET}">
     <meta charset="utf-8">
-    <meta http-equiv=1772754611"X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1" />
     <!-- Bootstrap -->
     <link href="themes/suite8/css/normalize.css" rel="stylesheet" type="text/css"/>
