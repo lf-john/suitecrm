@@ -368,7 +368,7 @@ $sugar_config = array (
   ),
   'search_wildcard_char' => '%',
   'search_wildcard_infront' => false,
-  'securitysuite_additive' => true,
+  'securitysuite_additive' => false,
   'securitysuite_filter_user_list' => false,
   'securitysuite_inherit_assigned' => true,
   'securitysuite_inherit_creator' => true,
