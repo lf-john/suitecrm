@@ -259,7 +259,7 @@ $sugar_config = array (
     'max_retries' => 5,
     'timeout' => 86400,
   ),
-  'js_custom_version' => 1,
+  'js_custom_version' => 2,
   'js_lang_version' => 1,
   'languages' => 
   array (
