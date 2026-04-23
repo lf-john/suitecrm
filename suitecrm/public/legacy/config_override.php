@@ -17,5 +17,7 @@ $sugar_config['http_referer']['list'][1] = 'localhost';
 $sugar_config['http_referer']['list'][2] = '127.0.0.1';
 $sugar_config['logger']['level'] = 'fatal';
 $sugar_config['display_inbound_email_buttons'] = true;
+// Suppress PHP deprecation notices (SuiteCRM legacy Smarty compatibility)
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
 $sugar_config['site_url'] = 'https://crm.logicalfront.com';
 /***CONFIGURATOR***/

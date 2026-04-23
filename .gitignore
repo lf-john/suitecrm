@@ -10,9 +10,9 @@ logs/
 suitecrm/upload/*
 !suitecrm/upload/.gitkeep
 
-# Database dumps (except backups/)
+# Database dumps — never track SQL in git (store externally: S3, Drive, etc.)
 *.sql
-!backups/*.sql
+backups/
 
 # Angular build cache
 suitecrm/.angular/
@@ -29,10 +29,6 @@ suitecrm/vendor/
 
 # Node modules
 suitecrm/node_modules/
-
-# Backups (allow tracked backups)
-!backups/
-!backups/*.sql
 
 # Export archives
 *.tar.gz
