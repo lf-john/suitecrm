@@ -24,6 +24,10 @@ function display_lines($focus, $field, $value, $view)
         if (file_exists('custom/modules/AOS_Products_Quotes/line_items.js')) {
             $html .= '<script src="custom/modules/AOS_Products_Quotes/line_items.js"></script>';
         }
+        // Inject language strings inline so they are always available, regardless of how the
+        // page is embedded (SuiteCRM 8 Angular shell can break relative jsLanguage URLs).
+        $quotes_lang = return_module_language($GLOBALS['current_language'], 'AOS_Quotes');
+        $html .= '<script type="text/javascript">SUGAR.language.setLanguage("AOS_Quotes",' . json_encode($quotes_lang) . ');</script>';
         $html .= '<script language="javascript">var sig_digits = '.$locale->getPrecision().';';
         $html .= 'var module_sugar_grp1 = "'.$focus->module_dir.'";';
         $html .= 'var enable_groups = '.$enable_groups.';';
