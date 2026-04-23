@@ -24,10 +24,13 @@ class LF_WeeklyPlanViewReport_save_json extends SugarView
         // CSRF token validation
         $csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
         if (empty($csrfToken) || !isset($_SESSION['lf_csrf_token']) || $csrfToken !== $_SESSION['lf_csrf_token']) {
+            file_put_contents(sugar_cached('lf_save_debug.log'), date('Y-m-d H:i:s') . " REPORT_CSRF_FAILED\n", FILE_APPEND);
             echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
             return;
         }
 
+        $logFile = sugar_cached('lf_save_debug.log');
+        file_put_contents($logFile, date("Y-m-d H:i:s") . " REPORT_SAVE: user=" . $current_user->id . " action=" . ($data["action"] ?? "none") . " raw_body=" . substr($input, 0, 500) . "\n", FILE_APPEND);
         $input = file_get_contents('php://input');
         $data = json_decode($input, true);
 
@@ -189,12 +192,17 @@ class LF_WeeklyPlanViewReport_save_json extends SugarView
 
     private function handleSaveResultDescription($data)
     {
+        $logFile = sugar_cached('lf_save_debug.log');
         if (empty($data['snapshot_id'])) {
+            file_put_contents($logFile, date('Y-m-d H:i:s') . " REPORT_RESULT_DESC: missing snapshot_id\n", FILE_APPEND);
             throw new Exception('Missing snapshot ID');
         }
 
+        file_put_contents($logFile, date('Y-m-d H:i:s') . " REPORT_RESULT_DESC: snapshot_id=" . $data['snapshot_id'] . " desc=[" . substr($data['result_description'] ?? '', 0, 80) . "]\n", FILE_APPEND);
+
         $snapshot = BeanFactory::getBean('LF_ReportSnapshot', $data['snapshot_id']);
         if (!$snapshot || empty($snapshot->id)) {
+            file_put_contents($logFile, date('Y-m-d H:i:s') . " REPORT_RESULT_DESC: snapshot NOT FOUND for id=" . $data['snapshot_id'] . "\n", FILE_APPEND);
             throw new Exception('Snapshot not found');
         }
 
@@ -202,6 +210,13 @@ class LF_WeeklyPlanViewReport_save_json extends SugarView
 
         $snapshot->result_description = $data['result_description'] ?? '';
         $snapshot->save();
+
+        // Verify the save by re-reading from DB
+        $db = DBManagerFactory::getInstance();
+        $verifyRes = $db->query(sprintf("SELECT result_description FROM lf_report_snapshots WHERE id = %s", $db->quoted($data['snapshot_id'])));
+        $verifyRow = $db->fetchByAssoc($verifyRes);
+        $savedDesc = $verifyRow ? $verifyRow['result_description'] : 'QUERY_FAILED';
+        file_put_contents($logFile, date('Y-m-d H:i:s') . " REPORT_RESULT_DESC_VERIFY: db_value=[" . substr($savedDesc ?? 'NULL', 0, 80) . "]\n", FILE_APPEND);
 
         echo json_encode(['success' => true]);
     }

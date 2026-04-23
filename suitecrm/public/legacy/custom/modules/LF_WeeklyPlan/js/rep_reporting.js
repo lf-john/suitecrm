@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var saveEndpoint = window.LF_SAVE_ENDPOINT || 'index.php?module=LF_WeeklyPlan&action=report_save_json';
 
     function getCSRFToken() {
-        if (typeof SUGAR !== 'undefined' && SUGAR.csrf) return SUGAR.csrf.form_token;
+        // Always use LF_CSRF_TOKEN (matches server-side lf_csrf_token session key)
         if (typeof LF_CSRF_TOKEN !== 'undefined') return LF_CSRF_TOKEN;
         return '';
     }
@@ -23,24 +23,31 @@ document.addEventListener('DOMContentLoaded', function() {
             var snapshotId = textarea.dataset.snapshotId;
             if (!snapshotId) return;
 
+            var payload = {
+                    action: 'save_result_description',
+                    snapshot_id: snapshotId,
+                    result_description: textarea.value
+                };
+            console.log('[LF REPORT SAVE] Saving result description:', JSON.stringify(payload));
             fetch(saveEndpoint + '&sugar_body_only=true', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-Token': getCSRFToken()
                 },
-                body: JSON.stringify({
-                    action: 'save_result_description',
-                    snapshot_id: snapshotId,
-                    result_description: textarea.value
-                })
+                body: JSON.stringify(payload)
             })
-            .then(function(r) { return r.json(); })
+            .then(function(r) {
+                console.log('[LF REPORT SAVE] Response status:', r.status);
+                return r.json();
+            })
             .then(function(data) {
+                console.log('[LF REPORT SAVE] Response:', JSON.stringify(data));
                 textarea.style.borderColor = data.success ? '#2F7D32' : 'red';
                 setTimeout(function() { textarea.style.borderColor = ''; }, 2000);
             })
-            .catch(function() {
+            .catch(function(err) {
+                console.error('[LF REPORT SAVE] Error:', err);
                 textarea.style.borderColor = 'red';
             });
         }

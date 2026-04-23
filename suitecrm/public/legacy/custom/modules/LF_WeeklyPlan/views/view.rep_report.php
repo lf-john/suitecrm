@@ -90,15 +90,22 @@ class LF_WeeklyPlanViewRep_report extends SugarView
             );
             $result = $db->query($query);
             while ($row = $db->fetchByAssoc($result)) {
-                // Items with empty projected_stage or '--' item_type are unplanned
-                if (empty($row['projected_stage']) || $row['item_type'] === '--') {
+                // Items with '--' item_type and no projected_stage are truly unplanned
+                if ($row['item_type'] === '--' || (empty($row['projected_stage']) && empty($row['item_type']))) {
                     $unplannedPlanOppIds[$row['opportunity_id']] = true;
                     continue;
                 }
+                // Classify by item_type even if projected_stage is empty
                 if ($row['item_type'] === 'developing') {
                     $developingItems[$row['opportunity_id']] = $row;
-                } else {
+                } elseif (!empty($row['item_type']) && $row['item_type'] !== '--') {
                     $existingPipelineItems[$row['opportunity_id']] = $row;
+                } elseif (!empty($row['projected_stage'])) {
+                    // Has stage but no explicit type — infer from stage probability
+                    $existingPipelineItems[$row['opportunity_id']] = $row;
+                } else {
+                    $unplannedPlanOppIds[$row['opportunity_id']] = true;
+                    continue;
                 }
                 $planItems[$row['opportunity_id']] = $row;
             }

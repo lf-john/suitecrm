@@ -40,17 +40,14 @@
 
         function getStageProb(stageName) {
             if (!stageName) return 0;
-            // Use SuiteCRM's sales_probability_dom
             const probs = window.LF_STAGE_PROBS || window.stageProbabilities || {};
             const prob = probs[stageName];
-            // Explicit NaN protection - return 0 if probability is not a valid number
             if (prob === undefined || prob === null || isNaN(prob)) {
                 return 0;
             }
             return parseFloat(prob) || 0;
         }
 
-        // Update category based on current and projected stage probabilities
         function updateCategoryForRow(row) {
             if (!row) return;
 
@@ -86,7 +83,6 @@
                 }
             }
 
-            // Update display
             if (categoryDisplay) {
                 categoryDisplay.textContent = category;
             }
@@ -94,13 +90,11 @@
                 categoryInput.value = categoryValue;
             }
 
-            // Update styling
             categoryCell.className = 'category-cell ' + categoryClass;
             categoryCell.setAttribute('data-category', categoryValue);
         }
 
         function updateAll() {
-            // Skip recalculation when plan is submitted — frozen values are rendered by PHP
             var planStatus = container.getAttribute('data-plan-status');
             if (planStatus === 'submitted') return;
 
@@ -144,7 +138,6 @@
             let totalProgression = 0;
             let totalNewPipeline = 0;
 
-            // Existing Pipeline rows
             const pipelineRows = container.querySelectorAll('#pipeline-table tbody tr');
             pipelineRows.forEach(row => {
                 const profitCell = row.querySelector('.profit');
@@ -160,18 +153,14 @@
                 const projectedProb = getStageProb(projectedStage);
                 const isAtRisk = atRiskCheckbox && atRiskCheckbox.checked;
 
-                // At Risk = Sum of Profit for at-risk items
                 if (isAtRisk) {
                     totalAtRisk += profit;
                 }
 
-                // Closing = Sum of Profit for closing items
                 if (category === 'closing') {
                     totalClosing += profit;
                 }
 
-                // Progression = Profit × (Planned Stage % - Current Stage %) / 100
-                // Includes both progression AND closing items
                 if (category === 'closing' || category === 'progression') {
                     const currentProb = parseInt(row.querySelector('.current-stage')?.getAttribute('data-prob')) || 0;
                     const progression = profit * (projectedProb - currentProb) / 100;
@@ -179,7 +168,6 @@
                 }
             });
 
-            // Developing Pipeline rows — New Pipeline = entire Profit
             const devPipelineRows = container.querySelectorAll('#developing-pipeline-table tbody tr');
             devPipelineRows.forEach(row => {
                 const profitCell = row.querySelector('.dev-profit');
@@ -191,12 +179,10 @@
                 const projectedStage = projSelect.value;
 
                 if (projectedStage) {
-                    // New Pipeline = entire Profit for developing items
                     totalNewPipeline += profit;
                 }
             });
 
-            // Prospecting rows — New Pipeline = expected profit
             const prospectRows = container.querySelectorAll('#prospecting-table tbody tr');
             prospectRows.forEach(row => {
                 const profitInput = row.querySelector('.prospect-profit');
@@ -205,7 +191,6 @@
                 }
             });
 
-            // Update UI
             updateTotalElement('total-closing', totalClosing, 'closing');
             updateTotalElement('total-at-risk', totalAtRisk, 'at_risk');
             updateTotalElement('total-progression', totalProgression, 'progression');
@@ -218,19 +203,18 @@
                 el.textContent = Math.round(value).toLocaleString();
                 el.setAttribute('data-value', value);
 
-                // Color coding
                 const targets = window.LF_WEEKLY_TARGETS || {};
                 const target = targets[targetKey] || 0;
                 const box = document.getElementById(id + '-box');
                 if (box) {
                     if (targetKey === 'at_risk') return;
-                    
+
                     if (value >= target) {
-                        box.style.color = '#2F7D32'; // Green
+                        box.style.color = '#2F7D32';
                         addClass(box, 'on-target');
                         removeClass(box, 'off-target');
                     } else {
-                        box.style.color = '#d13438'; // Red
+                        box.style.color = '#d13438';
                         addClass(box, 'off-target');
                         removeClass(box, 'on-target');
                     }
@@ -239,7 +223,6 @@
         }
 
         function updateHealthSummary() {
-            // Reference health-summary for structural tests
             const healthSummary = document.getElementById('health-summary');
             if (!healthSummary) return;
 
@@ -247,8 +230,7 @@
             const closedYtd = parseFloat(healthData.closed_ytd) || 0;
             const annualQuota = parseFloat(healthData.annual_quota) || 0;
             const coverageMultiplier = parseFloat(healthData.coverage_multiplier) || 4;
-            
-            // Use current_pipeline from healthData if available (for tests), otherwise calculate
+
             let currentPipelineTotal = parseFloat(healthData.current_pipeline);
             if (isNaN(currentPipelineTotal)) {
                 currentPipelineTotal = 0;
@@ -279,11 +261,10 @@
             updateHealthElement('health-gap-to-target', gapToTarget, true);
             updateHealthElement('health-coverage-ratio', coverageRatio, false, true);
 
-            // Gap to Target styling
             const gapEl = document.getElementById('health-gap-to-target');
             if (gapEl) {
                 if (currentPipelineTotal < pipelineTarget) {
-                    gapEl.style.color = '#d13438'; // Red
+                    gapEl.style.color = '#d13438';
                     addClass(gapEl, 'gap-negative');
                 } else {
                     gapEl.style.color = '';
@@ -340,33 +321,26 @@
             if (rows.length > 0) {
                 const template = rows[0];
                 newRow = template.cloneNode(true);
-                // Clear inputs
                 newRow.querySelectorAll('input').forEach(input => {
                     input.value = '';
-                    // Update name index
                     const name = input.getAttribute('name');
                     if (name) {
                         input.setAttribute('name', name.replace(/\[\d+\]/, '[' + index + ']'));
                     }
                 });
-                // Reset selects to first option
                 newRow.querySelectorAll('select').forEach(select => {
                     select.selectedIndex = 0;
-                    // Update name index
                     const name = select.getAttribute('name');
                     if (name) {
                         select.setAttribute('name', name.replace(/\[\d+\]/, '[' + index + ']'));
                     }
                 });
-                // Update data-prospect-index
                 newRow.setAttribute('data-prospect-index', index);
             } else {
-                // Fallback if no rows exist - create from scratch with dropdowns
                 newRow = document.createElement('tr');
                 newRow.className = 'prospecting-row';
                 newRow.setAttribute('data-prospect-index', index);
 
-                // Source Type Dropdown
                 const td1 = document.createElement('td');
                 const select1 = document.createElement('select');
                 select1.name = 'prospect_source[' + index + ']';
@@ -385,7 +359,6 @@
                 td1.appendChild(select1);
                 newRow.appendChild(td1);
 
-                // Day Dropdown
                 const td2 = document.createElement('td');
                 const select2 = document.createElement('select');
                 select2.name = 'prospect_day[' + index + ']';
@@ -400,7 +373,6 @@
                 td2.appendChild(select2);
                 newRow.appendChild(td2);
 
-                // Expected Revenue
                 const td3 = document.createElement('td');
                 const input3 = document.createElement('input');
                 input3.type = 'number';
@@ -409,7 +381,6 @@
                 td3.appendChild(input3);
                 newRow.appendChild(td3);
 
-                // Expected Profit
                 const td3b = document.createElement('td');
                 const input3b = document.createElement('input');
                 input3b.type = 'number';
@@ -418,7 +389,6 @@
                 td3b.appendChild(input3b);
                 newRow.appendChild(td3b);
 
-                // Description
                 const td4 = document.createElement('td');
                 const input4 = document.createElement('input');
                 input4.type = 'text';
@@ -426,7 +396,6 @@
                 td4.appendChild(input4);
                 newRow.appendChild(td4);
 
-                // Remove Button
                 const td5 = document.createElement('td');
                 const btn = document.createElement('button');
                 btn.type = 'button';
@@ -524,11 +493,22 @@
             const data = collectFormData();
             data.status = status;
 
+            // --- DIAGNOSTIC LOGGING ---
+            console.log('[LF PLAN SAVE] Status:', status);
+            console.log('[LF PLAN SAVE] Plan ID:', data.plan_id);
+            console.log('[LF PLAN SAVE] Op items:', data.op_items.length);
+            data.op_items.forEach(function(item, i) {
+                console.log('[LF PLAN SAVE]   Item ' + i + ': opp=' + item.opportunity_id + ' stage=[' + item.projected_stage + '] type=' + item.item_type + ' day=' + item.planned_day + ' desc=[' + (item.plan_description || '').substring(0, 40) + ']');
+            });
+            console.log('[LF PLAN SAVE] Prospect items:', data.prospect_items.length);
+            // --- END DIAGNOSTIC ---
+
             // When submitting, include frozen totals for snapshot
             if (status === 'submitted') {
                 data.frozen_closing = parseFloat(document.getElementById('total-closing')?.getAttribute('data-value')) || 0;
                 data.frozen_progression = parseFloat(document.getElementById('total-progression')?.getAttribute('data-value')) || 0;
                 data.frozen_new_pipeline = parseFloat(document.getElementById('total-new-pipeline')?.getAttribute('data-value')) || 0;
+                console.log('[LF PLAN SAVE] Frozen totals: closing=' + data.frozen_closing + ' progression=' + data.frozen_progression + ' new_pipeline=' + data.frozen_new_pipeline);
             }
 
             const messageEl = document.getElementById('save-message');
@@ -537,16 +517,23 @@
                 messageEl.style.color = 'inherit';
             }
 
+            var bodyStr = JSON.stringify(data);
+            console.log('[LF PLAN SAVE] Sending ' + bodyStr.length + ' bytes to server');
+
             fetch('index.php?module=LF_WeeklyPlan&action=save_json', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-Token': typeof LF_CSRF_TOKEN !== 'undefined' ? LF_CSRF_TOKEN : ''
                 },
-                body: JSON.stringify(data)
+                body: bodyStr
             })
-            .then(response => response.json())
-            .then(result => {
+            .then(function(response) {
+                console.log('[LF PLAN SAVE] Response status:', response.status);
+                return response.json();
+            })
+            .then(function(result) {
+                console.log('[LF PLAN SAVE] Response:', JSON.stringify(result));
                 if (messageEl) {
                     messageEl.textContent = result.message || (result.success ? 'Saved successfully' : 'Save failed');
                     messageEl.style.color = result.success ? '#2F7D32' : '#d13438';
@@ -555,8 +542,8 @@
                     location.reload();
                 }
             })
-            .catch(error => {
-                console.error('Error saving plan:', error);
+            .catch(function(error) {
+                console.error('[LF PLAN SAVE] Error:', error);
                 if (messageEl) {
                     messageEl.textContent = 'Error saving plan';
                     messageEl.style.color = '#d13438';
@@ -568,26 +555,18 @@
         updateAll();
     });
 
-    /**
-     * Hide SuiteCRM footer modals (Reset Password dialog, etc.)
-     */
     function hideFooterModals() {
-        // Hide the Bootstrap modal that appears at the bottom
         const modals = document.querySelectorAll('.modal, .modal-generic, .modal-backdrop');
         modals.forEach(modal => {
             modal.style.display = 'none';
             modal.style.visibility = 'hidden';
         });
 
-        // Also hide via CSS injection for elements added later
         const style = document.createElement('style');
         style.textContent = '.modal, .modal-generic, .modal-backdrop { display: none !important; visibility: hidden !important; }';
         document.head.appendChild(style);
     }
 
-    /**
-     * Inject sub-navigation tabs
-     */
     function injectSubNav() {
         const placeholder = document.getElementById('lf-subnav-placeholder');
         if (!placeholder) return;
@@ -606,7 +585,7 @@
 
         links.forEach(link => {
             const activeClass = (link.id === activePage) ? ' active' : '';
-            html += `<a href="${link.url}" class="lf-subnav-link${activeClass}">${link.label}</a>`;
+            html += '<a href="' + link.url + '" class="lf-subnav-link' + activeClass + '">' + link.label + '</a>';
         });
 
         if (isAdmin) {

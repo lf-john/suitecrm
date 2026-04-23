@@ -8,6 +8,8 @@ require_once('include/MVC/View/SugarView.php');
 #[\AllowDynamicProperties]
 class LF_WeeklyPlanViewSave_json extends SugarView
 {
+    private $logFile;
+
     public function __construct()
     {
         parent::__construct();
@@ -15,11 +17,16 @@ class LF_WeeklyPlanViewSave_json extends SugarView
         $this->options['show_footer'] = false;
         $this->options['show_title'] = false;
         $this->options['show_subpanels'] = false;
+        $this->logFile = sugar_cached('lf_save_debug.log');
+    }
+
+    private function debugLog($message)
+    {
+        file_put_contents($this->logFile, date('Y-m-d H:i:s') . " " . $message . "\n", FILE_APPEND);
     }
 
     public function process()
     {
-        // Override process() to skip all header/footer rendering
         $this->display();
     }
 
@@ -33,18 +40,25 @@ class LF_WeeklyPlanViewSave_json extends SugarView
         // CSRF token validation
         $csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
         if (empty($csrfToken) || !isset($_SESSION['lf_csrf_token']) || $csrfToken !== $_SESSION['lf_csrf_token']) {
+            $this->debugLog("CSRF_FAILED: token_sent=" . substr($csrfToken, 0, 8) . "... session_token=" . (isset($_SESSION['lf_csrf_token']) ? substr($_SESSION['lf_csrf_token'], 0, 8) . '...' : 'NOT_SET'));
             echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
             exit;
         }
 
         // JSON parsing with error handling
         $raw = file_get_contents('php://input');
+
+        // Log the full raw request body (truncated for safety)
+        $this->debugLog("RAW_BODY[" . strlen($raw) . " bytes]: " . substr($raw, 0, 2000));
+
         $input = json_decode($raw, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
+            $this->debugLog("JSON_ERROR: " . json_last_error_msg());
             echo json_encode(['success' => false, 'message' => 'Invalid JSON: ' . json_last_error_msg()]);
             exit;
         }
         if (!$input) {
+            $this->debugLog("EMPTY_INPUT");
             echo json_encode(['success' => false, 'message' => 'Invalid input']);
             exit;
         }
@@ -57,23 +71,34 @@ class LF_WeeklyPlanViewSave_json extends SugarView
 
         // Verify plan ownership before modification
         $ownerCheck = $db->query(sprintf(
-            "SELECT assigned_user_id FROM lf_weekly_plan WHERE id = %s AND deleted = 0",
+            "SELECT assigned_user_id, status FROM lf_weekly_plan WHERE id = %s AND deleted = 0",
             $db->quoted($planId)
         ));
         $ownerRow = $db->fetchByAssoc($ownerCheck);
         if (!$ownerRow || $ownerRow['assigned_user_id'] !== $current_user->id) {
+            $this->debugLog("ACCESS_DENIED: current_user=" . $current_user->id . ", plan_owner=" . ($ownerRow['assigned_user_id'] ?? 'NULL'));
             echo json_encode(['success' => false, 'message' => 'Access denied']);
             exit;
+        }
+
+        $this->debugLog("SAVE_START: user=" . $current_user->id . ", plan=" . $planId . ", current_plan_status=" . $ownerRow['status'] . ", requested_status=" . ($input['status'] ?? 'none') . ", op_items=" . count($input['op_items'] ?? []) . ", prospect_items=" . count($input['prospect_items'] ?? []));
+
+        // Log each op_item for debugging
+        if (isset($input['op_items']) && is_array($input['op_items'])) {
+            foreach ($input['op_items'] as $idx => $item) {
+                $this->debugLog("  OP_ITEM[$idx]: opp=" . ($item['opportunity_id'] ?? '?') . " type=" . ($item['item_type'] ?? '?') . " stage=[" . ($item['projected_stage'] ?? '') . "] day=" . ($item['planned_day'] ?? '?') . " desc=[" . substr($item['plan_description'] ?? '', 0, 50) . "]");
+            }
         }
 
         $now = gmdate('Y-m-d H:i:s');
         $dbErrors = [];
 
         if (isset($input['status']) && $input['status'] === 'submitted') {
-            // Store frozen totals at submit time
             $frozenClosing = isset($input['frozen_closing']) ? (float)$input['frozen_closing'] : 0;
             $frozenProgression = isset($input['frozen_progression']) ? (float)$input['frozen_progression'] : 0;
             $frozenNewPipeline = isset($input['frozen_new_pipeline']) ? (float)$input['frozen_new_pipeline'] : 0;
+
+            $this->debugLog("SUBMIT: frozen_closing=$frozenClosing, frozen_progression=$frozenProgression, frozen_new_pipeline=$frozenNewPipeline");
 
             $query = sprintf(
                 "UPDATE lf_weekly_plan SET status = 'submitted', submitted_date = %s, date_modified = %s, modified_user_id = %s, frozen_closing = %s, frozen_progression = %s, frozen_new_pipeline = %s WHERE id = %s AND deleted = 0",
@@ -88,6 +113,7 @@ class LF_WeeklyPlanViewSave_json extends SugarView
             $result = $db->query($query);
             if ($result === false) {
                 $dbErrors[] = 'Failed to update plan status';
+                $this->debugLog("STATUS_UPDATE_FAILED");
             }
         } elseif (isset($input['status']) && $input['status'] === 'in_progress') {
             $query = sprintf(
@@ -99,6 +125,7 @@ class LF_WeeklyPlanViewSave_json extends SugarView
             $result = $db->query($query);
             if ($result === false) {
                 $dbErrors[] = 'Failed to update plan status';
+                $this->debugLog("STATUS_UPDATE_FAILED");
             }
         }
 
@@ -131,7 +158,6 @@ class LF_WeeklyPlanViewSave_json extends SugarView
                 $row = $db->fetchByAssoc($res);
 
                 if ($row) {
-                    // Only update original_stage/original_profit if not already set (preserve first snapshot)
                     $origStageSql = '';
                     if (empty($row['original_stage'])) {
                         $origStageSql = sprintf(", original_stage = %s, original_profit = %s",
@@ -151,7 +177,8 @@ class LF_WeeklyPlanViewSave_json extends SugarView
                         $origStageSql,
                         $db->quoted($row['id'])
                     );
-                    $db->query($updateQuery);
+                    $queryResult = $db->query($updateQuery);
+                    $this->debugLog("  UPDATE_ITEM: id=" . $row['id'] . " opp=" . $oppId . " stage=[" . $projStage . "] result=" . ($queryResult ? "OK" : "FAIL"));
                 } else {
                     $newId = create_guid();
                     $insertQuery = sprintf(
@@ -172,7 +199,8 @@ class LF_WeeklyPlanViewSave_json extends SugarView
                         $db->quoted($planDesc),
                         $isAtRisk
                     );
-                    $db->query($insertQuery);
+                    $queryResult = $db->query($insertQuery);
+                    $this->debugLog("  INSERT_ITEM: id=" . $newId . " opp=" . $oppId . " stage=[" . $projStage . "] result=" . ($queryResult ? "OK" : "FAIL"));
                 }
             }
         }
@@ -185,7 +213,7 @@ class LF_WeeklyPlanViewSave_json extends SugarView
                 $plannedDay = $item['planned_day'];
                 $expectedRevenue = (float)($item['expected_revenue'] ?? $item['expected_value'] ?? 0);
                 $expectedProfit = (float)($item['expected_profit'] ?? 0);
-                $expectedValue = $expectedRevenue; // backward compat
+                $expectedValue = $expectedRevenue;
                 $planDesc = $item['plan_description'];
 
                 if (!empty($item['id'])) {
@@ -242,8 +270,20 @@ class LF_WeeklyPlanViewSave_json extends SugarView
         }
 
         if (!empty($dbErrors)) {
+            $this->debugLog("SAVE_FAILED: " . implode(', ', $dbErrors));
             echo json_encode(['success' => false, 'message' => 'Database errors occurred', 'errors' => $dbErrors]);
         } else {
+            // Verify the saved data
+            $verifyLog = "VERIFY:";
+            $verifyRes = $db->query(sprintf(
+                "SELECT id, opportunity_id, projected_stage, plan_description FROM lf_plan_op_items WHERE lf_weekly_plan_id = %s AND deleted = 0",
+                $db->quoted($planId)
+            ));
+            while ($vRow = $db->fetchByAssoc($verifyRes)) {
+                $verifyLog .= " [opp=" . $vRow['opportunity_id'] . " stage=" . ($vRow['projected_stage'] ?: 'EMPTY') . "]";
+            }
+            $this->debugLog($verifyLog);
+            $this->debugLog("SAVE_SUCCESS: plan=" . $planId);
             echo json_encode(['success' => true, 'message' => 'Plan saved successfully']);
         }
         exit;
