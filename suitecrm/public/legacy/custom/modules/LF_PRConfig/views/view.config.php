@@ -95,6 +95,8 @@ class LF_PRConfigViewConfig extends SugarView
         $weeks_start = LF_PRConfig::getConfig('weeks', 'week_start_day');
         $weeks_to_show = LF_PRConfig::getConfig('weeks', 'weeks_to_show');
         $snapshot_time = LF_PRConfig::getConfig('weeks', 'snapshot_time') ?: '09:00';
+        $plan_day = LF_PRConfig::getConfig('weeks', 'plan_day') ?: '1';
+        $plan_time = LF_PRConfig::getConfig('weeks', 'plan_time') ?: '10:00';
 
         $display_green = LF_PRConfig::getConfig('display', 'achievement_tier_green');
         $display_yellow = LF_PRConfig::getConfig('display', 'achievement_tier_yellow');
@@ -195,6 +197,20 @@ class LF_PRConfigViewConfig extends SugarView
         echo '<div class="field-container">';
         echo '<label>Snapshot Time (Mountain):</label>';
         echo '<input type="time" name="config_weeks__snapshot_time" value="' . htmlspecialchars($snapshot_time) . '" required>';
+        echo '</div>';
+        echo '<div class="field-container">';
+        echo '<label>Plan Due Day:</label>';
+        $days = [1 => 'Monday', 2 => 'Tuesday', 3 => 'Wednesday', 4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday', 7 => 'Sunday'];
+        echo '<select name="config_weeks__plan_day">';
+        foreach ($days as $num => $dayName) {
+            $selected = ((int)$plan_day === $num) ? 'selected' : '';
+            echo '<option value="' . $num . '" ' . $selected . '>' . $dayName . '</option>';
+        }
+        echo '</select>';
+        echo '</div>';
+        echo '<div class="field-container">';
+        echo '<label>Plan Due Time (Mountain):</label>';
+        echo '<input type="time" name="config_weeks__plan_time" value="' . htmlspecialchars($plan_time) . '" required>';
         echo '</div>';
         echo '</div></div>';
 

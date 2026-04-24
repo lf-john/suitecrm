@@ -644,7 +644,7 @@ class LF_WeeklyPlanViewRep_report extends SugarView
         $rowStyle = '';
         if ($result === 'regressed' || $result === 'closed_lost') {
             $rowStyle = ' style="background-color: #fff3cd;"';
-        } elseif ($result === 'progressed' || $result === 'closed_won') {
+        } elseif ($result === 'success' || $result === 'closed_won') {
             $rowStyle = ' style="background-color: #e8f5e9;"';
         } elseif ($isUnplanned) {
             $rowStyle = ' style="background-color: #e3f2fd;"';
@@ -703,7 +703,7 @@ class LF_WeeklyPlanViewRep_report extends SugarView
         $plannedProb = (int)($probabilities[$plannedStage] ?? 0);
 
         if ($currentProb >= $plannedProb && $plannedProb > 0) {
-            return 'progressed';
+            return 'success';
         } elseif ($currentProb > $startProb && $currentProb < $plannedProb) {
             return 'partial';
         } elseif ($currentProb < $startProb) {
