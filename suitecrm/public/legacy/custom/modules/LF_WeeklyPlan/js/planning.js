@@ -11,6 +11,13 @@
         const container = document.getElementById('lf-planning-container');
         if (!container) return;
 
+        // Debounced auto-save: fires 1.5s after the last field change
+        var autoSaveTimer = null;
+        function scheduleAutoSave() {
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(function() { savePlan('in_progress'); }, 1500);
+        }
+
         // Event Delegation
         container.addEventListener('change', function(e) {
             const target = e.target;
@@ -23,7 +30,16 @@
                 target.matches('.at-risk-checkbox')) {
                 updateAll();
             }
+            scheduleAutoSave();
         });
+
+        // Also auto-save on text input blur (plan descriptions, prospect names, etc.)
+        container.addEventListener('blur', function(e) {
+            const target = e.target;
+            if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+                scheduleAutoSave();
+            }
+        }, true);
 
         container.addEventListener('click', function(e) {
             const target = e.target;
@@ -31,8 +47,6 @@
                 addProspectRow();
             } else if (target.matches('.remove-prospect-row')) {
                 removeProspectRow(target);
-            } else if (target.id === 'save-plan') {
-                savePlan('in_progress');
             } else if (target.id === 'updates-complete') {
                 savePlan('submitted');
             }

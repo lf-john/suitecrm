@@ -124,7 +124,7 @@ class DailyPlansDashlet extends Dashlet
         if ($totalItems === 0) {
             $html .= '<div style="text-align: center; padding: 20px; color: #666;">';
             $html .= '<p style="margin: 0;">No activities planned for today.</p>';
-            $html .= '<a href="index.php?module=LF_WeeklyPlan&action=DetailView&record=' . $weeklyPlanId . '" style="color: #125EAD; text-decoration: none;">View Weekly Plan</a>';
+            $html .= '<a href="index.php?module=LF_WeeklyPlan&action=planning" style="color: #125EAD; text-decoration: none;">View Weekly Plan</a>';
             $html .= '</div>';
         } else {
             // Display summary
@@ -207,7 +207,7 @@ class DailyPlansDashlet extends Dashlet
 
         // Footer link to full plan
         $html .= '<div style="text-align: center; padding-top: 10px; border-top: 1px solid #eee;">';
-        $html .= '<a href="index.php?module=LF_WeeklyPlan&action=DetailView&record=' . $weeklyPlanId . '" style="color: #125EAD; text-decoration: none; font-size: 13px;">View Full Weekly Plan →</a>';
+        $html .= '<a href="index.php?module=LF_WeeklyPlan&action=planning" style="color: #125EAD; text-decoration: none; font-size: 13px;">View Full Weekly Plan →</a>';
         $html .= '</div>';
 
         $html .= '</div>';

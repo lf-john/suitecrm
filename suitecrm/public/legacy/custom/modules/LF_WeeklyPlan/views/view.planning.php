@@ -338,7 +338,7 @@ class LF_WeeklyPlanViewPlanning extends SugarView
                 $acctQuery = "SELECT name FROM accounts WHERE id = " . $db->quoted($opp['account_id']) . " AND deleted = 0";
                 $acctResult = $db->query($acctQuery);
                 $acctRow = $db->fetchByAssoc($acctResult);
-                $accountName = $acctRow ? $acctRow['name'] : 'No Account';
+                $accountName = $acctRow ? html_entity_decode($acctRow['name'], ENT_QUOTES | ENT_HTML5) : 'No Account';
             } else {
                 $oppBean = BeanFactory::getBean('Opportunities', $oppId);
                 if (!$oppBean || empty($oppBean->id)) {
@@ -483,7 +483,7 @@ class LF_WeeklyPlanViewPlanning extends SugarView
                     $acctQuery = "SELECT name FROM accounts WHERE id = " . $db->quoted($opp['account_id']) . " AND deleted = 0";
                     $acctResult = $db->query($acctQuery);
                     $acctRow = $db->fetchByAssoc($acctResult);
-                    $accountName = $acctRow ? $acctRow['name'] : 'No Account';
+                    $accountName = $acctRow ? html_entity_decode($acctRow['name'], ENT_QUOTES | ENT_HTML5) : 'No Account';
                 } else {
                     $oppBean = BeanFactory::getBean('Opportunities', $oppId);
                     if (!$oppBean || empty($oppBean->id)) continue;
@@ -618,8 +618,7 @@ class LF_WeeklyPlanViewPlanning extends SugarView
 
         // Action Buttons
         echo '<div class="lf-planning-actions">';
-        echo '  <button type="button" id="save-plan" class="button primary">Save</button>';
-        echo '  <button type="button" id="updates-complete" class="button">Updates Complete</button>';
+        echo '  <button type="button" id="updates-complete" class="button primary">Submit</button>';
         echo '  <div id="save-message" class="lf-message"></div>';
         echo '</div>';
 

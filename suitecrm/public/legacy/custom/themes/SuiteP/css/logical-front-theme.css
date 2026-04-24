@@ -4304,6 +4304,12 @@ div.hd.dashlet {
     background: transparent !important;
 }
 
+/* Fix: header table must stretch full width for title text to be visible */
+.hd.dashlet table.formHeader {
+    width: 100% !important;
+    table-layout: fixed !important;
+}
+
 /* Widget header icons - white */
 .hd.dashlet .suitepicon,
 .hd.dashlet [class*="suitepicon-"],
@@ -4693,6 +4699,21 @@ td.dashboard-col:last-child,
 body.yui-skin-sam #pagecontent,
 body.suitepicon #pagecontent {
     padding: 20px !important;
+}
+
+/* Fix: #pageContainer and #wrapper are ancestors of #dashboard, not descendants.
+   The prior rule "#dashboard #pageContainer" (descendant) never matched them.
+   Target them directly to eliminate white background between/around dashlets. */
+#pageContainer, #wrapper {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* Fix: body has min-height: 100vh which causes empty gradient area below short dashlet content.
+   Remove it on the dashboard page so the body only spans its content height. */
+body:has(#dashboard) {
+    min-height: 0 !important;
+    height: auto !important;
 }
 
 /* ====================================

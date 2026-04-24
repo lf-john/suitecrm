@@ -265,7 +265,10 @@ class LF_WeeklyPlanViewRep_report extends SugarView
         // Render sub-header with user selector for admins
         LF_SubHeader::renderCSS();
         LF_SubHeader::renderJS();
-        $weekList = WeekHelper::getWeekList(9);
+        $currentWeekStart = WeekHelper::getCurrentWeekStart();
+        $weekList = array_filter(WeekHelper::getWeekList(9), function($w) use ($currentWeekStart) {
+            return $w['value'] <= $currentWeekStart;
+        });
         LF_SubHeader::render('Rep Report', [
             'showUserSelector' => $isAdmin,
             'users' => $allUsers,
@@ -595,8 +598,7 @@ class LF_WeeklyPlanViewRep_report extends SugarView
 
         // Action Buttons
         echo '<div class="lf-planning-actions" style="margin-top: 30px; text-align: right;">';
-        echo '<button type="button" id="save-report" class="button primary" style="padding: 10px 20px; font-size: 16px; margin-right: 10px; background-color: #0078d4; color: white; border: none; border-radius: 4px; cursor: pointer;">Save</button>';
-        echo '<button type="button" id="updates-complete" class="button" style="padding: 10px 20px; font-size: 16px; background-color: #e1dfdd; color: #323130; border: 1px solid #8a8886; border-radius: 4px; cursor: pointer;">Updates Complete</button>';
+        echo '<button type="button" id="updates-complete" class="button primary" style="padding: 10px 20px; font-size: 16px; background-color: #0078d4; color: white; border: none; border-radius: 4px; cursor: pointer;">Submit</button>';
         echo '<div id="submit-message" class="lf-message" style="margin-top: 10px;"></div>';
         echo '</div>';
 
