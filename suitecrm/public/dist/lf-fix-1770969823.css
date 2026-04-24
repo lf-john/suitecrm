@@ -201,3 +201,84 @@ scrm-subpanel .cdk-header-cell,
 scrm-subpanel th {
     text-align: left !important;
 }
+
+/* ================================================================
+   FIX: Subpanel Actions dropdown — white text on white background
+   Root cause: dropdown-item uses btn-outline-light which inherits
+   white text from the card-header context, but menu bg is white.
+   ================================================================ */
+a[ngbdropdownitem],
+[ngbdropdownmenu] a,
+.dropdown-menu a[ngbdropdownitem] {
+    color: #323130 !important;
+    background-color: #ffffff !important;
+}
+a[ngbdropdownitem]:hover,
+.dropdown-menu a[ngbdropdownitem]:hover {
+    color: #000000 !important;
+    background-color: #f0f0f0 !important;
+}
+
+/* ================================================================
+   FIX: Subpanel × close/collapse button — white on white
+   Root cause: 'body .widget-panel .card-header * !important' in
+   styles.css wins; need 4+ class selectors to beat its specificity.
+   ================================================================ */
+.card.panel-card .card-header button.btn-outline-light.close-button,
+scrm-panel .card-header button.btn-outline-light.close-button,
+scrm-subpanel .card-header button.btn-outline-light.close-button {
+    color: #605e5c !important;
+    background: transparent !important;
+    border-color: transparent !important;
+}
+.card.panel-card .card-header button.btn-outline-light.close-button:hover,
+scrm-panel .card-header button.btn-outline-light.close-button:hover {
+    color: #323130 !important;
+    background-color: rgba(0,0,0,0.1) !important;
+}
+
+/* ================================================================
+   FIX: Hide SuiteCRM Insights (AI) toggle lightbulb in subpanels
+   (Feature not in use; icon adds confusion)
+   ================================================================ */
+scrm-insights-toggle {
+    display: none !important;
+}
+
+/* ================================================================
+   Relationship card (scrm-grid-widget) — label truncation (4B)
+   .widget-entry-label already has text-truncate (Bootstrap) but
+   needs a max-width constraint for ellipsis to activate.
+   ================================================================ */
+.widget-entry-label {
+    max-width: 130px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    display: block !important;
+}
+
+/* ================================================================
+   Relationship card — dim zero-count rows (4A)
+   Class added by relationship-card-fix.js via MutationObserver
+   ================================================================ */
+.statistics-sidebar-widget-row.lf-zero-count {
+    opacity: 0.4 !important;
+}
+
+/* ================================================================
+   Relationship card — blue pill badge for non-zero counts (4C)
+   Class added by relationship-card-fix.js via MutationObserver
+   ================================================================ */
+.statistics-sidebar-widget-row.lf-has-count .sub-panel-banner-value scrm-int-detail {
+    display: inline-block !important;
+    background-color: #0078d4 !important;
+    color: #ffffff !important;
+    border-radius: 12px !important;
+    padding: 1px 8px !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+    min-width: 24px !important;
+    text-align: center !important;
+}
