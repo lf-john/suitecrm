@@ -391,6 +391,10 @@ class LF_WeeklyPlanViewRep_report extends SugarView
             if ($currentPct > $startPct) {
                 $summaryTotals['progression'] += $profit * ($currentPct - $startPct) / 100;
             }
+            // Unplanned closed-won count toward Closing
+            if (in_array($currentStage, ['Closed Won', 'closed_won'])) {
+                $summaryTotals['closing'] += $profit;
+            }
             // Developing-level unplanned also count toward New Pipeline
             if (isset($unplannedDeveloping[$oppId]) && $currentPct > $analysisProb) {
                 $summaryTotals['new_pipeline'] += $profit;
@@ -632,13 +636,15 @@ class LF_WeeklyPlanViewRep_report extends SugarView
 
         // Detect result
         $result = $this->detectResult($startStage, $currentStage, $plannedStage, $probabilities, $isUnplanned);
+        if ($result === 'hidden') return; // unplanned with no forward movement — suppress
+
         $resultBadge = $this->getResultBadge($result);
 
         // Row styling
         $rowStyle = '';
         if ($result === 'regressed' || $result === 'closed_lost') {
             $rowStyle = ' style="background-color: #fff3cd;"';
-        } elseif ($result === 'success' || $result === 'closed_won') {
+        } elseif ($result === 'progressed' || $result === 'closed_won') {
             $rowStyle = ' style="background-color: #e8f5e9;"';
         } elseif ($isUnplanned) {
             $rowStyle = ' style="background-color: #e3f2fd;"';
@@ -689,17 +695,15 @@ class LF_WeeklyPlanViewRep_report extends SugarView
         $currentProb = (int)($probabilities[$currentStage] ?? 0);
 
         if ($isUnplanned) {
-            // Unplanned: show as bonus if progressed
             if ($currentProb > $startProb) return 'unplanned';
-            if ($currentProb < $startProb) return 'regressed';
-            return 'no_change';
+            return 'hidden'; // no forward movement — suppress row
         }
 
         // Planned: compare against projected stage
         $plannedProb = (int)($probabilities[$plannedStage] ?? 0);
 
         if ($currentProb >= $plannedProb && $plannedProb > 0) {
-            return 'success';
+            return 'progressed';
         } elseif ($currentProb > $startProb && $currentProb < $plannedProb) {
             return 'partial';
         } elseif ($currentProb < $startProb) {

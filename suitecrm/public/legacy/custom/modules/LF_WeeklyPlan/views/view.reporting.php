@@ -325,8 +325,14 @@ class LF_WeeklyPlanViewReporting extends SugarView
                 $profit = (float)($item['profit'] ?? 0);
                 $snapshotStage = $item['snapshot_stage'] ?? $item['live_stage'] ?? '';
                 $projectedStage = $item['projected_stage'] ?? '';
-                // Use end-of-week snapshot stage if available, otherwise live
+                // Use end-of-week snapshot stage if available, otherwise live.
+                // Live stage always wins for terminal states (Closed Won/Lost) — a stale
+                // snapshot entry taken before the close would otherwise suppress the 100% score.
                 $currentStage = $hasNextSnapshot ? ($item['end_stage'] ?? $item['live_stage'] ?? '') : ($item['live_stage'] ?? '');
+                $liveStage = $item['live_stage'] ?? '';
+                if (in_array($liveStage, ['Closed Won', 'closed_won', 'Closed Lost', 'closed_lost'])) {
+                    $currentStage = $liveStage;
+                }
 
                 $snapshotProb = $this->extractStageProbability($snapshotStage);
                 $projectedProb = $this->extractStageProbability($projectedStage);
@@ -529,6 +535,10 @@ class LF_WeeklyPlanViewReporting extends SugarView
 
                 $uSnapshotStage = $uRow['snapshot_stage'] ?? '';
                 $uCurrentStage = $hasNextSnapshot ? ($uRow['end_stage'] ?? $uRow['live_stage'] ?? '') : ($uRow['live_stage'] ?? '');
+                $uLiveStage = $uRow['live_stage'] ?? '';
+                if (in_array($uLiveStage, ['Closed Won', 'closed_won', 'Closed Lost', 'closed_lost'])) {
+                    $uCurrentStage = $uLiveStage;
+                }
                 $uSnapshotProb = $this->extractStageProbability($uSnapshotStage);
                 $uCurrentProb = $this->extractStageProbability($uCurrentStage);
                 $uProfit = (float)($uRow['snapshot_profit'] ?? 0);

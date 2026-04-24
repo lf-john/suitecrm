@@ -516,7 +516,8 @@ class SugarFeed extends Basic
             $result .= $weeks . ' ' . translate('LBL_TIME_WEEKS', 'SugarFeed') . ' ';
             if ($days > 0) {
                 $result .= ' ' . translate('LBL_TIME_AND', 'SugarFeed') . ' ';
-                $result .= $days . ' ' . translate('LBL_TIME_DAYS', 'SugarFeed') . ' ';
+                $dayLabel = ($days == 1) ? translate('LBL_TIME_DAY', 'SugarFeed') : translate('LBL_TIME_DAYS', 'SugarFeed');
+                $result .= $days . ' ' . $dayLabel . ' ';
             }
         } else {
             if ($days == 1) {
