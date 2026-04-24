@@ -335,7 +335,11 @@ class SugarFeedDashlet extends DashletGeneric
             );
 
             foreach ($this->lvs->data['data'] as $row => $data) {
-                $this->lvs->data['data'][$row]['NAME'] = str_replace("{this.CREATED_BY}", get_assigned_user_name($this->lvs->data['data'][$row]['CREATED_BY']), (string) $data['NAME']);
+                $actorName = get_assigned_user_name($this->lvs->data['data'][$row]['CREATED_BY']);
+                if (empty($actorName)) {
+                    $actorName = 'Former User';
+                }
+                $this->lvs->data['data'][$row]['NAME'] = str_replace("{this.CREATED_BY}", $actorName, (string) $data['NAME']);
 
                 //Translate the SugarFeeds labels if necessary.
                 preg_match('/\{([^\^ }]+)\.([^\}]+)\}/', $this->lvs->data['data'][$row]['NAME'], $modStringMatches);

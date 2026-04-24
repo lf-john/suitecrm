@@ -465,7 +465,8 @@ class SugarFeed extends Basic
             }
 
             $replyHTML .= '<div style="float: left; margin-right: 3px; width: 50px; height: 50px;"><!--not_in_theme!--><img src="'.$image_url.'" style="max-width: 50px; max-height: 50px;"></div> ';
-            $replyHTML .= str_replace("{this.CREATED_BY}", get_assigned_user_name($reply->created_by), html_entity_decode((string) $reply->name)).'<br>';
+            $replyAuthor = get_assigned_user_name($reply->created_by) ?: 'Former User';
+            $replyHTML .= str_replace("{this.CREATED_BY}", $replyAuthor, html_entity_decode((string) $reply->name)).'<br>';
             $replyHTML .= '<div class="byLineBox"><span class="byLineLeft">'. static::getTimeLapse($reply->date_entered) . '&nbsp;</span><div class="byLineRight">  &nbsp;' .$delete. '</div></div><div class="clear"></div>';
         }
 
