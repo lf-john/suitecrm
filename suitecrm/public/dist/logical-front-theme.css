@@ -2737,6 +2737,20 @@ scrm-menu-item .dropdown-item {
     color: var(--lf-primary) !important;
 }
 
+/* Override btn-outline-light on subpanel dropdown items — ensures readable dark text */
+.dropdown-menu .dropdown-item.btn-outline-light,
+.dropdown-menu a.btn-outline-light {
+    color: var(--gray-700) !important;
+    border-color: transparent !important;
+    background-color: transparent !important;
+}
+.dropdown-menu .dropdown-item.btn-outline-light:hover,
+.dropdown-menu a.btn-outline-light:hover {
+    background: var(--hover-bg) !important;
+    color: var(--lf-primary) !important;
+    border-color: transparent !important;
+}
+
 .dropdown-divider {
     border-top: 1px solid var(--border-color) !important;
     margin: 4px 0 !important;

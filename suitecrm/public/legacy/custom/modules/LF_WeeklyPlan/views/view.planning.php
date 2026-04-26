@@ -73,6 +73,28 @@ class LF_WeeklyPlanViewPlanning extends SugarView
         if ($hasSnapshot) {
             $pipelineOpps = OpportunityQuery::getSnapshotPipelineOpportunities($weekEndAt, $selectedUserId, $analysisStage);
             $devPipelineOpps = OpportunityQuery::getSnapshotAnalysisOpportunities($weekEndAt, $selectedUserId, $analysisStage);
+
+            // Snapshot rows have account_id but no account_name — pre-fetch so sort works
+            $allSnapshotAccountIds = array_filter(array_unique(array_merge(
+                array_column($pipelineOpps, 'account_id'),
+                array_column($devPipelineOpps, 'account_id')
+            )));
+            $snapshotAccountNames = [];
+            if (!empty($allSnapshotAccountIds)) {
+                $idList = implode(',', array_map([$db, 'quoted'], $allSnapshotAccountIds));
+                $acctRes = $db->query("SELECT id, name FROM accounts WHERE id IN ($idList) AND deleted = 0");
+                while ($acctRow = $db->fetchByAssoc($acctRes)) {
+                    $snapshotAccountNames[$acctRow['id']] = html_entity_decode($acctRow['name'], ENT_QUOTES | ENT_HTML5);
+                }
+            }
+            foreach ($pipelineOpps as &$opp) {
+                $opp['account_name'] = $snapshotAccountNames[$opp['account_id'] ?? ''] ?? 'No Account';
+            }
+            unset($opp);
+            foreach ($devPipelineOpps as &$opp) {
+                $opp['account_name'] = $snapshotAccountNames[$opp['account_id'] ?? ''] ?? 'No Account';
+            }
+            unset($opp);
         } elseif ($isCurrentWeek) {
             // Current week with no snapshot yet — use live data
             $allOpenOpps = OpportunityQuery::getOpenOpportunities($selectedUserId);
@@ -341,8 +363,10 @@ class LF_WeeklyPlanViewPlanning extends SugarView
             $oppId = $opp['id'];
             $item = isset($planItems[$oppId]) ? $planItems[$oppId] : null;
 
-            // Get account name — from snapshot account_id if available, otherwise BeanFactory
-            if ($hasSnapshot && !empty($opp['account_id'])) {
+            // Get account name — pre-fetched into $opp['account_name'] for snapshot weeks
+            if (!empty($opp['account_name'])) {
+                $accountName = $opp['account_name'];
+            } elseif ($hasSnapshot && !empty($opp['account_id'])) {
                 $acctQuery = "SELECT name FROM accounts WHERE id = " . $db->quoted($opp['account_id']) . " AND deleted = 0";
                 $acctResult = $db->query($acctQuery);
                 $acctRow = $db->fetchByAssoc($acctResult);
@@ -486,8 +510,10 @@ class LF_WeeklyPlanViewPlanning extends SugarView
                 $oppId = $opp['id'];
                 $item = (isset($planItems[$oppId]) && $planItems[$oppId]['item_type'] === 'developing') ? $planItems[$oppId] : null;
 
-                // Get account name — from snapshot account_id if available, otherwise BeanFactory
-                if ($hasSnapshot && !empty($opp['account_id'])) {
+                // Get account name — pre-fetched into $opp['account_name'] for snapshot weeks
+                if (!empty($opp['account_name'])) {
+                    $accountName = $opp['account_name'];
+                } elseif ($hasSnapshot && !empty($opp['account_id'])) {
                     $acctQuery = "SELECT name FROM accounts WHERE id = " . $db->quoted($opp['account_id']) . " AND deleted = 0";
                     $acctResult = $db->query($acctQuery);
                     $acctRow = $db->fetchByAssoc($acctResult);
