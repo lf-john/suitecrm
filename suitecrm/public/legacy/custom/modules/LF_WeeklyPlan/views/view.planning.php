@@ -311,6 +311,14 @@ class LF_WeeklyPlanViewPlanning extends SugarView
         }
         echo '</div>';
 
+        // Sort both pipeline arrays by account name A→Z
+        usort($pipelineOpps, function($a, $b) {
+            return strcasecmp($a['account_name'] ?? '', $b['account_name'] ?? '');
+        });
+        usort($devPipelineOpps, function($a, $b) {
+            return strcasecmp($a['account_name'] ?? '', $b['account_name'] ?? '');
+        });
+
         // Existing Pipeline Table
         echo '<h2>Existing Pipeline</h2>';
         echo '<table id="pipeline-table" class="list view table-responsive">';

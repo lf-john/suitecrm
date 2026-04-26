@@ -436,6 +436,15 @@ class LF_WeeklyPlanViewRep_report extends SugarView
         echo '  </div>';
         echo '</div>';
 
+        // Sort all pipeline arrays by account name A→Z before rendering
+        $sortByAccount = function($aId, $bId) use ($accountNames) {
+            return strcasecmp($accountNames[$aId] ?? '', $accountNames[$bId] ?? '');
+        };
+        uksort($existingPipelineItems, $sortByAccount);
+        uksort($unplannedExisting,     $sortByAccount);
+        uksort($developingItems,       $sortByAccount);
+        uksort($unplannedDeveloping,   $sortByAccount);
+
         // Container for JS event delegation
         echo '<div id="lf-report-container">';
 
