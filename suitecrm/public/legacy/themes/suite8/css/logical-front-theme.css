@@ -1191,7 +1191,7 @@ scrm-pagination .pagination-info {
 }
 
 /* Exclude report condition/field rows so markConditionLineDeleted() can hide rows */
-.cdk-row, tbody:not(#aor_conditions_body):not(#aor_fieldLines_body):not(.connectedSortableConditions):not(.connectedSortableFields) tr {
+.cdk-row, tbody:not(#aor_conditions_body):not(#aor_fieldLines_body):not(.connectedSortableConditions):not(.connectedSortableFields):not(.formHeader > *) tr {
   display: table-row !important;
   background: #fff !important;
 }
@@ -2352,11 +2352,11 @@ iframe {
     margin-top: 0 !important;
 }
 
-/* Tab container should have white background */
+/* Tab container — transparent so page theme background shows through */
 .nav-tabs,
 ul.nav-tabs,
 .tab-container {
-    background: #ffffff !important;
+    background: transparent !important;
     margin-top: 0 !important;
 }
 
@@ -4295,11 +4295,13 @@ div.hd.dashlet {
     border-radius: 12px 12px 0 0 !important;
 }
 
-/* Widget header inner elements */
+/* Widget header inner elements — tr included so dashlet tbody tr white doesn't bleed in */
 .hd.dashlet .hd-center,
 .hd.dashlet .tl,
 .hd.dashlet .tr,
 .hd.dashlet table,
+.hd.dashlet tbody,
+.hd.dashlet tr,
 .hd.dashlet td {
     background: transparent !important;
 }
@@ -7112,4 +7114,50 @@ body:has(#report_module) .moduleTitle + table {
 }
 body:has(#report_module) .moduleTitle {
     margin-bottom: 0 !important;
+}
+
+/* ================================================================
+   Home page dashlet fixes
+   ================================================================ */
+
+/* Fix tab bar white background — normalize.css last rule forces white on
+   .nav.nav-tabs.nav-dashboard with !important at specificity (0,3,0);
+   this same-selector rule in a later stylesheet wins by source order. */
+.nav.nav-tabs.nav-dashboard {
+    background: transparent !important;
+}
+
+/* Fix dashlet header white boxes — .dashlet tbody tr { bg: white } bleeds
+   into the .hd.dashlet header even though .hd.dashlet table/td are
+   transparent. Adding tr explicitly to the transparent block above is
+   insufficient because it was added to the existing block earlier in the file;
+   this higher-specificity rule at end-of-file ensures it wins. */
+.hd.dashlet tbody tr,
+.hd.dashlet tr {
+    background-color: transparent !important;
+    background: transparent !important;
+}
+
+/* ================================================================
+   Home page dashlet header — additional fixes
+   ================================================================ */
+
+/* Body background: without this, all transparent elements show white
+   (browser HTML default). Use LF light gray to match Angular shell. */
+body.yui-skin-sam {
+    background-color: #f3f2f1 !important;
+}
+
+/* Dashlet title: override the text-align:center that comes from the
+   Dawn theme on .dashlet-title so the name is left-aligned and visible */
+.hd.dashlet .dashlet-title,
+.hd.dashlet .dashboard-title {
+    text-align: left !important;
+}
+
+/* Increase font size and font weight of dashlet title for visibility */
+.hd.dashlet .dashboard-title span:not(.suitepicon) {
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.01em !important;
 }

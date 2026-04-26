@@ -4294,11 +4294,13 @@ div.hd.dashlet {
     border-radius: 12px 12px 0 0 !important;
 }
 
-/* Widget header inner elements */
+/* Widget header inner elements — tbody/tr included so .dashlet tbody tr white rule does not bleed in */
 .hd.dashlet .hd-center,
 .hd.dashlet .tl,
 .hd.dashlet .tr,
 .hd.dashlet table,
+.hd.dashlet tbody,
+.hd.dashlet tr,
 .hd.dashlet td {
     background: transparent !important;
 }
@@ -6924,3 +6926,11 @@ scrm-record-content .field-layout-field-wrapper {
     margin: 0 auto !important;
 }
 
+
+
+/* Fix: dashlet header tbody/tr white background — override .dashlet tbody tr white rule */
+.hd.dashlet tbody tr,
+.hd.dashlet tr {
+    background-color: transparent !important;
+    background: transparent !important;
+}

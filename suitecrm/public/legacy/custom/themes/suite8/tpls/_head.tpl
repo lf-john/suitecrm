@@ -18,7 +18,7 @@
     <link href="themes/suite8/css/grid.css" rel="stylesheet" type="text/css"/>
     <link href="themes/suite8/css/footable.core.css" rel="stylesheet" type="text/css"/>
     <!-- Logical Front Theme -->
-    <link href="themes/suite8/css/logical-front-theme.css?v=1772754611" rel="stylesheet" type="text/css"/>
+    <link href="themes/suite8/css/logical-front-theme.css?v=1772754614" rel="stylesheet" type="text/css"/>
     <title>{if $BROWSER_TITLE}{$BROWSER_TITLE}{else}{$APP.LBL_BROWSER_TITLE}{/if}</title>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -53,6 +53,22 @@
        The global CSS rule 'tbody tr { display: table-row !important }' prevents the
        inline style.display='none' from working. This patch uses setProperty with !important. */
     document.addEventListener('DOMContentLoaded', function() {
+        /* Fix: dashlet header tr white background — CSS (2,2,2) specificity blocks rules;
+           two tbody ancestors make :not() exclusion ineffective; use inline style instead */
+        function fixDashletHeaderRows() {
+            document.querySelectorAll('.hd.dashlet tr').forEach(function(tr) {
+                tr.style.setProperty('background-color', 'transparent', 'important');
+                tr.style.setProperty('background', 'transparent', 'important');
+            });
+        }
+        fixDashletHeaderRows();
+        var dashletObserver = new MutationObserver(function(mutations) {
+            mutations.forEach(function(m) {
+                if (m.addedNodes.length) fixDashletHeaderRows();
+            });
+        });
+        dashletObserver.observe(document.body || document.documentElement, { childList: true, subtree: true });
+
         var patchInterval = setInterval(function() {
             if (typeof markFieldLineDeleted === 'function' && !markFieldLineDeleted._lfPatched) {
                 var _origField = markFieldLineDeleted;
