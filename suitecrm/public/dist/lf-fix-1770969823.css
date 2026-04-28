@@ -282,3 +282,32 @@ scrm-insights-toggle {
     min-width: 24px !important;
     text-align: center !important;
 }
+
+/* Fix 4D: Subpanel Actions dropdown — override html body .card.panel-card > .card-header * (0,3,2) white rule */
+/* Use (0,4,2) specificity to win; lf-fix loads last so same-specificity also wins */
+html body .dropdown-menu.show .dropdown-item.btn-outline-light,
+html body .dropdown-menu .dropdown-item.btn-outline-light,
+html body .dropdown-menu a.btn-outline-light {
+    color: #333333 !important;
+    background-color: transparent !important;
+    border-color: transparent !important;
+}
+html body .dropdown-menu.show .dropdown-item.btn-outline-light:hover,
+html body .dropdown-menu .dropdown-item.btn-outline-light:hover,
+html body .dropdown-menu a.btn-outline-light:hover {
+    color: #125ead !important;
+    background-color: #f3f2f1 !important;
+    border-color: transparent !important;
+}
+
+/* Fix 4D-ext: Inner elements (div.dropdown-item-label, div.d-flex) inside dropdown items also
+   inherit the card-header * white rule — target * inside dropdown items at same (0,3,2)
+   specificity; lf-fix loads last so wins the tie. */
+html body .dropdown-menu.show .dropdown-item *,
+html body .dropdown-menu .dropdown-item * {
+    color: #333333 !important;
+}
+html body .dropdown-menu.show .dropdown-item:hover *,
+html body .dropdown-menu .dropdown-item:hover * {
+    color: #125ead !important;
+}

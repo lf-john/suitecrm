@@ -15,6 +15,55 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // =============================================
+    // Debounced auto-save (fires 1.5s after last change)
+    // =============================================
+    var autoSaveTimers = {};
+
+    function scheduleAutoSave(textarea, action, payload) {
+        var key = action + '_' + (payload.snapshot_id || payload.id || '');
+        clearTimeout(autoSaveTimers[key]);
+        autoSaveTimers[key] = setTimeout(function() {
+            fetch(saveEndpoint + '&sugar_body_only=true', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': getCSRFToken()
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                textarea.style.borderColor = data.success ? '#2F7D32' : 'red';
+                setTimeout(function() { textarea.style.borderColor = ''; }, 2000);
+            })
+            .catch(function() { textarea.style.borderColor = 'red'; });
+        }, 1500);
+    }
+
+    container.addEventListener('input', function(e) {
+        if (e.target.classList.contains('result-description-textarea')) {
+            var textarea = e.target;
+            var snapshotId = textarea.dataset.snapshotId;
+            if (!snapshotId) return;
+            scheduleAutoSave(textarea, 'save_result_description', {
+                action: 'save_result_description',
+                snapshot_id: snapshotId,
+                result_description: textarea.value
+            });
+        }
+        if (e.target.classList.contains('prospect-notes-textarea')) {
+            var textarea = e.target;
+            var prospectId = textarea.dataset.prospectId;
+            if (!prospectId) return;
+            scheduleAutoSave(textarea, 'save_prospect_notes', {
+                action: 'save_prospect_notes',
+                id: prospectId,
+                notes: textarea.value
+            });
+        }
+    });
+
+    // =============================================
     // Auto-save notes on blur (result descriptions)
     // =============================================
     container.addEventListener('blur', function(e) {

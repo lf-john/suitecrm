@@ -47,20 +47,8 @@ class LF_WeeklyPlanViewPlanning extends SugarView
         }
         $weekRange = WeekHelper::formatWeekRange($weekStart);
         $isCurrentWeek = WeekHelper::isCurrentWeek($weekStart);
-        // Only auto-create plans for the current user viewing their own page
-        // Admin viewing another user's page should not create records as a GET side effect
-        if ($selectedUserId === $current_user->id) {
-            $plan = LF_WeeklyPlan::getOrCreateForWeek($selectedUserId, $weekStart);
-        } else {
-            $plan = LF_WeeklyPlan::getForWeek($selectedUserId, $weekStart);
-            if (!$plan) {
-                // No plan exists for this user/week — show message instead of creating one
-                echo '<div style="text-align: center; padding: 40px; color: #666;">';
-                echo '<p>No weekly plan exists for this user for the selected week.</p>';
-                echo '</div>';
-                return;
-            }
-        }
+        // Always get-or-create so admin viewing another rep sees the full plan UI
+        $plan = LF_WeeklyPlan::getOrCreateForWeek($selectedUserId, $weekStart);
 
         // M2: Read analysis stage from config instead of hard-coding
         $analysisStage = LF_PRConfig::getConfig('stages', 'analysis_stage') ?: '2-Analysis (0%)';
@@ -106,9 +94,44 @@ class LF_WeeklyPlanViewPlanning extends SugarView
             }
             $devPipelineOpps = OpportunityQuery::getAnalysisOpportunities($selectedUserId);
         } else {
-            // Past/future week with no snapshot — show empty tables
+            // Past/future week with no snapshot — fall back to current live data
+            $allOpenOpps = OpportunityQuery::getOpenOpportunities($selectedUserId);
             $pipelineOpps = [];
-            $devPipelineOpps = [];
+            foreach ($allOpenOpps as $opp) {
+                if (strpos($opp['sales_stage'], $analysisStage) === false) {
+                    $pipelineOpps[] = $opp;
+                }
+            }
+            $devPipelineOpps = OpportunityQuery::getAnalysisOpportunities($selectedUserId);
+        }
+
+        // For live data paths, batch-resolve account names so the pre-render sort works
+        if (!$hasSnapshot) {
+            $liveOppIds = array_merge(
+                array_column($pipelineOpps, 'id'),
+                array_column($devPipelineOpps, 'id')
+            );
+            if (!empty($liveOppIds)) {
+                $idList = implode(',', array_map([$db, 'quoted'], $liveOppIds));
+                $acctRes = $db->query(
+                    "SELECT ao.opportunity_id, a.name
+                     FROM accounts_opportunities ao
+                     JOIN accounts a ON ao.account_id = a.id
+                     WHERE ao.opportunity_id IN ($idList) AND ao.deleted = 0 AND a.deleted = 0"
+                );
+                $liveAccountNames = [];
+                while ($acctRow = $db->fetchByAssoc($acctRes)) {
+                    $liveAccountNames[$acctRow['opportunity_id']] = html_entity_decode($acctRow['name'], ENT_QUOTES | ENT_HTML5);
+                }
+                foreach ($pipelineOpps as &$opp) {
+                    $opp['account_name'] = $liveAccountNames[$opp['id']] ?? '';
+                }
+                unset($opp);
+                foreach ($devPipelineOpps as &$opp) {
+                    $opp['account_name'] = $liveAccountNames[$opp['id']] ?? '';
+                }
+                unset($opp);
+            }
         }
 
         // Load existing plan items
@@ -218,7 +241,7 @@ class LF_WeeklyPlanViewPlanning extends SugarView
 
         // Include CSS and JS
         echo '<link rel="stylesheet" href="custom/themes/lf_dashboard.css">';
-        echo '<script src="custom/modules/LF_WeeklyPlan/js/planning.js"></script>';
+        echo '<script src="custom/modules/LF_WeeklyPlan/js/planning.js?v=2"></script>';
 
         // Render sub-header CSS and JS
         LF_SubHeader::renderCSS();
@@ -258,6 +281,8 @@ class LF_WeeklyPlanViewPlanning extends SugarView
             $_SESSION['lf_csrf_token'] = bin2hex(random_bytes(32));
         }
         echo 'var LF_CSRF_TOKEN = ' . json_encode($_SESSION['lf_csrf_token']) . ';';
+        $isOwnPlan = ($current_user->id === $selectedUserId);
+        echo 'var LF_IS_OWN_PLAN = ' . ($isOwnPlan ? 'true' : 'false') . ';';
         echo '</script>';
 
         // Week and status info bar
@@ -475,16 +500,28 @@ class LF_WeeklyPlanViewPlanning extends SugarView
 
         // When submitted, show frozen developing pipeline from plan items (not live data)
         if ($plan->status === 'submitted') {
-            // Load developing plan items and show them as frozen snapshot
+            // Collect, resolve account names, sort A→Z, then render
+            $submittedDevRows = [];
             foreach ($planItems as $oppId => $item) {
                 if ($item['item_type'] !== 'developing') continue;
-
                 $oppBean = BeanFactory::getBean('Opportunities', $oppId);
                 if (!$oppBean || empty($oppBean->id)) continue;
-
-                $accountName = $oppBean->account_name;
-                // Use original_profit from snapshot if available, else current
-                $profit = !empty($item['original_profit']) ? (float)$item['original_profit'] : (float)$oppBean->opportunity_profit;
+                $submittedDevRows[] = [
+                    'oppId'       => $oppId,
+                    'oppBean'     => $oppBean,
+                    'item'        => $item,
+                    'account_name' => $oppBean->account_name,
+                ];
+            }
+            usort($submittedDevRows, function($a, $b) {
+                return strcasecmp($a['account_name'], $b['account_name']);
+            });
+            foreach ($submittedDevRows as $sdr) {
+                $oppId   = $sdr['oppId'];
+                $oppBean = $sdr['oppBean'];
+                $item    = $sdr['item'];
+                $accountName = $sdr['account_name'];
+                $profit  = !empty($item['original_profit']) ? (float)$item['original_profit'] : (float)$oppBean->opportunity_profit;
                 $revenue = (float)$oppBean->amount;
 
                 echo '<tr class="developing-pipeline-row" data-opportunity-id="' . htmlspecialchars($oppId) . '">';
@@ -496,11 +533,9 @@ class LF_WeeklyPlanViewPlanning extends SugarView
                 $displayStage = $item['projected_stage'] ?: 'None';
                 echo '<td>' . htmlspecialchars($displayStage) . '</td>';
 
-                // Day
                 $dayLabel = ucfirst($item['planned_day'] ?? '');
                 echo '<td>' . htmlspecialchars($dayLabel) . '</td>';
 
-                // Plan
                 echo '<td>' . htmlspecialchars($item['plan_description'] ?? '') . '</td>';
                 echo '</tr>';
             }

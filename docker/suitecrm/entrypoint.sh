@@ -218,5 +218,8 @@ touch /var/www/html/.suitecrm-ready
 
 echo "SuiteCRM v8.6.1 container initialization complete."
 
+# Set umask so PHP-FPM creates cache directories readable by nginx (www-data group)
+umask 0002
+
 # Start PHP-FPM
 exec "$@"

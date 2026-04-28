@@ -11,9 +11,23 @@
         const container = document.getElementById('lf-planning-container');
         if (!container) return;
 
+        // When admin views another rep, disable all editing and suppress save
+        var isReadOnly = (typeof LF_IS_OWN_PLAN !== "undefined" && LF_IS_OWN_PLAN === false);
+        if (isReadOnly) {
+            container.querySelectorAll("select, input, textarea, button").forEach(function(el) {
+                if (el.id !== "lf-user-selector" && el.id !== "lf-week-select" &&
+                    el.id !== "lf-week-back" && el.id !== "lf-week-next" && el.id !== "lf-week-current") {
+                    el.disabled = true;
+                }
+            });
+            var submitBtn = document.getElementById("updates-complete");
+            if (submitBtn) submitBtn.style.display = "none";
+        }
+
         // Debounced auto-save: fires 1.5s after the last field change
         var autoSaveTimer = null;
         function scheduleAutoSave() {
+            if (isReadOnly) return;
             clearTimeout(autoSaveTimer);
             autoSaveTimer = setTimeout(function() { savePlan('in_progress'); }, 1500);
         }

@@ -7,83 +7,59 @@ require_once('include/MVC/Controller/SugarController.php');
 
 class LF_WeeklyPlanController extends SugarController
 {
-    /**
-     * Default action - redirect to dashboard
-     */
     public function action_index()
     {
         header('Location: index.php?module=LF_WeeklyPlan&action=dashboard');
         exit;
     }
 
-    /**
-     * List action - redirect to dashboard (no standard list view)
-     */
     public function action_listview()
     {
         header('Location: index.php?module=LF_WeeklyPlan&action=dashboard');
         exit;
     }
 
-    /**
-     * Planning action - displays the weekly planning view
-     */
     public function action_planning()
     {
         $this->view = 'planning';
     }
 
-    /**
-     * Dashboard action - displays the weekly planning dashboard
-     */
     public function action_dashboard()
     {
         $this->view = 'dashboard';
     }
 
-    /**
-     * Plan action - alias for dashboard (user-friendly URL)
-     */
     public function action_plan()
     {
         $this->view = 'dashboard';
     }
 
-    /**
-     * Save JSON action - handles AJAX save requests
-     */
     public function action_save_json()
     {
         $this->view = 'save_json';
     }
 
-    /**
-     * Reporting action - displays the weekly reporting dashboard
-     */
     public function action_reporting()
     {
         $this->view = 'reporting';
     }
 
-    /**
-     * Report action - alias for reporting (user-friendly URL)
-     */
     public function action_report()
     {
         $this->view = 'reporting';
     }
 
-    /**
-     * Rep Report action - displays the individual rep's weekly report
-     */
     public function action_rep_report()
     {
         $this->view = 'rep_report';
     }
 
-    /**
-     * Report Save JSON - handles AJAX save requests for the rep report
-     */
+    // CamelCase alias: Angular route sends action=RepReport → strtolower → repreport
+    public function action_repreport()
+    {
+        $this->view = 'rep_report';
+    }
+
     public function action_report_save_json()
     {
         $this->view = 'report_save_json';

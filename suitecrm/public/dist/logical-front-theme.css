@@ -1059,9 +1059,9 @@ scrm-bulk-action-menu .checkmark {
     padding: 0 !important;
 }
 
-/* Row checkbox cell — center vertically */
-.cdk-row .cdk-cell:first-child,
-.cdk-row cdk-cell:first-child {
+/* Row checkbox cell — center vertically (only in main list views, NOT subpanels) */
+.list-view .cdk-row .cdk-cell:first-child,
+scrm-list-table .cdk-row .cdk-cell:first-child {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -1190,7 +1190,8 @@ scrm-pagination .pagination-info {
   border-bottom: 1px solid var(--border-color) !important;
 }
 
-.cdk-row, tbody tr {
+/* Exclude report condition/field rows so markConditionLineDeleted() can hide rows */
+.cdk-row, tbody:not(#aor_conditions_body):not(#aor_fieldLines_body):not(.connectedSortableConditions):not(.connectedSortableFields):not(.formHeader > *) tr {
   display: table-row !important;
   background: #fff !important;
 }
@@ -2300,8 +2301,14 @@ scrm-classic-view-ui {
 
 /* Hide any element with blue background that spans full width */
 #bootstrap-container > *:first-child:not(#content),
-#pagecontent > *:first-child:not(.row):not(.col) {
+#pagecontent:not(.view-action-planning) > *:first-child:not(.row):not(.col) {
     display: none !important;
+}
+
+/* Counter-override: SuiteCRM's style.css hides #pagecontent > :first-child (specificity 1,3,0).
+   Beat it with (1,3,1) by adding both module+action classes and element type. */
+#pagecontent.view-action-planning.view-module-LF_WeeklyPlan > div:first-child {
+    display: block !important;
 }
 
 /* Ensure .moduleTitle and its siblings don't create blue bar */
@@ -2351,11 +2358,11 @@ iframe {
     margin-top: 0 !important;
 }
 
-/* Tab container should have white background */
+/* Tab container — transparent so page theme background shows through */
 .nav-tabs,
 ul.nav-tabs,
 .tab-container {
-    background: #ffffff !important;
+    background: transparent !important;
     margin-top: 0 !important;
 }
 
@@ -2735,20 +2742,6 @@ scrm-menu-item .dropdown-item {
 .record-view-actions .dropdown-item:hover {
     background: var(--hover-bg) !important;
     color: var(--lf-primary) !important;
-}
-
-/* Override btn-outline-light on subpanel dropdown items — ensures readable dark text */
-.dropdown-menu .dropdown-item.btn-outline-light,
-.dropdown-menu a.btn-outline-light {
-    color: var(--gray-700) !important;
-    border-color: transparent !important;
-    background-color: transparent !important;
-}
-.dropdown-menu .dropdown-item.btn-outline-light:hover,
-.dropdown-menu a.btn-outline-light:hover {
-    background: var(--hover-bg) !important;
-    color: var(--lf-primary) !important;
-    border-color: transparent !important;
 }
 
 .dropdown-divider {
@@ -4308,13 +4301,43 @@ div.hd.dashlet {
     border-radius: 12px 12px 0 0 !important;
 }
 
-/* Widget header inner elements */
+/* Widget header inner elements — tr included so dashlet tbody tr white doesn't bleed in */
 .hd.dashlet .hd-center,
 .hd.dashlet .tl,
 .hd.dashlet .tr,
 .hd.dashlet table,
+.hd.dashlet tbody,
+.hd.dashlet tr,
 .hd.dashlet td {
     background: transparent !important;
+}
+
+/* Fix: header table must stretch full width for title text to be visible. */
+.hd.dashlet table.formHeader {
+    width: 100% !important;
+    table-layout: fixed !important;
+}
+
+/* Position the .hd.dashlet as a flex container so dashletToolSet can
+   be absolutely anchored to the right edge regardless of table layout. */
+.hd.dashlet {
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+/* Gear/X toolset: absolute-positioned to right edge of the blue header.
+   Sits above the table content and never clips or overflows. */
+.hd.dashlet .dashletToolSet {
+    position: absolute !important;
+    right: 12px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    z-index: 10 !important;
+}
+
+/* Prevent the title text from running under the absolute toolset (52px + 12px gap) */
+.hd.dashlet table.formHeader {
+    padding-right: 64px !important;
 }
 
 /* Widget header icons - white */
@@ -4706,6 +4729,66 @@ td.dashboard-col:last-child,
 body.yui-skin-sam #pagecontent,
 body.suitepicon #pagecontent {
     padding: 20px !important;
+}
+
+/* Fix: #pageContainer and #wrapper are ancestors of #dashboard.
+   The prior "#dashboard #pageContainer" descendant rule never matched them.
+   Target directly to eliminate white background between/around dashlets. */
+#pageContainer, #wrapper {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* Fix: prevent viewport-height min-height on the dashboard home page.
+   #pagecontent.view-module-Home is the legacy container for the dashboard only.
+   Without this, the container min-height = ~100vh which creates empty gradient below dashlets. */
+#pagecontent.view-module-Home,
+#bootstrap-container:has(#dashboard),
+html:has(#dashboard),
+body:has(#dashboard) {
+    min-height: 0 !important;
+    height: auto !important;
+}
+
+/* Home module: remove top padding so nav-dashboard appears at the very top
+   and is covered by the Angular navbar, eliminating the white gap above dashlets */
+body.yui-skin-sam #pagecontent.view-module-Home {
+    padding-top: 0 !important;
+}
+
+/* Remove bottom margin and give the home-page tab bar a styled gray background
+   so it does not appear as a raw white strip between the Angular nav and dashlets */
+ul.nav-tabs.nav-dashboard {
+    background: var(--gray-100) !important;
+    border-bottom: 1px solid var(--gray-300) !important;
+    margin-bottom: 0 !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+}
+
+/* The active Home tab on the nav-dashboard: blue text + underline on gray bar */
+ul.nav-tabs.nav-dashboard > li.active > a {
+    background: transparent !important;
+    color: var(--lf-primary) !important;
+    border-bottom: 3px solid var(--lf-primary) !important;
+    font-weight: 600 !important;
+}
+
+/* Compress td.dashboard-col top padding to remove white gap inside the tab-pane */
+#dashboard td.dashboard-col {
+    padding-top: 12px !important;
+    vertical-align: top !important;
+}
+
+/* Ensure dashlet toolset icons display properly (was collapsing to 8px) */
+.hd.dashlet .dashletToolSet {
+    width: auto !important;
+    min-width: 44px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    flex-shrink: 0 !important;
+    overflow: visible !important;
 }
 
 /* ====================================
@@ -5569,20 +5652,20 @@ scrm-record-pagination,
     padding: 0 !important;
 }
 
-/* AD-PAGINATION: Hide pagination on record detail subpanels */
-.panel-card scrm-table-footer,
-.subpanel-opportunities scrm-table-footer,
-div[class*="subpanel-"] scrm-table-footer,
-scrm-record scrm-table-footer,
-scrm-subpanel-table scrm-table-footer,
-scrm-record-container scrm-table-footer,
-.sub-panel-banner ~ * scrm-table-footer {
+/* AD-PAGINATION: Show pagination on subpanel footers; hide only bulk-action controls */
+.panel-card scrm-table-footer scrm-bulk-action-menu,
+.panel-card scrm-table-footer scrm-action-group-menu,
+div[class*="subpanel-"] scrm-table-footer scrm-bulk-action-menu,
+div[class*="subpanel-"] scrm-table-footer scrm-action-group-menu,
+scrm-record scrm-table-footer scrm-bulk-action-menu,
+scrm-record scrm-table-footer scrm-action-group-menu,
+scrm-subpanel-table scrm-table-footer scrm-bulk-action-menu,
+scrm-subpanel-table scrm-table-footer scrm-action-group-menu,
+scrm-record-container scrm-table-footer scrm-bulk-action-menu,
+scrm-record-container scrm-table-footer scrm-action-group-menu,
+.sub-panel-banner ~ * scrm-table-footer scrm-bulk-action-menu,
+.sub-panel-banner ~ * scrm-table-footer scrm-action-group-menu {
     display: none !important;
-    height: 0 !important;
-    overflow: hidden !important;
-    border: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
 }
 
 /* AD-1: Remove Bootstrap mt-1 (3.5px) on nested row inside record container */
@@ -6450,10 +6533,14 @@ body:has(#report_module) .detail-view {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
 }
 
-/* Hide the tab row in reports — user wants the tab removed */
-body:has(#report_module) .detail-view .nav-tabs,
-body:has(#report_module) .detail-view ul.nav-tabs {
+/* Hide individual tab items in reports — but keep ACTIONS dropdown visible */
+body:has(#report_module) .detail-view .nav-tabs > li:not(#tab-actions) {
     display: none !important;
+}
+body:has(#report_module) .detail-view .nav-tabs {
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+    padding: 0 !important;
 }
 
 /* Hide ALL direct-child tables in #pagecontent on report pages (gap elements) */
@@ -6938,7 +7025,6 @@ scrm-record-content .field-layout-field-wrapper {
     margin: 0 auto !important;
 }
 
-
 /* ====================================
    ISSUE FIXES (054)
    ==================================== */
@@ -6980,10 +7066,13 @@ scrm-subpanel .cdk-header-cell:first-child {
     text-align: left !important;
 }
 
-/* Fix #7: Report Creation — restore Conditions panel when active (not hidden) */
-body:has(#report_module) .tab-panels .toggle-panel:not(.hidden),
-body:has(#report_module) #detailpanel_conditions:not(.hidden),
-body:has(#report_module) #aor_conditionLines {
+/* Fix #7: Report Creation — Conditions tab switching */
+/* The .hidden class must explicitly hide panels (not in compiled theme CSS) */
+body:has(#report_module) .tab-panels .toggle-panel.hidden {
+    display: none !important;
+    visibility: hidden !important;
+}
+body:has(#report_module) .tab-panels .toggle-panel:not(.hidden) {
     display: block !important;
     visibility: visible !important;
 }
@@ -6998,6 +7087,82 @@ body:has(#report_module) [id^="aor_conditions_delete_line"] {
 }
 
 
+/* Fix #4: Move ACTIONS button to Title card, right-aligned on report DETAIL pages */
+/* Uses body:has(#report_module) for max specificity to beat Dawn/style.css cached rules */
+body:has(#report_module) .view-action-DetailView {
+    position: relative !important;
+}
+body:has(#report_module) .view-action-DetailView .moduleTitle {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding-right: 120px !important;
+}
+body:has(#report_module) .view-action-DetailView #tab-actions {
+    position: absolute !important;
+    top: 6px !important;
+    right: 30px !important;
+    z-index: 100 !important;
+    list-style: none !important;
+}
+body:has(#report_module) .view-action-DetailView #tab-actions > a.dropdown-toggle {
+    display: inline-block !important;
+    background: #125EAD !important;
+    color: #ffffff !important;
+    padding: 8px 20px !important;
+    border-radius: 4px !important;
+    text-decoration: none !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.5px !important;
+}
+body:has(#report_module) .view-action-DetailView #tab-actions > a.dropdown-toggle:hover {
+    background: #0e4d91 !important;
+}
+body:has(#report_module) .view-action-DetailView #tab-actions .dropdown-menu {
+    position: absolute !important;
+    right: 0 !important;
+    left: auto !important;
+    background: #fff !important;
+    border: 1px solid #ccc !important;
+    box-shadow: 0 6px 12px rgba(0,0,0,.175) !important;
+    z-index: 101 !important;
+}
+
+/* Override normalize.css hiding of ACTIONS toggle on report EDIT pages */
+body:has(#report_module) .view-action-EditView #tab-actions > a.dropdown-toggle {
+    display: inline-block !important;
+}
+body:has(#report_module) .view-action-EditView #tab-actions {
+    position: relative !important;
+}
+body:has(#report_module) .view-action-EditView #tab-actions .dropdown-menu {
+    position: absolute !important;
+    background: #fff !important;
+    border: 1px solid #ccc !important;
+    box-shadow: 0 6px 12px rgba(0,0,0,.175) !important;
+}
+
+/* ================================================================
+   Fix #7: Report Editor — 2-column layout
+   Module Tree on left, Details Card (Fields/Conditions/Charts) on right
+   ================================================================ */
+body:has(#report_module) .aor-tab-content {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 16px !important;
+}
+body:has(#report_module) .aor-tab-content > #detailpanel_fields_select {
+    flex: 0 0 280px !important;
+    min-width: 250px !important;
+    max-width: 320px !important;
+}
+body:has(#report_module) .aor-tab-content > #detailpanel_fields_display,
+body:has(#report_module) .aor-tab-content > .tab-panels {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+}
+
 /* Fix 5: p-multiselect (PrimeNG) transparent background fix */
 .p-multiselect,
 .p-multiselect.p-component,
@@ -7010,124 +7175,74 @@ body:has(#report_module) [id^="aor_conditions_delete_line"] {
     min-height: 28px !important;
 }
 
+/* Fix: White line above Details card on Report Detail page.
+   An empty buttons table (td.buttons with padding-bottom: 10px) sits between
+   .moduleTitle and .detail-view. Hide it and reduce moduleTitle margin. */
+body:has(#report_module) .moduleTitle + table {
+    display: none !important;
+}
+body:has(#report_module) .moduleTitle {
+    margin-bottom: 0 !important;
+}
+
 /* ================================================================
-   Fix: Filter Panel Layout — prevent overlapping controls
-   Targets the Angular filter panel (scrm-list-filter / scrm-field-grid)
+   Home page dashlet fixes
    ================================================================ */
 
-/* Special fields (My Items, My Favorites, Open Items) — prevent label overlap.
-   Default is d-inline-block w-25 which is too narrow and has no gap.
-   Make label + checkbox side by side within each item. */
-.special-field-grid {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 0 24px !important;
-    align-items: center !important;
-    padding-top: 4px !important;
-}
-.special-field-grid .special-field-grid-col {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 6px !important;
-    min-width: auto !important;
-    width: auto !important;
-    margin-bottom: 4px !important;
-}
-/* Remove excessive bottom padding from checkbox in filter special fields */
-.special-field-grid .special-field-grid-col .checkbox-field {
-    padding-bottom: 0 !important;
-    padding-top: 0 !important;
-    margin: 0 !important;
-}
-/* The checkbox-container collapses to 0 height because .checkmark is position:absolute.
-   Give it explicit dimensions so the custom checkbox is visible. */
-.special-field-grid .special-field-grid-col .checkbox-container {
-    min-height: 1.3em !important;
-    min-width: 1.3em !important;
-    display: inline-block !important;
-}
-.special-field-grid .special-field-grid-col label {
+/* Tab bar — white card background, matching the design-system title card pattern.
+   Uses !important to override the lower-specificity gray rule at line 4739. */
+.nav.nav-tabs.nav-dashboard {
+    background: #ffffff !important;
+    border-bottom: 1px solid var(--gray-300) !important;
     margin-bottom: 0 !important;
-    white-space: nowrap !important;
-    font-size: 12px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
 }
 
-/* Filter grid columns — ensure minimum readable width */
-.filter-panel scrm-field-grid .col.form-group,
-scrm-list-filter scrm-field-grid .col.form-group {
-    min-width: 180px !important;
-    flex: 1 1 200px !important;
-    max-width: 320px !important;
+/* Dashboard outer layout rows — tbody tr { bg: white } bleeds into these
+   table-layout rows that space the dashlet panels; make them transparent
+   so the gradient shows through between cards. Only targets the direct
+   rows of the dashletTable, not data rows nested inside dashlet panels. */
+table.dashletTable > tbody > tr,
+table.dashletTable > tr {
+    background-color: transparent !important;
+    background: transparent !important;
 }
 
-/* Filter grid rows — proper wrapping */
-.filter-panel scrm-field-grid .row,
-scrm-list-filter scrm-field-grid .row {
-    flex-wrap: wrap !important;
-    gap: 4px 0 !important;
+/* Dashlet header rows — same white-bleed problem for the .hd.dashlet
+   header table rows; ensure they stay transparent (blue comes from
+   the .hd.dashlet container itself, not from tr). */
+.hd.dashlet tbody tr,
+.hd.dashlet tr {
+    background-color: transparent !important;
+    background: transparent !important;
 }
 
-/* Group/composite fields in filters (operator + value, e.g. currency/date ranges) —
-   Items have w-100 class which causes overflow in flex-row direction.
-   Force column direction so operator stacks above value input, both visible. */
-.filter-panel scrm-composite-field .field-group,
-scrm-list-filter scrm-composite-field .field-group,
-.filter-panel scrm-composite-field .composite-field-wrapper,
-scrm-list-filter scrm-composite-field .composite-field-wrapper {
-    flex-direction: column !important;
-    flex-wrap: nowrap !important;
-    gap: 4px !important;
-}
-.filter-panel scrm-composite-field .field-group-item,
-scrm-list-filter scrm-composite-field .field-group-item {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 28px !important;
-}
-/* Group fields (e.g. Assigned To) */
-.filter-panel scrm-group-field .field-group,
-scrm-list-filter scrm-group-field .field-group {
-    flex-direction: column !important;
-    flex-wrap: nowrap !important;
-    gap: 4px !important;
-}
-.filter-panel scrm-group-field .field-group-item,
-scrm-list-filter scrm-group-field .field-group-item {
-    width: 100% !important;
-    height: auto !important;
-}
-/* Ensure inputs inside composite/group fields are visible */
-.filter-panel scrm-composite-field input,
-scrm-list-filter scrm-composite-field input,
-.filter-panel scrm-group-field input,
-scrm-list-filter scrm-group-field input {
-    min-width: 100px !important;
+/* ================================================================
+   Home page dashlet header — additional fixes
+   ================================================================ */
+
+/* Body background: without this, all transparent elements show white
+   (browser HTML default). Use LF light gray to match Angular shell. */
+body.yui-skin-sam {
+    background-color: #f3f2f1 !important;
 }
 
-/* Date picker popup — float above all filter controls */
-.p-datepicker,
-.p-datepicker-panel,
-p-calendar .p-datepicker {
-    z-index: 20000 !important;
-    background: #ffffff !important;
-    border: 1px solid #dee2e6 !important;
-    border-radius: 4px !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+/* Dashlet title: override the text-align:center that comes from the
+   Dawn theme on .dashlet-title so the name is left-aligned and visible */
+.hd.dashlet .dashlet-title,
+.hd.dashlet .dashboard-title {
+    text-align: left !important;
 }
 
-/* ngb-datepicker in filter panels — ensure visible */
-.filter-panel ngb-datepicker,
-scrm-list-filter ngb-datepicker {
-    z-index: 20000 !important;
-    background: #ffffff !important;
+/* Increase font size and font weight of dashlet title for visibility */
+.hd.dashlet .dashboard-title span:not(.suitepicon) {
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.01em !important;
 }
 
-/* Classic view container — minimal spacing around legacy iframes */
-.classic-view-container {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-}
-.classic-view-container iframe {
-    border: none !important;
+/* Restore Bootstrap .hidden utility — not loaded in our theme stack */
+.hidden {
+    display: none !important;
 }

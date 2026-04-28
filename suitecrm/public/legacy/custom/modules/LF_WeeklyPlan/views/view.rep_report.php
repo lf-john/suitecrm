@@ -2,7 +2,6 @@
 if (!defined('sugarEntry') || !sugarEntry) {
     die('Not A Valid Entry Point');
 }
-
 require_once 'include/MVC/View/SugarView.php';
 require_once 'custom/include/LF_PlanningReporting/WeekHelper.php';
 require_once 'custom/include/LF_PlanningReporting/LF_SubHeader.php';
@@ -46,19 +45,7 @@ class LF_WeeklyPlanViewRep_report extends SugarView
         }
         $weekEnd = WeekHelper::getWeekEnd($weekStart);
 
-        // Only auto-create reports for the current user viewing their own page
-        // Admin viewing another user's page should not create records
-        if ($selectedUserId === $current_user->id) {
-            $report = LF_WeeklyReport::getOrCreateForWeek($selectedUserId, $weekStart);
-        } else {
-            $report = LF_WeeklyReport::getForWeek($selectedUserId, $weekStart);
-            if (!$report) {
-                echo '<div style="text-align: center; padding: 40px; color: #666;">';
-                echo '<p>No weekly report exists for this user for the selected week.</p>';
-                echo '</div>';
-                return;
-            }
-        }
+        $report = LF_WeeklyReport::getOrCreateForWeek($selectedUserId, $weekStart);
 
         // Load stage probabilities
         $probabilities = LF_PRConfig::getConfigJson('stages', 'stage_probabilities');
@@ -75,6 +62,26 @@ class LF_WeeklyPlanViewRep_report extends SugarView
         $planItems = [];
         if (!empty($report->lf_weekly_plan_id)) {
             $plan = BeanFactory::getBean('LF_WeeklyPlan', $report->lf_weekly_plan_id);
+        }
+        // If the report has no linked plan (created before plan existed), look up directly
+        if (!$plan || empty($plan->id)) {
+            $planId = $db->getOne(sprintf(
+                "SELECT id FROM lf_weekly_plan
+                 WHERE assigned_user_id = %s AND week_start_date = %s AND deleted = 0",
+                $db->quoted($selectedUserId),
+                $db->quoted($weekStart)
+            ));
+            if ($planId !== false && $planId) {
+                $plan = BeanFactory::getBean('LF_WeeklyPlan', $planId);
+                if ($plan && !empty($plan->id)) {
+                    $db->query(sprintf(
+                        "UPDATE lf_weekly_report SET lf_weekly_plan_id = %s WHERE id = %s",
+                        $db->quoted($planId),
+                        $db->quoted($report->id)
+                    ));
+                    $report->lf_weekly_plan_id = $planId;
+                }
+            }
         }
 
         // Load all planned opportunity items grouped by type
@@ -293,7 +300,7 @@ class LF_WeeklyPlanViewRep_report extends SugarView
         echo '</div>';
 
         // JS data
-        echo '<script src="custom/modules/LF_WeeklyPlan/js/rep_reporting.js"></script>';
+        echo '<script src="custom/modules/LF_WeeklyPlan/js/rep_reporting.js?v=2"></script>';
         echo '<script>';
         // Initialize CSRF token in session if not set
         if (empty($_SESSION['lf_csrf_token'])) {
@@ -321,7 +328,6 @@ class LF_WeeklyPlanViewRep_report extends SugarView
             // Calculate actuals based on stage movement
             $currentStage = $opp['sales_stage'] ?? '';
             $snapData = $snapshotStages[$oppId] ?? null;
-            $snapshotPct = $snapData ? (int)$snapData['stage_pct'] : 0;
 
             // Get current stage probability
             $currentPct = 0;
@@ -336,10 +342,19 @@ class LF_WeeklyPlanViewRep_report extends SugarView
                 $summaryTotals['closing'] += $profit;
             }
 
-            // Progression actual = Profit × (Current% - Snapshot%) / 100 for opps that progressed
-            // Includes both progression AND closing items
-            if ($currentPct > $snapshotPct) {
-                $summaryTotals['progression'] += $profit * ($currentPct - $snapshotPct) / 100;
+            // Progression: use opportunity_weekly_snapshot baseline when available;
+            // fall back to lf_report_snapshots.stage_at_week_start for weeks without cron snapshot.
+            $startPctForExisting = $snapData ? (int)$snapData['stage_pct'] : null;
+            if ($startPctForExisting === null && isset($snapshots[$oppId])) {
+                $startStageSnap = $snapshots[$oppId]['stage_at_week_start'] ?? '';
+                if (preg_match('/\((\d+)%\)/', $startStageSnap, $sm)) {
+                    $startPctForExisting = (int)$sm[1];
+                } elseif (in_array($startStageSnap, ['Closed Won', 'closed_won'])) {
+                    $startPctForExisting = 100;
+                }
+            }
+            if ($startPctForExisting !== null && $currentPct > $startPctForExisting) {
+                $summaryTotals['progression'] += $profit * ($currentPct - $startPctForExisting) / 100;
             }
         }
 
@@ -363,11 +378,20 @@ class LF_WeeklyPlanViewRep_report extends SugarView
                 $summaryTotals['new_pipeline'] += $profit;
             }
 
-            // Developing also counts toward Progression: Profit × (Current% - Snapshot%) / 100
-            $snapData = $snapshotStages[$oppId] ?? null;
-            $snapshotPct = $snapData ? (int)$snapData['stage_pct'] : $analysisProb;
-            if ($currentPct > $snapshotPct) {
-                $summaryTotals['progression'] += $profit * ($currentPct - $snapshotPct) / 100;
+            // Developing toward Progression: use weekly snapshot baseline when available;
+            // fall back to lf_report_snapshots.stage_at_week_start for weeks without cron snapshot.
+            $snapDataDev = $snapshotStages[$oppId] ?? null;
+            $startPctForDev = $snapDataDev ? (int)$snapDataDev['stage_pct'] : null;
+            if ($startPctForDev === null && isset($snapshots[$oppId])) {
+                $startStageSnapDev = $snapshots[$oppId]['stage_at_week_start'] ?? '';
+                if (preg_match('/\((\d+)%\)/', $startStageSnapDev, $sdm)) {
+                    $startPctForDev = (int)$sdm[1];
+                } elseif (in_array($startStageSnapDev, ['Closed Won', 'closed_won'])) {
+                    $startPctForDev = 100;
+                }
+            }
+            if ($startPctForDev !== null && $currentPct > $startPctForDev) {
+                $summaryTotals['progression'] += $profit * ($currentPct - $startPctForDev) / 100;
             }
         }
 

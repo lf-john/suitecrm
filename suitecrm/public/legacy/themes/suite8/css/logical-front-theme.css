@@ -2301,8 +2301,14 @@ scrm-classic-view-ui {
 
 /* Hide any element with blue background that spans full width */
 #bootstrap-container > *:first-child:not(#content),
-#pagecontent > *:first-child:not(.row):not(.col) {
+#pagecontent:not(.view-action-planning) > *:first-child:not(.row):not(.col) {
     display: none !important;
+}
+
+/* Counter-override: SuiteCRM's style.css hides #pagecontent > :first-child (specificity 1,3,0).
+   Beat it with (1,3,1) by adding both module+action classes and element type. */
+#pagecontent.view-action-planning.view-module-LF_WeeklyPlan > div:first-child {
+    display: block !important;
 }
 
 /* Ensure .moduleTitle and its siblings don't create blue bar */
@@ -4306,10 +4312,32 @@ div.hd.dashlet {
     background: transparent !important;
 }
 
-/* Fix: header table must stretch full width for title text to be visible */
+/* Fix: header table must stretch full width for title text to be visible. */
 .hd.dashlet table.formHeader {
     width: 100% !important;
     table-layout: fixed !important;
+}
+
+/* Position the .hd.dashlet as a flex container so dashletToolSet can
+   be absolutely anchored to the right edge regardless of table layout. */
+.hd.dashlet {
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+/* Gear/X toolset: absolute-positioned to right edge of the blue header.
+   Sits above the table content and never clips or overflows. */
+.hd.dashlet .dashletToolSet {
+    position: absolute !important;
+    right: 12px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    z-index: 10 !important;
+}
+
+/* Prevent the title text from running under the absolute toolset (52px + 12px gap) */
+.hd.dashlet table.formHeader {
+    padding-right: 64px !important;
 }
 
 /* Widget header icons - white */
@@ -4340,6 +4368,71 @@ div.hd.dashlet {
 .hd.dashlet .configure,
 .hd.dashlet .delete {
     filter: brightness(0) invert(1) !important;
+}
+
+/* Configure Dashlet dialog — center on viewport.
+   dashboard.scss defines .yui-skin-sam.masked #dlg.SuiteP-configureDashlet rules but they
+   were never compiled into the deployed cache. YUI JS sets position:relative inline so we
+   need !important to override. Use fixed centering so it stays on screen during scroll. */
+#dlg_c.yui-panel-container.yui-dialog {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 90vw !important;
+    max-width: 900px !important;
+    z-index: 1000 !important;
+    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.4) !important;
+    border-radius: 6px !important;
+    overflow: hidden !important;
+}
+
+#dlg.yui-module.yui-overlay.yui-panel.SuiteP-configureDashlet {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Modal overlay — full screen, dark semi-transparent backdrop */
+.yui-skin-sam .mask {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 999 !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    opacity: 1 !important;
+}
+
+/* Dialog header bar */
+#dlg.SuiteP-configureDashlet .hd {
+    background: var(--primary-color, #3c4a67) !important;
+    color: #ffffff !important;
+    padding: 14px 20px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+
+/* Close link */
+#dlg.SuiteP-configureDashlet .container-close {
+    position: absolute !important;
+    top: 14px !important;
+    right: 16px !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    font-size: 14px !important;
+    z-index: 10 !important;
+}
+
+/* Dialog body - scrollable if tall */
+#dlg.SuiteP-configureDashlet .bd {
+    max-height: 70vh !important;
+    overflow-y: auto !important;
+    padding: 20px !important;
+    background: #ffffff !important;
 }
 
 /* -------------------------------------
@@ -4720,6 +4813,47 @@ html:has(#dashboard),
 body:has(#dashboard) {
     min-height: 0 !important;
     height: auto !important;
+}
+
+/* Home module: remove top padding so nav-dashboard appears at the very top
+   and is covered by the Angular navbar, eliminating the white gap above dashlets */
+body.yui-skin-sam #pagecontent.view-module-Home {
+    padding-top: 0 !important;
+}
+
+/* Remove bottom margin and give the home-page tab bar a styled gray background
+   so it does not appear as a raw white strip between the Angular nav and dashlets */
+ul.nav-tabs.nav-dashboard {
+    background: var(--gray-100) !important;
+    border-bottom: 1px solid var(--gray-300) !important;
+    margin-bottom: 0 !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+}
+
+/* The active Home tab on the nav-dashboard: blue text + underline on gray bar */
+ul.nav-tabs.nav-dashboard > li.active > a {
+    background: transparent !important;
+    color: var(--lf-primary) !important;
+    border-bottom: 3px solid var(--lf-primary) !important;
+    font-weight: 600 !important;
+}
+
+/* Compress td.dashboard-col top padding to remove white gap inside the tab-pane */
+#dashboard td.dashboard-col {
+    padding-top: 12px !important;
+    vertical-align: top !important;
+}
+
+/* Ensure dashlet toolset icons display properly (was collapsing to 8px) */
+.hd.dashlet .dashletToolSet {
+    width: auto !important;
+    min-width: 44px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    flex-shrink: 0 !important;
+    overflow: visible !important;
 }
 
 /* ====================================
@@ -7120,18 +7254,28 @@ body:has(#report_module) .moduleTitle {
    Home page dashlet fixes
    ================================================================ */
 
-/* Fix tab bar white background — normalize.css last rule forces white on
-   .nav.nav-tabs.nav-dashboard with !important at specificity (0,3,0);
-   this same-selector rule in a later stylesheet wins by source order. */
+/* Tab bar — white background for readability of Home label and tab controls. */
 .nav.nav-tabs.nav-dashboard {
+    background: #ffffff !important;
+    border-bottom: 1px solid var(--gray-300) !important;
+    margin-bottom: 0 !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+}
+
+/* Dashboard outer layout rows — tbody tr { bg: white !important (2,3,2) } bleeds into
+   the dashletTable layout rows. To override an !important at (2,3,2) we need three IDs
+   at (3,1,3). Only targets the single layout row of dashletTable, not data rows inside
+   dashlet panels (those remain white for readability). */
+#bootstrap-container #content #dashboard table.dashletTable > tbody > tr,
+#bootstrap-container #content #dashboard table.dashletTable > tr {
+    background-color: transparent !important;
     background: transparent !important;
 }
 
-/* Fix dashlet header white boxes — .dashlet tbody tr { bg: white } bleeds
-   into the .hd.dashlet header even though .hd.dashlet table/td are
-   transparent. Adding tr explicitly to the transparent block above is
-   insufficient because it was added to the existing block earlier in the file;
-   this higher-specificity rule at end-of-file ensures it wins. */
+/* Dashlet header rows — same white-bleed problem for the .hd.dashlet
+   header table rows; ensure they stay transparent (blue comes from
+   the .hd.dashlet container itself, not from tr). */
 .hd.dashlet tbody tr,
 .hd.dashlet tr {
     background-color: transparent !important;
@@ -7160,4 +7304,9 @@ body.yui-skin-sam {
     font-size: 15px !important;
     font-weight: 600 !important;
     letter-spacing: 0.01em !important;
+}
+
+/* Restore Bootstrap .hidden utility — not loaded in our theme stack */
+.hidden {
+    display: none !important;
 }

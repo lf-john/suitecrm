@@ -5557,20 +5557,20 @@ scrm-record-pagination,
     padding: 0 !important;
 }
 
-/* AD-PAGINATION: Hide pagination on record detail subpanels */
-.panel-card scrm-table-footer,
-.subpanel-opportunities scrm-table-footer,
-div[class*="subpanel-"] scrm-table-footer,
-scrm-record scrm-table-footer,
-scrm-subpanel-table scrm-table-footer,
-scrm-record-container scrm-table-footer,
-.sub-panel-banner ~ * scrm-table-footer {
+/* AD-PAGINATION: Show pagination on subpanel footers; hide only bulk-action controls */
+.panel-card scrm-table-footer scrm-bulk-action-menu,
+.panel-card scrm-table-footer scrm-action-group-menu,
+div[class*="subpanel-"] scrm-table-footer scrm-bulk-action-menu,
+div[class*="subpanel-"] scrm-table-footer scrm-action-group-menu,
+scrm-record scrm-table-footer scrm-bulk-action-menu,
+scrm-record scrm-table-footer scrm-action-group-menu,
+scrm-subpanel-table scrm-table-footer scrm-bulk-action-menu,
+scrm-subpanel-table scrm-table-footer scrm-action-group-menu,
+scrm-record-container scrm-table-footer scrm-bulk-action-menu,
+scrm-record-container scrm-table-footer scrm-action-group-menu,
+.sub-panel-banner ~ * scrm-table-footer scrm-bulk-action-menu,
+.sub-panel-banner ~ * scrm-table-footer scrm-action-group-menu {
     display: none !important;
-    height: 0 !important;
-    overflow: hidden !important;
-    border: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
 }
 
 /* AD-1: Remove Bootstrap mt-1 (3.5px) on nested row inside record container */
@@ -6438,10 +6438,15 @@ body:has(#report_module) .detail-view {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
 }
 
-/* Hide the tab row in reports — user wants the tab removed */
+/* Hide only the non-Actions tabs in reports — keep the Actions button visible */
+body:has(#report_module) .detail-view .nav-tabs > li:not(#tab-actions) {
+    display: none !important;
+}
 body:has(#report_module) .detail-view .nav-tabs,
 body:has(#report_module) .detail-view ul.nav-tabs {
-    display: none !important;
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+    padding: 0 !important;
 }
 
 /* Hide ALL direct-child tables in #pagecontent on report pages (gap elements) */

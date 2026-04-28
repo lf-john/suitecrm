@@ -18,7 +18,7 @@
     <link href="themes/suite8/css/grid.css" rel="stylesheet" type="text/css"/>
     <link href="themes/suite8/css/footable.core.css" rel="stylesheet" type="text/css"/>
     <!-- Logical Front Theme -->
-    <link href="themes/suite8/css/logical-front-theme.css?v=1772754614" rel="stylesheet" type="text/css"/>
+    <link href="themes/suite8/css/logical-front-theme.css?v=1772754631" rel="stylesheet" type="text/css"/>
     <title>{if $BROWSER_TITLE}{$BROWSER_TITLE}{else}{$APP.LBL_BROWSER_TITLE}{/if}</title>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
