@@ -1,7 +1,25 @@
 /**
- * Quotes Detail View Layout Enhancement v13
+ * Quotes Detail View Layout Enhancement v17
  * Injects styles and reorganizes the legacy Quotes detail view
  * to match the Contacts/Accounts detail pages
+ *
+ * v17 changes:
+ * - Fixed popup modal visibility: call showPopup() first (sets form.task.value),
+ *   then re-apply setProperty(!important) after it since showPopup's plain style.display
+ *   assignment removes the !important flag; position:absolute calculated from outer scroll
+ *   position because position:fixed in an iframe is relative to the full iframe height
+ *
+ * v16 changes:
+ * - Fixed popup modal positioning: re-added #popupDiv_ara hide rule without !important,
+ *   added position:fixed + z-index:9999 so it appears centered above the backdrop
+ *
+ * v15 changes:
+ * - Fixed Duplicate action URL (was DuplicateClassic, now EditView&isDuplicate=true)
+ * - Fixed Print as PDF / Email PDF / Email Quote (popup divs were hidden with !important, blocking showPopup)
+ *
+ * v14 changes:
+ * - Fixed Actions dropdown buttons (Edit, Duplicate, Delete, PDF, Email, Contract, Invoice)
+ * - Replaced sugarMenu-dependent wireButton with direct URL navigation and showPopup() calls
  *
  * v13 changes:
  * - CRITICAL: Fixed 2-column layout (forced 50/50 split with flexbox)
@@ -40,13 +58,6 @@
             visibility: hidden !important;
         }
 
-        /* Hide template selector section completely */
-        #popupDiv_ara,
-        .pdf-templates-modal,
-        #popupDivBack_ara {
-            display: none !important;
-        }
-
         /* Hide action buttons sidebar - we recreate in title area */
         #tab-actions,
         li#tab-actions,
@@ -55,6 +66,19 @@
         .tab-inline-pagination {
             display: none !important;
             visibility: hidden !important;
+        }
+
+        /* Popup modal: hidden by default.
+           No !important here — the outer JS sets display+position via setProperty('important')
+           to beat the cascaded !important rules from Dawn/style.css. */
+        #popupDiv_ara {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            min-width: 280px;
+            z-index: 9999;
         }
 
         /* Hide broken images and icons */
@@ -557,7 +581,7 @@
     }
 
     // Create the Title Card with buttons
-    function createTitleCard(doc) {
+    function createTitleCard(doc, iframe) {
         if (doc.querySelector('.lf-title-card')) return;
 
         // Find the title text from the page
@@ -571,15 +595,13 @@
             if (titleField) titleText = titleField.textContent.trim();
         }
 
-        // Find original buttons
-        const editBtn = doc.querySelector('input[name="Edit"], input[value="Edit"]');
-        const duplicateBtn = doc.querySelector('input[value="Duplicate"]');
-        const deleteBtn = doc.querySelector('input[value="Delete"]');
-        const printPdfBtn = doc.querySelector('input[value="Print as PDF"]');
-        const emailPdfBtn = doc.querySelector('input[value="Email PDF"]');
-        const emailQuoteBtn = doc.querySelector('input[value="Email Quotation"]');
-        const createContractBtn = doc.querySelector('input[value="Create Contract"]');
-        const convertInvoiceBtn = doc.querySelector('input[value="Convert to Invoice"]');
+        // Extract record ID from outer SPA URL hash: /#/quotes/record/RECORD_ID
+        const hashMatch = window.location.hash.match(/\/quotes\/record\/([^\/\?#]+)/);
+        const recordId = hashMatch ? hashMatch[1] : null;
+
+        // Get iframe window for showPopup calls, and the legacy form for submit actions
+        const iframeWindow = iframe ? iframe.contentWindow : null;
+        const quoteForm = doc.querySelector('form#EditView, form[name="EditView"]');
 
         // Create title card
         const titleCard = doc.createElement('div');
@@ -615,13 +637,7 @@
             content.appendChild(titleCard);
         }
 
-        // Wire up buttons
-        const lfEditBtn = doc.getElementById('lf-edit-btn');
-        if (lfEditBtn && editBtn) {
-            lfEditBtn.onclick = () => editBtn.click();
-        }
-
-        // Actions dropdown toggle — use setProperty with !important to override CSS
+        // Actions dropdown toggle
         const actionsBtn = doc.getElementById('lf-actions-btn');
         const actionsMenu = doc.getElementById('lf-actions-menu');
         if (actionsBtn && actionsMenu) {
@@ -640,25 +656,96 @@
             });
         }
 
-        // Wire dropdown items
-        const wireButton = (lfId, originalBtn) => {
+        const closeMenu = () => actionsMenu && actionsMenu.style.setProperty('display', 'none', 'important');
+
+        // Edit — direct SPA route navigation
+        const lfEditBtn = doc.getElementById('lf-edit-btn');
+        if (lfEditBtn && recordId) {
+            lfEditBtn.onclick = () => { window.location.hash = `/quotes/edit/${recordId}`; };
+        }
+
+        // Duplicate — navigate to legacy DuplicateClassic action
+        const lfDuplicate = doc.getElementById('lf-duplicate');
+        if (lfDuplicate && recordId) {
+            lfDuplicate.onclick = (e) => {
+                e.preventDefault();
+                closeMenu();
+                window.location.href = `index.php?module=AOS_Quotes&action=EditView&record=${recordId}&isDuplicate=true&return_module=AOS_Quotes&return_action=DetailView&return_id=${recordId}`;
+            };
+        }
+
+        // Delete — confirm then navigate to Delete action
+        const lfDelete = doc.getElementById('lf-delete');
+        if (lfDelete && recordId) {
+            lfDelete.onclick = (e) => {
+                e.preventDefault();
+                closeMenu();
+                if (confirm('Are you sure you want to delete this quote?')) {
+                    window.location.href = `index.php?module=AOS_Quotes&action=Delete&record=${recordId}&return_action=index&return_module=AOS_Quotes`;
+                }
+            };
+        }
+
+        // Popup actions — show the legacy PDF popup correctly
+        // Problem: the iframe has no internal scroll (it expands to content height, ~3755px).
+        // position:fixed inside the iframe is relative to the iframe viewport of that full height,
+        // so top:50% puts the popup at ~1877px — way below the visible area.
+        // Also, Dawn/style.css has a `#pagecontent > :first-child { display:none !important }` rule
+        // that beats non-important inline styles.
+        // Fix: use setProperty(..., 'important') to win the cascade, and position:absolute
+        // calculated from the outer window's scroll position so the popup appears in view.
+        const wirePopup = (lfId, popupType) => {
             const lfBtn = doc.getElementById(lfId);
-            if (lfBtn && originalBtn) {
-                lfBtn.onclick = (e) => {
-                    e.preventDefault();
-                    originalBtn.click();
-                    actionsMenu.style.display = 'none';
-                };
-            }
+            if (!lfBtn) return;
+            lfBtn.onclick = (e) => {
+                e.preventDefault();
+                closeMenu();
+                const popupDiv = doc.getElementById('popupDiv_ara');
+                const popupBack = doc.getElementById('popupDivBack_ara');
+                if (!popupDiv) return;
+                // Calculate where in iframe-local coords the visible viewport center is
+                const iframeRect = iframe.getBoundingClientRect();
+                const visibleCenterY = window.scrollY + window.innerHeight / 2 - iframeRect.top;
+                const visibleCenterX = window.innerWidth / 2 - iframeRect.left;
+                // Call showPopup first so it sets form.task.value (and auto-submits if 1 template)
+                if (iframeWindow && typeof iframeWindow.showPopup === 'function') {
+                    iframeWindow.showPopup(popupType);
+                }
+                // Re-apply !important AFTER showPopup: its plain `style.display='block'`
+                // assignment removes our !important priority flag, letting Dawn's cascaded
+                // !important rule win again. Re-applying here restores it.
+                popupDiv.style.setProperty('display', 'block', 'important');
+                popupDiv.style.setProperty('position', 'absolute', 'important');
+                popupDiv.style.setProperty('top', `${visibleCenterY}px`, 'important');
+                popupDiv.style.setProperty('left', `${visibleCenterX}px`, 'important');
+                popupDiv.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
+                if (popupBack) popupBack.style.setProperty('display', 'block', 'important');
+            };
         };
 
-        wireButton('lf-duplicate', duplicateBtn);
-        wireButton('lf-delete', deleteBtn);
-        wireButton('lf-print-pdf', printPdfBtn);
-        wireButton('lf-email-pdf', emailPdfBtn);
-        wireButton('lf-email-quote', emailQuoteBtn);
-        wireButton('lf-create-contract', createContractBtn);
-        wireButton('lf-convert-invoice', convertInvoiceBtn);
+        wirePopup('lf-print-pdf', 'pdf');
+        wirePopup('lf-email-pdf', 'emailpdf');
+        wirePopup('lf-email-quote', 'email');
+
+        // Form-submit actions — set the hidden action field and submit
+        const wireFormSubmit = (lfId, actionValue) => {
+            const lfBtn = doc.getElementById(lfId);
+            if (!lfBtn) return;
+            lfBtn.onclick = (e) => {
+                e.preventDefault();
+                closeMenu();
+                if (quoteForm) {
+                    const actionInput = quoteForm.querySelector('input[name="action"]');
+                    if (actionInput) actionInput.value = actionValue;
+                    quoteForm.submit();
+                } else if (recordId) {
+                    window.location.href = `index.php?module=AOS_Quotes&action=${actionValue}&record=${recordId}`;
+                }
+            };
+        };
+
+        wireFormSubmit('lf-create-contract', 'createContract');
+        wireFormSubmit('lf-convert-invoice', 'converToInvoice');
 
         console.log('[LF Quotes] Created title card');
     }
@@ -729,7 +816,7 @@
     }
 
     // DOM manipulation
-    function manipulateDOM(doc) {
+    function manipulateDOM(doc, iframe) {
         console.log('[LF Quotes] Running DOM manipulation...');
 
         // Force hide elements with inline styles (backup for CSS)
@@ -751,10 +838,6 @@
         forceHide('#tab-actions');
         forceHide('li#tab-actions');
 
-        // Hide template selector
-        forceHide('#popupDiv_ara');
-        forceHide('#popupDivBack_ara');
-
         // Hide inline edit icons
         forceHide('.inlineEditIcon');
 
@@ -770,7 +853,7 @@
         forceHide('.subpanelTabForm');
 
         // Create title card
-        createTitleCard(doc);
+        createTitleCard(doc, iframe);
 
         // Fix tab functionality
         fixTabs(doc);
@@ -791,11 +874,11 @@
 
             // Run DOM manipulation
             if (doc.readyState === 'complete') {
-                manipulateDOM(doc);
+                manipulateDOM(doc, iframe);
             } else {
-                doc.addEventListener('DOMContentLoaded', () => manipulateDOM(doc));
+                doc.addEventListener('DOMContentLoaded', () => manipulateDOM(doc, iframe));
                 iframe.addEventListener('load', () => {
-                    setTimeout(() => manipulateDOM(doc), 100);
+                    setTimeout(() => manipulateDOM(doc, iframe), 100);
                 });
             }
 
