@@ -132,14 +132,18 @@ array(
         array(
           0 => 'probability',
           1 => 'lead_source',
-          2 => 'referred_by_c',
         ),
         4 =>
         array(
-          0 => 'next_step',
+          0 => 'referred_by_c',
           1 => 'campaign_name',
         ),
         5 =>
+        array(
+          0 => 'next_step',
+          1 => '',
+        ),
+        6 =>
         array(
           0 =>
           array(
@@ -148,7 +152,7 @@ array(
           ),
           1 => ''
         ),
-        6 =>
+        7 =>
         array(
           0 =>
           array(

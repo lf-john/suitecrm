@@ -29,10 +29,11 @@ class LF_WeeklyPlanViewReport_save_json extends SugarView
             return;
         }
 
-        $logFile = sugar_cached('lf_save_debug.log');
-        file_put_contents($logFile, date("Y-m-d H:i:s") . " REPORT_SAVE: user=" . $current_user->id . " action=" . ($data["action"] ?? "none") . " raw_body=" . substr($input, 0, 500) . "\n", FILE_APPEND);
         $input = file_get_contents('php://input');
         $data = json_decode($input, true);
+
+        $logFile = sugar_cached('lf_save_debug.log');
+        file_put_contents($logFile, date("Y-m-d H:i:s") . " REPORT_SAVE: user=" . $current_user->id . " action=" . ($data["action"] ?? "none") . " raw_body=" . substr($input, 0, 500) . "\n", FILE_APPEND);
 
         if (empty($data) || empty($data['action'])) {
             echo json_encode(['success' => false, 'message' => 'Invalid request']);

@@ -65,14 +65,14 @@ $viewdefs['Opportunities']['EditView'] = array(
     array(
       'sales_stage',
       'lead_source',
+    ),
+    array(
       'referred_by_c',
+      'campaign_name',
     ),
     array(
         'probability',
-          'campaign_name',
-    ),
-    array(
-          'next_step',
+        'next_step',
     ),
     array(
       'description',

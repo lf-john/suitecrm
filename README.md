@@ -89,13 +89,32 @@ Since we use named volumes, file edits on disk don't appear in the container aut
 docker cp /opt/suitecrm/suitecrm/public/legacy/custom/. \
   suitecrm_app:/var/www/html/public/legacy/custom/
 
-# Fix permissions
+# Fix permissions (docker cp sets ownership to root; PHP-FPM runs as www-data)
 docker exec suitecrm_app chown -R www-data:www-data /var/www/html/public/legacy/custom/
 
 # Clear cache
 docker exec suitecrm_app bash -c "export TMPDIR=/tmp && php -d sys_temp_dir=/tmp bin/console cache:clear --env=prod"
 docker exec suitecrm_app chown -R www-data:www-data /var/www/html/cache
 ```
+
+### File Path Convention
+
+All SuiteCRM legacy customizations must be placed under `suitecrm/public/legacy/custom/` in the repository. This maps to `/var/www/html/public/legacy/custom/` in the container, which is where SuiteCRM's legacy framework reads custom modules, metadata, and extensions.
+
+**Do NOT place legacy files under `suitecrm/custom/`** — that maps to `/var/www/html/custom/`, which is not read by the legacy framework. If files end up there by mistake, they must be deployed to `public/legacy/custom/` manually during deployment.
+
+### Adding Custom Fields
+
+When adding new custom fields via vardef Extension files, two things are required:
+
+1. **Vardef extension file** — e.g., `custom/Extension/modules/Accounts/Ext/Vardefs/my_field.php` declares the field to SuiteCRM's metadata system.
+2. **Database column** — The column must exist in the database table. Either:
+   - Add an `ALTER TABLE` statement to a migration script, or
+   - Run Quick Repair & Rebuild from Admin, which detects vardef-to-schema mismatches and generates the ALTER statements automatically.
+
+### Layout maxColumns Constraint
+
+SuiteCRM detail and edit views use `maxColumns => 2` by default. Each row in a panel can have at most 2 field entries (index 0 and index 1). A third element in a row array will be silently ignored by the layout renderer. Always place fields in pairs or with an empty string (`''`) as the second column.
 
 ## Cron Jobs
 

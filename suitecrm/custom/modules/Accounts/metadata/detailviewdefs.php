@@ -48,7 +48,7 @@ array(
       array(
         'buttons' =>
         array(
-            'SEND_CONFIRM_OPT_IN_EMAIL' => EmailAddress::getSendConfirmOptInEmailActionLinkDefs('Accounts'),
+            'SEND_CONFIRM_OPT_IN_EMAIL' => class_exists('EmailAddress') ? EmailAddress::getSendConfirmOptInEmailActionLinkDefs('Accounts') : array(),
           0 => 'EDIT',
           1 => 'DUPLICATE',
           2 => 'DELETE',
@@ -278,13 +278,18 @@ array(
             'comment' => 'Number of employees, varchar to accomodate for both number (100) or range (50-100)',
             'label' => 'LBL_EMPLOYEES',
           ),
-                array(
-                    'name' => 'it_spend_c',
-                    'comment' => 'Estimated annual IT spend',
-                    'label' => 'LBL_IT_SPEND',
-                ),
         ),
         2 =>
+        array(
+          0 =>
+          array(
+            'name' => 'it_spend_c',
+            'comment' => 'Estimated annual IT spend',
+            'label' => 'LBL_IT_SPEND',
+          ),
+          1 => '',
+        ),
+        3 =>
         array(
           0 =>
           array(
@@ -293,7 +298,7 @@ array(
           ),
           1 => '',
         ),
-        3 =>
+        4 =>
         array(
           0 => 'campaign_name',
           1 => '',

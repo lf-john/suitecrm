@@ -274,7 +274,7 @@ class LF_WeeklyPlanViewRep_report extends SugarView
         LF_SubHeader::renderJS();
         $currentWeekStart = WeekHelper::getCurrentWeekStart();
         $weekList = array_filter(WeekHelper::getWeekList(9), function($w) use ($currentWeekStart) {
-            return $w['value'] <= $currentWeekStart;
+            return $w['weekStart'] <= $currentWeekStart;
         });
         LF_SubHeader::render('Rep Report', [
             'showUserSelector' => $isAdmin,
