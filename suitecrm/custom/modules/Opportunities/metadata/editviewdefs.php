@@ -63,6 +63,10 @@ $viewdefs['Opportunities']['EditView'] = array(
       'opportunity_type',
     ),
     array(
+      array('name'=>'opportunity_profit', 'label'=>'LBL_OPPORTUNITY_PROFIT'),
+      '',
+    ),
+    array(
       'sales_stage',
       'lead_source',
     ),

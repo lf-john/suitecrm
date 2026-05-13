@@ -1,4 +1,5 @@
 <?php
+$sugar_config['search_wildcard_infront'] = true;
 /***CONFIGURATOR***/
 $sugar_config['cron']['allowed_cron_users'][0] = 'www-data';
 $sugar_config['cron']['allowed_cron_users'][1] = 'root';
@@ -15,9 +16,11 @@ $sugar_config['classic_view_modules'][8] = 'AM_ProjectTemplates';
 $sugar_config['http_referer']['list'][0] = 'crm.logicalfront.com';
 $sugar_config['http_referer']['list'][1] = 'localhost';
 $sugar_config['http_referer']['list'][2] = '127.0.0.1';
+$sugar_config['http_referer']['list'][3] = 'crm.logicalfront.net';
 $sugar_config['logger']['level'] = 'fatal';
 $sugar_config['display_inbound_email_buttons'] = true;
 // Suppress PHP deprecation notices (SuiteCRM legacy Smarty compatibility)
 error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
 $sugar_config['site_url'] = 'https://crm.logicalfront.com';
+$sugar_config['search_wildcard_infront'] = true;
 /***CONFIGURATOR***/

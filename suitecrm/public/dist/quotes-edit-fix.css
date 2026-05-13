@@ -1,0 +1,16 @@
+/* Fix double scrollbar issue on Quote EditView (and other EditViews) */
+/* Remove overflow from the legacy iframe content when in Angular SPA wrapper */
+body.EditView {
+    overflow: visible !important;
+    height: auto !important;
+}
+
+/* Ensure the main content area doesn't create its own scrollbar */
+.edit-view-body, #contentTable {
+    overflow: visible !important;
+}
+
+/* Let the Angular SPA handle all scrolling */
+iframe[name="scrm-classic-view-ui"] {
+    overflow: hidden !important;
+}

@@ -125,25 +125,34 @@ array(
         ),
         2 =>
         array(
+          0 =>
+          array(
+            'name' => 'opportunity_profit',
+            'label' => 'LBL_OPPORTUNITY_PROFIT',
+          ),
+          1 => '',
+        ),
+        3 =>
+        array(
           0 => 'sales_stage',
           1 => 'opportunity_type',
         ),
-        3 =>
+        4 =>
         array(
           0 => 'probability',
           1 => 'lead_source',
         ),
-        4 =>
+        5 =>
         array(
           0 => 'referred_by_c',
           1 => 'campaign_name',
         ),
-        5 =>
+        6 =>
         array(
           0 => 'next_step',
           1 => '',
         ),
-        6 =>
+        7 =>
         array(
           0 =>
           array(
@@ -152,7 +161,7 @@ array(
           ),
           1 => ''
         ),
-        7 =>
+        8 =>
         array(
           0 =>
           array(
