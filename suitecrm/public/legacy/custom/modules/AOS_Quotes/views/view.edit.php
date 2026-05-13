@@ -28,5 +28,41 @@ class CustomAOS_QuotesViewEdit extends AOS_QuotesViewEdit
         }
         
         parent::display();
+        
+        // Add JavaScript to populate Account field when Opportunity is selected
+        echo <<<'JAVASCRIPT'
+<script>
+(function() {
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupAccountPopulation);
+    } else {
+        setupAccountPopulation();
+    }
+    
+    function setupAccountPopulation() {
+        var oppField = document.getElementById('opportunity_name');
+        if (oppField) {
+            oppField.addEventListener('change', function() {
+                var oppId = document.getElementById('opportunity_id');
+                if (oppId && oppId.value) {
+                    // Fetch opportunity details and populate account
+                    fetch('index.php?entryPoint=getOpportunityAccount&opp_id=' + oppId.value)
+                        .then(function(response) { return response.json(); })
+                        .then(function(data) {
+                            if (data.account_id && data.account_name) {
+                                var accountId = document.getElementById('billing_account_id');
+                                var accountName = document.getElementById('billing_account_name');
+                                if (accountId) accountId.value = data.account_id;
+                                if (accountName) accountName.value = data.account_name;
+                            }
+                        });
+                }
+            });
+        }
+    }
+})();
+</script>
+JAVASCRIPT;
     }
 }
