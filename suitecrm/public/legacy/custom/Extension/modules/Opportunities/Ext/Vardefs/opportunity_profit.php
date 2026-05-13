@@ -1,5 +1,4 @@
 <?php
- //WARNING: The contents of this file are auto-generated
 $dictionary['Opportunity']['fields']['opportunity_profit'] = array(
     'name' => 'opportunity_profit',
     'vname' => 'LBL_OPPORTUNITY_PROFIT',
